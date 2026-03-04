@@ -5,21 +5,38 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js"
+    "./button": {
+      "types": "./src/action/button.tsx",
+      "import": "./src/action/button.tsx"
+    },
+    "./accordion": {
+      "types": "./src/display/accordion.tsx",
+      "import": "./src/display/accordion.tsx"
+    },
+    "./input": {
+      "types": "./src/form/input.tsx",
+      "import": "./src/form/input.tsx"
+    },
+    "./link": {
+      "types": "./src/link/link.tsx",
+      "import": "./src/link/link.tsx"
+    },
+    "./tooltip": {
+      "types": "./src/feedback/tooltip.tsx",
+      "import": "./src/feedback/tooltip.tsx"
+    },
+    "./utils": {
+      "types": "./src/utils/cx.ts",
+      "import": "./src/utils/cx.ts"
     }
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "clsx": "^2.1.1"
   },
   "devDependencies": {
-    "tsup": "^8.5.1",
     "typescript": "^5"
   },
   "peerDependencies": {

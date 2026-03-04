@@ -1,7 +1,7 @@
 import type { JSX, ParentProps } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cx } from "~/utils/cx";
+import { cx } from "../utils/cx";
 
 export type LinkProps = ParentProps<JSX.AnchorHTMLAttributes<HTMLAnchorElement>>;
 

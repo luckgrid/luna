@@ -1,7 +1,7 @@
 import { splitProps } from "solid-js";
 import type { JSX, ParentProps } from "solid-js";
 
-import { cx } from "~/utils/cx";
+import { cx } from "../utils/cx";
 
 export type ButtonProps = ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>;
 

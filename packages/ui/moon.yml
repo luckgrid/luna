@@ -5,3 +5,8 @@ stack: "frontend"
 project:
   name: "ui"
   description: "Shared Solid UI components for Luna apps."
+
+workspace:
+  inheritedTasks:
+    include:
+      - "typecheck"

@@ -4,9 +4,6 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "noEmit": true,
-    "paths": {
-      "~/*": ["./src/*"]
-    },
     "tsBuildInfoFile": "../../.cache/ui.tsbuildinfo"
   },
   "include": ["src/**/*"]

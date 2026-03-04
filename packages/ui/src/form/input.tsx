@@ -1,7 +1,7 @@
 import type { JSX } from "solid-js";
 import { createUniqueId, Show, splitProps } from "solid-js";
 
-import { cx } from "~/utils/cx";
+import { cx } from "../utils/cx";
 
 export type InputProps = JSX.InputHTMLAttributes<HTMLInputElement> & {
   label?: string;

@@ -1,7 +1,7 @@
 import type { JSX } from "solid-js";
 import { For, Show, splitProps } from "solid-js";
 
-import { cx } from "~/utils/cx";
+import { cx } from "../utils/cx";
 
 export type AccordionItem = {
   title: string;
