@@ -1,4 +1,5 @@
 {
+  "biome.enabled": false,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never" // let oxfmt handle import organization
   },

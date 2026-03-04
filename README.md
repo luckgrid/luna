@@ -29,7 +29,8 @@ A monorepo starter template using moonrepo, bun, solid-start, and oxc.
 ### Packages
 
 - UI components: [`packages/ui/README.md`](packages/ui/README.md)
-- Design system styles: [`packages/ds/README.md`](packages/ds/README.md)
+- Design system: [`packages/ds/README.md`](packages/ds/README.md)
+- Design system docs: [`docs/design-system/`](docs/design-system/)
 
 ## Setup
 
@@ -89,8 +90,8 @@ bun run build
 
 - root project graph: [`tsconfig.json`](tsconfig.json)
 - shared compiler options: [`tsconfig.options.json`](tsconfig.options.json)
-- project-level configs: [`apps/*/tsconfig.json`](apps/) and [`packages/*/tsconfig.json`](packages/)
-- TS build cache location: [`.cache/`](.cache/)
+- project-level configs: `apps/*/tsconfig.json` and `packages/*/tsconfig.json`
+- TS build cache location: `.cache/`
 
 ### Moon
 
@@ -99,7 +100,7 @@ bun run build
 - shared app tasks: [`.moon/tasks/app.yml`](.moon/tasks/app.yml)
 - shared library tasks: [`.moon/tasks/lib.yml`](.moon/tasks/lib.yml)
 - root project config: [`moon.yml`](moon.yml)
-- project configs: [`apps/*/moon.yml`](apps/) and [`packages/*/moon.yml`](packages/)
+- project configs: `apps/*/moon.yml` and `packages/*/moon.yml`
 
 ## Dependency Maintenance
 

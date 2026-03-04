@@ -4,7 +4,7 @@ stack: "frontend"
 
 project:
   name: "ds"
-  description: "Luna design-system styles and UnoCSS theme tokens."
+  description: "Luna design-system styles and CSS-first tokens."
 
 workspace:
   inheritedTasks:

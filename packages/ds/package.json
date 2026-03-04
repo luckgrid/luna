@@ -7,18 +7,15 @@
     "*.css"
   ],
   "exports": {
-    "./app": "./app.ts",
     "./styles.css": "./styles.css",
-    "./uno.config": "./uno.config.ts"
+    "./vite.config": "./vite.config.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@unocss/preset-wind3": "^66.6.4",
-    "unocss": "^66.6.4"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^7.3.1"
   }
 }

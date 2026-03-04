@@ -1,34 +1,31 @@
 # `@luna/ds`
 
-Shared design-system styles and UnoCSS config for Luna apps.
+Shared, CSS-first design-system styles for Luna apps.
 
 ## Stylesheet import
 
-Import the DS app entry from your app root:
-
-```ts
-import "@luna/ds/app";
-```
-
-This entry imports both Uno's generated stylesheet and `@luna/ds/styles.css`.
-
-If needed, app-specific overrides can still live in app-level CSS after this import.
-
-You can also import only shared tokens/base styles:
+Import the DS stylesheet directly from your app CSS:
 
 ```css
 @import "@luna/ds/styles.css";
 ```
 
-This keeps app-specific overrides local to each app stylesheet.
+If needed, app-specific overrides can still live in app-level CSS after this import.
 
-## UnoCSS config
+## Vite config export (optional)
 
-`@luna/ds` exports its shared UnoCSS config:
+`@luna/ds` exports a Vite config object with Lightning CSS defaults:
 
-- `@luna/ds/uno.config` -> default Uno config export
+```ts
+import dsConfig from "@luna/ds/vite.config";
+```
 
-Apps can point Uno's Vite plugin at this config via `configFile` and avoid per-app `uno.config.ts` files.
+Merge it into your app `vite.config.ts` with `mergeConfig`.
+
+## Architecture
+
+The DS is authored as pure CSS with explicit layers and tokens.
+See `docs/design-system/` in the repository for roadmap, architecture, tokens, functions, and patterns.
 
 ## Scripts and moon tasks
 
@@ -38,3 +35,15 @@ Apps can point Uno's Vite plugin at this config via `configFile` and avoid per-a
 bun run typecheck --cwd packages/ds
 moon run ds:typecheck
 ```
+
+## Resources
+
+- [MDN CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
+- [Lightning CSS](https://lightningcss.dev/)
+
+This design system draws inspiration from the following libraries and tools:
+
+- [Pico CSS](https://picocss.com/)
+- [UnoCSS](https://unocss.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Daisy UI](https://daisyui.com/)

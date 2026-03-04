@@ -1,0 +1,314 @@
+/**
+ * Form
+ */
+:where(input, optgroup, select, textarea) {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: 1.5;
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
+input {
+  overflow: visible;
+}
+
+select {
+  text-transform: none;
+}
+
+legend {
+  max-width: 100%;
+  padding: 0;
+  color: inherit;
+  white-space: normal;
+}
+
+textarea {
+  overflow: auto;
+}
+
+[type="checkbox"],
+[type="radio"] {
+  padding: 0;
+}
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+[type="search"] {
+  -webkit-appearance: textfield;
+  outline-offset: -2px;
+}
+
+[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+::-moz-focus-inner {
+  padding: 0;
+  border-style: none;
+}
+
+:-moz-focusring {
+  outline: none;
+}
+
+:-moz-ui-invalid {
+  box-shadow: none;
+}
+
+::-ms-expand {
+  display: none;
+}
+
+[type="file"],
+[type="range"] {
+  padding: 0;
+  border-width: 0;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="range"]) {
+  height: calc(var(--text-md) * 1.5 + var(--space-1) * 2 + var(--stroke-1) * 2);
+}
+
+fieldset {
+  width: 100%;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  border: 0;
+}
+
+label,
+fieldset legend {
+  display: block;
+  margin-bottom: calc(var(--space-2) * 0.375);
+  color: var(--color-fg);
+  font-weight: 600;
+}
+
+fieldset legend {
+  margin-bottom: calc(var(--space-2) * 0.5);
+}
+
+input:not([type="checkbox"], [type="radio"]),
+button[type="submit"],
+select,
+textarea {
+  width: 100%;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+select,
+textarea {
+  appearance: none;
+  padding: var(--space-1) var(--space-2);
+}
+
+input,
+select,
+textarea {
+  --form-bg: var(--color-neutral-bg);
+  --form-border: var(--color-border);
+  --form-fg: var(--color-fg);
+  --form-shadow: none;
+  border: var(--stroke-1) solid var(--form-border);
+  border-radius: var(--radius-1);
+  outline: none;
+  background-color: var(--form-bg);
+  box-shadow: var(--form-shadow);
+  color: var(--form-fg);
+  font-weight: 500;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+input:not(
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [type="checkbox"],
+    [type="radio"],
+    [readonly]
+  ):is(:active, :focus),
+:where(select, textarea):not([readonly]):is(:active, :focus) {
+  --form-bg: color-mix(in oklab, var(--color-neutral-bg) 90%, var(--color-bg));
+}
+
+input:not([type="submit"], [type="button"], [type="reset"], [role="switch"], [readonly]):is(
+    :active,
+    :focus
+  ),
+:where(select, textarea):not([readonly]):is(:active, :focus) {
+  --form-border: var(--color-primary-bg);
+}
+
+input:not(
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [type="range"],
+    [type="file"],
+    [readonly]
+  ):focus,
+:where(select, textarea):not([readonly]):focus {
+  --form-shadow: 0 0 0 var(--stroke-2) var(--color-primary-ring);
+}
+
+input:not([type="submit"], [type="button"], [type="reset"])[disabled],
+select[disabled],
+textarea[disabled],
+label[aria-disabled="true"],
+:where(fieldset[disabled])
+  :is(input:not([type="submit"], [type="button"], [type="reset"]), select, textarea) {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+label[aria-disabled="true"] input[disabled] {
+  opacity: 1;
+}
+
+:where(input, select, textarea):not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"],
+    [type="range"]
+  )[aria-invalid] {
+  --form-icon-space: 1.5rem;
+  padding-inline-end: calc(var(--space-2) + var(--form-icon-space)) !important;
+  background-position: center right 0.75rem;
+  background-size: 1rem auto;
+  background-repeat: no-repeat;
+}
+
+:where(input, select, textarea):not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"],
+    [type="range"]
+  )[aria-invalid="false"]:not(select) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8l3 3 7-7'/%3E%3C/svg%3E");
+}
+
+:where(input, select, textarea):not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"],
+    [type="range"]
+  )[aria-invalid="true"]:not(select) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M8 4v5M8 12h.01'/%3E%3C/svg%3E");
+}
+
+:where(input, select, textarea)[aria-invalid="false"] {
+  --form-border: var(--color-green);
+}
+
+:where(input, select, textarea)[aria-invalid="false"]:is(:active, :focus) {
+  --form-border: var(--color-dark-green-2) !important;
+}
+
+:where(input, select, textarea)[aria-invalid="false"]:is(:active, :focus):not(
+    [type="checkbox"],
+    [type="radio"]
+  ) {
+  --form-shadow: 0 0 0 var(--stroke-2) color-mix(in oklab, var(--color-green) 30%, transparent) !important;
+}
+
+:where(input, select, textarea)[aria-invalid="true"] {
+  --form-border: var(--color-alert-border);
+}
+
+:where(input, select, textarea)[aria-invalid="true"]:is(:active, :focus) {
+  --form-border: var(--color-alert-bg) !important;
+}
+
+:where(input, select, textarea)[aria-invalid="true"]:is(:active, :focus):not(
+    [type="checkbox"],
+    [type="radio"]
+  ) {
+  --form-shadow: 0 0 0 var(--stroke-2) var(--color-alert-ring) !important;
+}
+
+[dir="rtl"]
+  :where(input, select, textarea):not([type="checkbox"], [type="radio"]):is(
+    [aria-invalid],
+    [aria-invalid="true"],
+    [aria-invalid="false"]
+  ) {
+  background-position: center left 0.75rem;
+}
+
+input::placeholder,
+input::-webkit-input-placeholder,
+textarea::placeholder,
+textarea::-webkit-input-placeholder,
+select:invalid {
+  color: color-mix(in oklab, var(--color-muted-fg) 75%, transparent);
+  opacity: 1;
+}
+
+input:not([type="checkbox"], [type="radio"]),
+select,
+textarea {
+  margin-bottom: var(--space-2);
+}
+
+select:not([multiple], [size]) {
+  padding-inline-end: calc(var(--space-2) + 1.5rem);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: center right 0.75rem;
+  background-size: 1rem auto;
+  background-repeat: no-repeat;
+}
+
+[dir="rtl"] select:not([multiple], [size]) {
+  background-position: center left 0.75rem;
+}
+
+textarea {
+  display: block;
+  resize: vertical;
+}
+
+:where(input, select, textarea, fieldset) + small {
+  display: block;
+  width: 100%;
+  margin-top: calc(var(--space-2) * -0.75);
+  margin-bottom: var(--space-2);
+  color: var(--color-muted-fg);
+}
+
+:where(input, select, textarea, fieldset)[aria-invalid="false"] + small {
+  color: var(--color-green);
+}
+
+:where(input, select, textarea, fieldset)[aria-invalid="true"] + small {
+  color: var(--color-alert-bg);
+}
+
+label > :where(input, select, textarea) {
+  margin-top: calc(var(--space-2) * 0.25);
+}

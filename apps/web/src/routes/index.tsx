@@ -4,21 +4,21 @@ import { Input } from "@luna/ui/input";
 import { Link } from "@luna/ui/link";
 import { Tooltip } from "@luna/ui/tooltip";
 import { Title } from "@solidjs/meta";
+import Counter from "~/components/counter";
 
 export default function Home() {
   return (
     <main>
       <Title>Hello World</Title>
-      <div class="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 text-left">
-        <h1 class="m-0 text-4xl font-semibold text-slate-900">Luna UI + DS integration</h1>
+      <div class="home-layout stack">
+        <h1 class="home-title">Luna UI + DS integration</h1>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <Button>Primary action</Button>
-          <Button class="bg-gray-200 text-gray-900 hover:bg-gray-300">Secondary</Button>
+        <div class="cluster">
+          <Button>Default</Button>
+          <Button class="primary">Primary</Button>
+          <Button class="secondary">Secondary</Button>
           <Tooltip content="This is a custom tooltip from @luna/ui">
-            <Button class="h-8 bg-transparent px-3 text-gray-900 hover:bg-gray-100">
-              Hover me
-            </Button>
+            <Button class="ghost">Ghost</Button>
           </Tooltip>
         </div>
 
@@ -43,7 +43,12 @@ export default function Home() {
           ]}
         />
 
-        <p class="m-0 text-sm text-slate-700">
+        <div class="cluster">
+          <span class="home-muted">Scoped component test:</span>
+          <Counter />
+        </div>
+
+        <p class="home-muted">
           <Link href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">
             SolidStart docs
           </Link>{" "}

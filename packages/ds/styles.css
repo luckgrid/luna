@@ -1,24 +1,19 @@
-:root {
-  --luna-bg: #f8fafc;
-  --luna-surface: #ffffff;
-  --luna-text: #0f172a;
-  --luna-muted: #475569;
-  --luna-border: #dbe3ef;
-}
+@layer tokens, base, layout, action, navigation, form, display, feedback, utilities, overrides;
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/* Tokens */
+@import "./src/tokens/properties.css" layer(tokens);
+@import "./src/tokens/theme.css" layer(tokens);
 
-html,
-body {
-  margin: 0;
-  background: var(--luna-bg);
-  color: var(--luna-text);
-}
+/* Base */
+@import "./src/base.css" layer(base);
 
-a {
-  color: inherit;
-}
+/* UI */
+@import "./src/ui/layout.css" layer(layout);
+@import "./src/ui/action.css" layer(action);
+@import "./src/ui/navigation.css" layer(navigation);
+@import "./src/ui/form.css" layer(form);
+@import "./src/ui/display.css" layer(display);
+@import "./src/ui/feedback.css" layer(feedback);
+
+/* Utilities */
+@import "./src/utilities.css" layer(utilities);

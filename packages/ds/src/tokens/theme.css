@@ -1,0 +1,177 @@
+:root {
+  color-scheme: light dark;
+
+  /* Color Palette */
+  --color-bg: light-dark(var(--color-light-gray-0), var(--color-dark-gray-0));
+  --color-fg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-border: light-dark(var(--color-light-gray-1), var(--color-dark-gray-2));
+  --color-ring: light-dark(var(--color-blue), var(--color-light-blue-2));
+
+  --color-neutral-bg: light-dark(var(--color-white), var(--color-dark-gray-1));
+  --color-neutral-fg: light-dark(var(--color-dark-gray-2), var(--color-light-gray-1));
+  --color-neutral-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-neutral-ring: light-dark(var(--color-gray), var(--color-light-gray-2));
+
+  --color-primary-bg: light-dark(var(--color-blue), var(--color-light-blue-2));
+  --color-primary-fg: light-dark(var(--color-white), var(--color-dark-gray-0));
+  --color-primary-border: light-dark(var(--color-dark-blue-2), var(--color-blue));
+  --color-primary-ring: color-mix(in oklab, var(--color-primary-bg) 35%, transparent);
+
+  --color-secondary-bg: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-secondary-fg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-secondary-border: light-dark(var(--color-gray), var(--color-gray));
+  --color-secondary-ring: color-mix(in oklab, var(--color-secondary-fg) 30%, transparent);
+
+  --color-accent-bg: light-dark(var(--color-light-violet-1), var(--color-dark-violet-1));
+  --color-accent-fg: light-dark(var(--color-dark-violet-0), var(--color-light-violet-0));
+  --color-accent-border: light-dark(var(--color-violet), var(--color-light-violet-2));
+  --color-accent-ring: color-mix(in oklab, var(--color-accent-bg) 35%, transparent);
+
+  --color-muted-bg: light-dark(var(--color-light-gray-1), var(--color-dark-gray-2));
+  --color-muted-fg: light-dark(var(--color-gray), var(--color-light-gray-2));
+  --color-muted-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-muted-ring: color-mix(in oklab, var(--color-muted-fg) 30%, transparent);
+
+  --color-alert-bg: light-dark(var(--color-red), var(--color-light-red-2));
+  --color-alert-fg: light-dark(var(--color-white), var(--color-dark-gray-0));
+  --color-alert-border: light-dark(var(--color-dark-red-2), var(--color-red));
+  --color-alert-ring: color-mix(in oklab, var(--color-alert-bg) 35%, transparent);
+
+  /* Border Radius */
+  --radius-0: clamp(
+    var(--radius-min),
+    calc(
+      var(--radius-min) + (var(--radius-max) - var(--radius-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--radius-max)
+  );
+  --radius-1: calc(var(--radius-0) * var(--multiplier-sm));
+  --radius-2: calc(var(--radius-1) * var(--multiplier-sm));
+  --radius-3: calc(var(--radius-2) * var(--multiplier-sm));
+  --radius-4: calc(var(--radius-3) * var(--multiplier-sm));
+
+  /* Screen Breakpoints */
+  --screen-0: 20rem; /* 320px */
+  --screen-1: 30rem; /* 480px */
+  --screen-2: 40rem; /* 640px */
+  --screen-3: 48rem; /* 768px */
+  --screen-4: 64rem; /* 1024px */
+  --screen-5: 80rem; /* 1280px */
+  --screen-6: 90rem; /* 1440px */
+  --screen-7: 95rem; /* 1520px */
+  --screen-8: 105rem; /* 1680px */
+  --screen-9: 120rem; /* 1920px */
+  --screen-10: 140rem; /* 2240px */
+  --screen-11: 160rem; /* 2560px */
+
+  /* Stroke */
+  --stroke-0: clamp(
+    var(--stroke-min),
+    calc(
+      var(--stroke-min) + (var(--stroke-max) - var(--stroke-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--stroke-max)
+  );
+  --stroke-1: calc(var(--stroke-0) * var(--multiplier-sm));
+  --stroke-2: calc(var(--stroke-1) * var(--multiplier-sm));
+  --stroke-3: calc(var(--stroke-2) * var(--multiplier-sm));
+  --stroke-4: calc(var(--stroke-3) * var(--multiplier-sm));
+
+  --space-0: clamp(
+    var(--space-min),
+    calc(
+      var(--space-min) + (var(--space-max) - var(--space-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--space-max)
+  );
+  --space-1: calc(var(--space-0) * var(--multiplier-md));
+  --space-2: calc(var(--space-1) * var(--multiplier-md));
+  --space-3: calc(var(--space-2) * var(--multiplier-md));
+  --space-4: calc(var(--space-3) * var(--multiplier-md));
+
+  /* Typography */
+  --font-weight-hairline: 100;
+  --font-weight-extralight: 200;
+  --font-weight-thin: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  --text-base: clamp(
+    var(--text-min),
+    calc(var(--text-min) + (var(--text-max) - var(--text-min)) * var(--text-ratio)),
+    var(--text-max)
+  );
+
+  --text-sm: calc(var(--text-base) * var(--multiplier-xs));
+  --text-sm--line-height: clamp(1.4, calc(1.35 + (1.55 - 1.35) * var(--text-ratio)), 1.55);
+  --text-sm--letter-spacing: clamp(
+    0.005em,
+    calc(0.004em + (0.012em - 0.004em) * var(--text-ratio)),
+    0.012em
+  );
+  --text-sm--font-weight: var(--font-weight-medium);
+
+  --text-xs: calc(var(--text-sm) * var(--multiplier-xs));
+  --text-xs--line-height: clamp(1.45, calc(1.4 + (1.6 - 1.4) * var(--text-ratio)), 1.6);
+  --text-xs--letter-spacing: clamp(
+    0.01em,
+    calc(0.008em + (0.02em - 0.008em) * var(--text-ratio)),
+    0.02em
+  );
+  --text-xs--font-weight: var(--font-weight-medium);
+
+  --text-md: var(--text-base);
+  --text-md--line-height: clamp(1.35, calc(1.3 + (1.5 - 1.3) * var(--text-ratio)), 1.5);
+  --text-md--letter-spacing: clamp(0em, calc(0em + (0.002em - 0em) * var(--text-ratio)), 0.002em);
+  --text-md--font-weight: var(--font-weight-medium);
+
+  --text-lg: calc(var(--text-base) * var(--multiplier-sm));
+  --text-lg--line-height: clamp(1.25, calc(1.2 + (1.4 - 1.2) * var(--text-ratio)), 1.4);
+  --text-lg--letter-spacing: clamp(
+    -0.015em,
+    calc(-0.006em + (-0.015em - -0.006em) * var(--text-ratio)),
+    -0.006em
+  );
+  --text-lg--font-weight: var(--font-weight-semibold);
+
+  --text-xl: calc(var(--text-lg) * var(--multiplier-sm));
+  --text-xl--line-height: clamp(1.2, calc(1.15 + (1.35 - 1.15) * var(--text-ratio)), 1.35);
+  --text-xl--letter-spacing: clamp(
+    -0.02em,
+    calc(-0.01em + (-0.02em - -0.01em) * var(--text-ratio)),
+    -0.01em
+  );
+  --text-xl--font-weight: var(--font-weight-semibold);
+
+  --text-2xl: calc(var(--text-xl) * var(--multiplier-sm));
+  --text-2xl--line-height: clamp(1.15, calc(1.1 + (1.3 - 1.1) * var(--text-ratio)), 1.3);
+  --text-2xl--letter-spacing: clamp(
+    -0.03em,
+    calc(-0.015em + (-0.03em - -0.015em) * var(--text-ratio)),
+    -0.015em
+  );
+  --text-2xl--font-weight: var(--font-weight-semibold);
+
+  --text-3xl: calc(var(--text-2xl) * var(--multiplier-sm));
+  --text-3xl--line-height: clamp(1.1, calc(1.05 + (1.25 - 1.05) * var(--text-ratio)), 1.25);
+  --text-3xl--letter-spacing: clamp(
+    -0.04em,
+    calc(-0.02em + (-0.04em - -0.02em) * var(--text-ratio)),
+    -0.02em
+  );
+  --text-3xl--font-weight: var(--font-weight-semibold);
+}

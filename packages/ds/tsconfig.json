@@ -4,6 +4,6 @@
     "noEmit": true,
     "tsBuildInfoFile": "../../.cache/ds.tsbuildinfo"
   },
-  "include": ["*.ts"],
+  "include": ["*.ts", "src/**/*.ts"],
   "references": []
 }

@@ -1,0 +1,24 @@
+.stack > * + * {
+  margin-block-start: var(--space-2);
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+  align-content: flex-start;
+  inline-size: 100%;
+}
+
+.cluster > * {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.panel {
+  container-type: inline-size;
+  background: var(--color-neutral-bg);
+  border: var(--stroke-1) solid var(--color-neutral-border);
+  border-radius: var(--radius-2);
+}

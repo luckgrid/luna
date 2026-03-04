@@ -5,30 +5,13 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    "./button": {
-      "types": "./src/action/button.tsx",
-      "import": "./src/action/button.tsx"
-    },
-    "./accordion": {
-      "types": "./src/display/accordion.tsx",
-      "import": "./src/display/accordion.tsx"
-    },
-    "./input": {
-      "types": "./src/form/input.tsx",
-      "import": "./src/form/input.tsx"
-    },
-    "./link": {
-      "types": "./src/link/link.tsx",
-      "import": "./src/link/link.tsx"
-    },
-    "./tooltip": {
-      "types": "./src/feedback/tooltip.tsx",
-      "import": "./src/feedback/tooltip.tsx"
-    },
-    "./utils": {
-      "types": "./src/utils/cx.ts",
-      "import": "./src/utils/cx.ts"
-    }
+    "./button": "./src/action/button.tsx",
+    "./accordion": "./src/display/accordion.tsx",
+    "./input": "./src/form/input.tsx",
+    "./link": "./src/navigation/link.tsx",
+    "./tooltip": "./src/feedback/tooltip.tsx",
+    "./utils": "./src/utils/cx.ts",
+    "./utils/*": "./src/utils/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

@@ -18,18 +18,13 @@ export function Accordion(props: AccordionProps) {
   const [local] = splitProps(props, ["items", "class"]);
 
   return (
-    <div
-      class={cx("w-full divide-y divide-gray-200 rounded-lg border border-gray-200", local.class)}
-    >
+    <div class={cx(local.class)}>
       <For each={local.items}>
         {(item) => (
-          <details class="p-4" open={item.open}>
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-gray-900">
-              <span>{item.title}</span>
-              <span class="text-gray-500">+</span>
-            </summary>
+          <details open={item.open}>
+            <summary>{item.title}</summary>
             <Show when={item.content}>
-              <div class="pt-3 text-sm leading-6 text-gray-700">{item.content}</div>
+              <div data-content>{item.content}</div>
             </Show>
           </details>
         )}
