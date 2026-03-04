@@ -1,0 +1,38 @@
+# App tasks inherited by projects in the application layer.
+inheritedBy:
+  layers:
+    - "application"
+
+fileGroups:
+  vite:
+    - "public/**/*"
+    - "src/**/*"
+    - "vite.config.*"
+  sources: []
+
+tasks:
+  build:
+    command: "bun run build"
+    inputs:
+      - "@group(vite)"
+      - "@group(sources)"
+    outputs:
+      - ".output"
+      - "dist"
+  dev:
+    command: "bun run dev"
+    preset: "server"
+  optimize:
+    command: "bun run optimize"
+    options:
+      runInCI: false
+  preview:
+    command: "bun run preview"
+    deps:
+      - "build"
+    preset: "server"
+  start:
+    command: "bun run start"
+    deps:
+      - "build"
+    preset: "server"

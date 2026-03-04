@@ -1,0 +1,12 @@
+language: typescript
+layer: library
+stack: "frontend"
+
+project:
+  name: "ds"
+  description: "Luna design-system styles and UnoCSS theme tokens."
+
+workspace:
+  inheritedTasks:
+    include:
+      - "typecheck"

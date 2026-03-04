@@ -1,0 +1,24 @@
+:root {
+  --luna-bg: #f8fafc;
+  --luna-surface: #ffffff;
+  --luna-text: #0f172a;
+  --luna-muted: #475569;
+  --luna-border: #dbe3ef;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--luna-bg);
+  color: var(--luna-text);
+}
+
+a {
+  color: inherit;
+}

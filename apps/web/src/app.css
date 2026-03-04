@@ -1,0 +1,15 @@
+body {
+  font-family:
+    Gordita, Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+main {
+  margin: 0 auto;
+}
+
+nav {
+  display: flex;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--luna-border);
+  padding: 1rem;
+}

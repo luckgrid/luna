@@ -1,0 +1,24 @@
+
+# moon
+.moon/cache
+.moon/docker
+
+# build output
+.output/
+.vinxi/
+dist/
+app.config.timestamp_*.js
+
+# environment
+.env.keys
+.env*.local
+
+# dependencies
+node_modules/
+
+# local caches
+.cache/
+
+# system files
+.DS_Store
+Thumbs.db

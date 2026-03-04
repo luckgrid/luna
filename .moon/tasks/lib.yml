@@ -1,0 +1,23 @@
+# Library tasks inherited by projects in the library layer.
+inheritedBy:
+  layers:
+    - "library"
+
+fileGroups:
+  sources:
+    - "src/**/*"
+    - "package.json"
+    - "tsconfig.json"
+
+tasks:
+  build:
+    command: "bun run build"
+    inputs:
+      - "@group(sources)"
+    outputs:
+      - "dist"
+  dev:
+    command: "bun run dev"
+    preset: "server"
+  typecheck:
+    command: "bun run typecheck"

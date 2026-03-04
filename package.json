@@ -1,0 +1,29 @@
+{
+  "name": "luna",
+  "private": true,
+  "description": "A monorepo starter template using moonrepo, bun, solid-start, and oxc.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "moon run :build --query \"projectLayer=application\"",
+    "dev": "moon run :dev --query \"projectLayer=application\"",
+    "typecheck": "tsc --build --verbose",
+    "check": "bun run lint && bun run format:check && bun run typecheck",
+    "fix": "bun run lint:fix && bun run format",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --list-different .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix ."
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
+    "oxlint-tsgolint": "^0.16.0",
+    "typescript": "^5"
+  },
+  "packageManager": "bun@1.3.0"
+}

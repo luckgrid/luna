@@ -1,0 +1,5 @@
+layer: configuration
+
+project:
+  name: "luna"
+  description: "A monorepo starter template using moonrepo, bun, solid-start, and oxc."

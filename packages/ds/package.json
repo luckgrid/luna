@@ -1,0 +1,24 @@
+{
+  "name": "@luna/ds",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    "./app": "./app.ts",
+    "./styles.css": "./styles.css",
+    "./uno.config": "./uno.config.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@unocss/preset-wind3": "^66.6.4",
+    "unocss": "^66.6.4"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

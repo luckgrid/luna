@@ -1,0 +1,13 @@
+# Enable JavaScript
+javascript:
+  # Use Bun as the package manager
+  packageManager: bun
+
+# Enable Bun
+bun:
+  # Optionally pin a specific version
+  # version: "1.3.10"
+
+# Enable TypeScript project references integration
+typescript:
+  syncProjectReferences: true

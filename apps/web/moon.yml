@@ -1,0 +1,7 @@
+language: typescript
+layer: application
+stack: "frontend"
+
+project:
+  name: "web"
+  description: "Luna marketing web app built with Solid Start."

@@ -1,0 +1,7 @@
+language: typescript
+layer: library
+stack: "frontend"
+
+project:
+  name: "ui"
+  description: "Shared Solid UI components for Luna apps."

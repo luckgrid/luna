@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "antfu.unocss",
+    "moonrepo.moon-console",
+    "oven.bun-vscode",
+    "oxc.oxc-vscode",
+    "solidjs-community.solid-snippets"
+  ]
+}

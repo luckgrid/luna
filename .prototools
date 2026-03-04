@@ -1,0 +1,7 @@
+proto = "0.55.3"
+moon = "2.0.3"
+bun = "1.3.0"
+
+[settings]
+detect-strategy = "prefer-prototools"
+auto-install = true
