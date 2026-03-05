@@ -12,6 +12,7 @@ button,
 [type="submit"],
 [type="reset"],
 [type="button"] {
+  appearance: button;
   -webkit-appearance: button;
 }
 
@@ -25,7 +26,8 @@ button,
   --button-fg: var(--color-neutral-fg);
   --button-border: var(--color-neutral-border);
   --button-ring: var(--color-neutral-ring);
-  --button-shadow: 0 0 0 transparent;
+  --button-shadow: 0 var(--stroke-0) calc(var(--stroke-2) * 1.2)
+    color-mix(in oklab, var(--color-black) 16%, transparent);
 
   display: inline-flex;
   align-items: center;
@@ -36,7 +38,7 @@ button,
   border: var(--stroke-1) solid var(--button-border);
   border-radius: var(--radius-1);
   outline: none;
-  background: var(--button-bg);
+  background-color: var(--button-bg);
   box-shadow: var(--button-shadow);
   color: var(--button-fg);
   font-weight: 600;
@@ -59,7 +61,9 @@ button,
   :active,
   :focus-visible
 ) {
-  background: color-mix(in oklab, var(--button-bg) 82%, var(--color-fg));
+  --button-accent-hover-bg: color-mix(in oklab, var(--button-bg) 82%, var(--button-fg));
+  background-color: var(--button-accent-hover-bg);
+  border-color: var(--button-accent-hover-bg);
 }
 
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]):focus-visible {
@@ -79,7 +83,7 @@ button,
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).primary {
   --button-bg: var(--color-primary-bg);
   --button-fg: var(--color-primary-fg);
-  --button-border: var(--color-primary-border);
+  --button-border: var(--color-primary-bg);
   --button-ring: var(--color-primary-ring);
 }
 
@@ -93,13 +97,14 @@ button,
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).alert {
   --button-bg: var(--color-alert-bg);
   --button-fg: var(--color-alert-fg);
-  --button-border: var(--color-alert-border);
+  --button-border: var(--color-alert-bg);
   --button-ring: var(--color-alert-ring);
 }
 
 /* Button variant utilities */
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).outline {
-  background: transparent;
+  --button-shadow: 0 0 0 transparent;
+  background-color: transparent;
   color: var(--button-bg);
   border-color: var(--button-bg);
 }
@@ -109,14 +114,15 @@ button,
     :active,
     :focus-visible
   ) {
-  background: color-mix(in oklab, var(--button-bg) 12%, transparent);
+  background-color: color-mix(in oklab, var(--button-bg) 12%, transparent);
 }
 
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).text {
+  --button-shadow: 0 0 0 transparent;
   min-height: auto;
   padding-inline: 0;
   border-color: transparent;
-  background: transparent;
+  background-color: transparent;
   color: var(--button-bg);
 }
 
@@ -126,13 +132,28 @@ button,
 }
 
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).ghost {
-  background: color-mix(in oklab, var(--button-bg) 14%, transparent);
-  color: var(--button-bg);
-  border-color: color-mix(in oklab, var(--button-bg) 36%, transparent);
+  --button-shadow: 0 0 0 transparent;
+  background-color: transparent;
+  color: color-mix(in oklab, var(--button-bg) 72%, var(--color-fg));
+  border-color: transparent;
 }
 
-:where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).ghost:hover {
-  background: color-mix(in oklab, var(--button-bg) 22%, transparent);
+:where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).ghost:is(
+    :hover,
+    :active,
+    :focus-visible
+  ) {
+  background-color: color-mix(in oklab, var(--button-bg) 36%, transparent);
+  border-color: color-mix(in oklab, var(--button-bg) 52%, transparent);
+  color: var(--button-fg);
+}
+
+:where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).ghost:not(
+    .primary,
+    .secondary,
+    .alert
+  ):is(:hover, :active, :focus-visible) {
+  color: var(--color-dark-gray-1);
 }
 
 /* 
@@ -147,8 +168,8 @@ dialog {
   --dialog-surface-border: var(--color-neutral-border);
   --dialog-surface-radius: var(--radius-2);
   --dialog-space: var(--space-2);
-  --dialog-max-w-sm: 31.875rem; /* 510px */
-  --dialog-max-w-md: 43.75rem; /* 700px */
+  --dialog-max-w-sm: min(92svw, 31.875rem); /* 510px cap */
+  --dialog-max-w-md: min(92svw, 43.75rem); /* 700px cap */
   --dialog-close-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M3 3l10 10M13 3L3 13'/%3E%3C/svg%3E");
 
   display: flex;
@@ -165,7 +186,7 @@ dialog {
   border: 0;
   -webkit-backdrop-filter: var(--dialog-overlay-filter);
   backdrop-filter: var(--dialog-overlay-filter);
-  background: var(--dialog-overlay-bg);
+  background-color: var(--dialog-overlay-bg);
   color: var(--dialog-color);
 }
 
@@ -182,7 +203,7 @@ dialog[open="false"] {
     overflow: auto;
     border: var(--stroke-1) solid var(--dialog-surface-border);
     border-radius: var(--dialog-surface-radius);
-    background: var(--dialog-surface-bg);
+    background-color: var(--dialog-surface-bg);
     color: var(--dialog-surface-fg);
   }
 
@@ -198,15 +219,11 @@ dialog[open="false"] {
   }
 
   :scope > article > footer {
-    text-align: right;
-  }
-
-  :scope > article > footer :is(button, [role="button"]) {
-    margin-bottom: 0;
-  }
-
-  :scope > article > footer :is(button, [role="button"]):not(:first-of-type) {
-    margin-left: calc(var(--dialog-space) * 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: calc(var(--dialog-space) * 0.5);
   }
 
   :scope > article :is(a, button)[rel="prev"] {

@@ -10,8 +10,8 @@ export default function Home() {
   return (
     <main>
       <Title>Hello World</Title>
-      <div class="home-layout stack">
-        <h1 class="home-title">Luna UI + DS integration</h1>
+      <div class="stack">
+        <h1>Luna UI + DS integration</h1>
 
         <div class="cluster">
           <Button>Default</Button>
@@ -44,11 +44,11 @@ export default function Home() {
         />
 
         <div class="cluster">
-          <span class="home-muted">Scoped component test:</span>
+          <span>Scoped component test:</span>
           <Counter />
         </div>
 
-        <p class="home-muted">
+        <p>
           <Link href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">
             SolidStart docs
           </Link>{" "}

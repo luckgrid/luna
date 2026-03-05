@@ -1,5 +1,7 @@
-.stack > * + * {
-  margin-block-start: var(--space-2);
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .cluster {
@@ -18,7 +20,7 @@
 
 .panel {
   container-type: inline-size;
-  background: var(--color-neutral-bg);
-  border: var(--stroke-1) solid var(--color-neutral-border);
+  background-color: var(--color-panel-bg);
+  border: var(--stroke-1) solid var(--color-panel-border);
   border-radius: var(--radius-2);
 }

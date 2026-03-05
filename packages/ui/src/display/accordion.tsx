@@ -18,7 +18,7 @@ export function Accordion(props: AccordionProps) {
   const [local] = splitProps(props, ["items", "class"]);
 
   return (
-    <div class={cx(local.class)}>
+    <div class={cx("stack", local.class)}>
       <For each={local.items}>
         {(item) => (
           <details open={item.open}>

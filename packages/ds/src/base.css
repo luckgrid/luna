@@ -22,14 +22,7 @@
   font-weight: var(--font-weight-medium);
   font-size: var(--text-base);
   line-height: var(--text-md--line-height);
-  font-family:
-    "Geist",
-    "Inter",
-    "SF Pro Text",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-family-sans);
   text-underline-offset: var(--stroke-offset);
   text-rendering: optimizeLegibility;
   overflow-wrap: break-word;
@@ -46,7 +39,7 @@ body {
 
 body {
   min-height: 100svh;
-  background: var(--color-bg);
+  background-color: var(--color-bg);
   color: var(--color-fg);
   font-size: var(--text-base);
 }

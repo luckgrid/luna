@@ -4,11 +4,17 @@ body {
   min-height: 100svh;
 }
 
-body > :is(header, footer),
-body > * > :is(header, footer) {
+body > :is(header),
+body > * > :is(header) {
   padding: var(--space-2);
-  border-block: var(--stroke-1) solid var(--color-border);
-  background: var(--color-neutral-bg);
+  background-color: var(--color-layout-bg);
+  color: var(--color-layout-fg);
+}
+
+body > :is(footer),
+body > * > :is(footer) {
+  padding: var(--space-2);
+  background-color: var(--color-neutral-bg);
 }
 
 body > main,
@@ -21,34 +27,43 @@ body > * > main {
 }
 
 @scope (main) {
-  :scope > header,
+  :scope > header {
+    padding: var(--space-2);
+    border-radius: var(--radius-2);
+    background-color: var(--color-layout-bg);
+    color: var(--color-layout-fg);
+  }
+
   :scope > footer {
     padding: var(--space-2);
-    border: var(--stroke-1) solid var(--color-neutral-border);
     border-radius: var(--radius-2);
-    background: var(--color-neutral-bg);
+    background-color: var(--color-neutral-bg);
   }
 
   :scope > section,
   :scope > aside {
     padding: var(--space-2);
-    border: var(--stroke-1) solid var(--color-border);
     border-radius: var(--radius-2);
-    background: var(--color-neutral-bg);
+    background-color: var(--color-neutral-bg);
   }
 }
 
 @scope (section) {
-  :scope > header,
+  :scope > header {
+    padding: var(--space-1);
+    background-color: var(--color-layout-bg);
+    color: var(--color-layout-fg);
+    border-radius: var(--radius-1);
+  }
+
   :scope > footer {
     padding: var(--space-1);
-    background: var(--color-muted-bg);
+    background-color: var(--color-muted-bg);
     border-radius: var(--radius-1);
   }
 
   :scope > aside {
     padding: var(--space-1);
-    border-inline-start: var(--stroke-1) solid var(--color-muted-border);
     color: var(--color-muted-fg);
   }
 }
@@ -63,6 +78,7 @@ body > * > main {
   --group-shadow: 0 0 0 transparent;
   --group-shadow-focus-with-button: 0 0 0 var(--stroke-2) var(--color-primary-ring);
   --group-shadow-focus-with-input: 0 0 0 var(--stroke-2) var(--color-primary-ring);
+
   display: inline-flex;
   position: relative;
   width: 100%;

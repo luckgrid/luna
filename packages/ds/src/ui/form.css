@@ -39,6 +39,7 @@ textarea {
 }
 
 [type="search"] {
+  appearance: textfield;
   -webkit-appearance: textfield;
   outline-offset: -2px;
 }
@@ -115,10 +116,11 @@ textarea {
 input,
 select,
 textarea {
-  --form-bg: var(--color-neutral-bg);
-  --form-border: var(--color-border);
-  --form-fg: var(--color-fg);
+  --form-bg: var(--color-input-bg);
+  --form-border: var(--color-input-border);
+  --form-fg: var(--color-input-fg);
   --form-shadow: none;
+
   border: var(--stroke-1) solid var(--form-border);
   border-radius: var(--radius-1);
   outline: none;
@@ -142,7 +144,7 @@ input:not(
     [readonly]
   ):is(:active, :focus),
 :where(select, textarea):not([readonly]):is(:active, :focus) {
-  --form-bg: color-mix(in oklab, var(--color-neutral-bg) 90%, var(--color-bg));
+  --form-bg: color-mix(in oklab, var(--color-input-bg) 90%, var(--color-bg));
 }
 
 input:not([type="submit"], [type="button"], [type="reset"], [role="switch"], [readonly]):is(
@@ -162,7 +164,7 @@ input:not(
     [readonly]
   ):focus,
 :where(select, textarea):not([readonly]):focus {
-  --form-shadow: 0 0 0 var(--stroke-2) var(--color-primary-ring);
+  --form-shadow: 0 0 0 var(--stroke-2) var(--color-input-ring);
 }
 
 input:not([type="submit"], [type="button"], [type="reset"])[disabled],

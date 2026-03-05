@@ -7,20 +7,38 @@
   --color-border: light-dark(var(--color-light-gray-1), var(--color-dark-gray-2));
   --color-ring: light-dark(var(--color-blue), var(--color-light-blue-2));
 
-  --color-neutral-bg: light-dark(var(--color-white), var(--color-dark-gray-1));
-  --color-neutral-fg: light-dark(var(--color-dark-gray-2), var(--color-light-gray-1));
-  --color-neutral-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
-  --color-neutral-ring: light-dark(var(--color-gray), var(--color-light-gray-2));
+  --color-neutral-bg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-neutral-fg: light-dark(var(--color-light-gray-0), var(--color-dark-gray-0));
+  --color-neutral-border: var(--color-neutral-bg);
+  --color-neutral-ring: color-mix(in oklab, var(--color-neutral-bg) 35%, transparent);
 
   --color-primary-bg: light-dark(var(--color-blue), var(--color-light-blue-2));
   --color-primary-fg: light-dark(var(--color-white), var(--color-dark-gray-0));
   --color-primary-border: light-dark(var(--color-dark-blue-2), var(--color-blue));
   --color-primary-ring: color-mix(in oklab, var(--color-primary-bg) 35%, transparent);
 
-  --color-secondary-bg: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
-  --color-secondary-fg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
-  --color-secondary-border: light-dark(var(--color-gray), var(--color-gray));
-  --color-secondary-ring: color-mix(in oklab, var(--color-secondary-fg) 30%, transparent);
+  --color-secondary-bg: light-dark(var(--color-light-gray-1), var(--color-gray));
+  --color-secondary-fg: light-dark(var(--color-dark-gray-1), var(--color-dark-gray-0));
+  --color-secondary-border: var(--color-secondary-bg);
+  --color-secondary-ring: color-mix(in oklab, var(--color-secondary-bg) 30%, transparent);
+
+  --color-layout-bg: light-dark(
+    color-mix(in oklab, var(--color-light-gray-1) 62%, transparent),
+    color-mix(in oklab, var(--color-dark-gray-1) 62%, transparent)
+  );
+  --color-layout-fg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-layout-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-layout-ring: color-mix(in oklab, var(--color-layout-bg) 30%, transparent);
+
+  --color-input-bg: light-dark(var(--color-white), var(--color-dark-gray-1));
+  --color-input-fg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-input-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-input-ring: var(--color-primary-ring);
+
+  --color-panel-bg: light-dark(var(--color-white), var(--color-dark-gray-1));
+  --color-panel-fg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-panel-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-panel-ring: color-mix(in oklab, var(--color-panel-bg) 30%, transparent);
 
   --color-accent-bg: light-dark(var(--color-light-violet-1), var(--color-dark-violet-1));
   --color-accent-fg: light-dark(var(--color-dark-violet-0), var(--color-light-violet-0));
@@ -93,6 +111,12 @@
   --space-4: calc(var(--space-3) * var(--multiplier-md));
 
   /* Typography */
+  --font-family-sans:
+    "Geist", "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-serif: "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
+  --font-family-mono:
+    "Geist Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
   --font-weight-hairline: 100;
   --font-weight-extralight: 200;
   --font-weight-thin: 300;

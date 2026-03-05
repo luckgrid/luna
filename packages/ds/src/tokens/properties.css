@@ -5,9 +5,9 @@
   --color-dark-gray-1: oklch(22% 0.005 260);
   --color-dark-gray-2: oklch(34% 0.006 260);
   --color-gray: oklch(50% 0.005 260);
-  --color-light-gray-2: oklch(66% 0.006 260);
-  --color-light-gray-1: oklch(80% 0.005 260);
-  --color-light-gray-0: oklch(92% 0.004 260);
+  --color-light-gray-2: oklch(74% 0.006 260);
+  --color-light-gray-1: oklch(86% 0.005 260);
+  --color-light-gray-0: oklch(96% 0.004 260);
   --color-white: oklch(100% 0 0);
 
   --color-dark-red-0: oklch(28% 0.12 28);
