@@ -9,10 +9,12 @@ import Counter from "~/components/counter";
 export default function Home() {
   return (
     <main>
-      <Title>Hello World</Title>
+      <Title>Monorepo Starter Template | Luna</Title>
       <header>
-        <h1>Luna UI + DS integration</h1>
-
+        <hgroup>
+          <h1>Luna</h1>
+          <p>A Moonrepo starter template using Bun, SolidStart, and Solid Router.</p>
+        </hgroup>
         <div role="toolbar" aria-label="Button examples">
           <Button>Default</Button>
           <Button class="button-primary">Primary</Button>
@@ -24,11 +26,7 @@ export default function Home() {
       </header>
 
       <section>
-        <Input
-          label="Email"
-          placeholder="you@example.com"
-          hint="We only use this for product updates."
-        />
+        <Input aria-label="Email" placeholder="email@example.com" type="email" />
 
         <Accordion
           items={[

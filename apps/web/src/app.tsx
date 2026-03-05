@@ -14,7 +14,10 @@ export default function App() {
           <header>
             <nav>
               <a href="/">Home</a>
-              <a href="/about">About</a>
+              <div class="flex gap-2" aria-label="Main navigation">
+                <a href="/about">About</a>
+                <a href="/design-system">Design System</a>
+              </div>
             </nav>
           </header>
           <Suspense>{props.children}</Suspense>

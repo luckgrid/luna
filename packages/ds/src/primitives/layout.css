@@ -15,7 +15,6 @@ aside,
 section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-layout-1);
 }
 
 @scope (body) {
@@ -52,12 +51,18 @@ section {
 
 @scope (main) {
   :where(:scope > header, :scope > footer, :scope > section, :scope > aside) {
+    gap: var(--spacing-layout-2);
     padding: var(--spacing-layout-2);
+  }
+
+  :where(:scope > header:first-child + section:has(+ footer:last-child)) {
+    flex: 1;
   }
 }
 
 @scope (section) {
   :where(:scope > header, :scope > footer, :scope > aside) {
+    gap: var(--spacing-layout-1);
     padding: var(--spacing-layout-1);
   }
 }
