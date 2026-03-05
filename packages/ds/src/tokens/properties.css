@@ -66,14 +66,38 @@
   --color-light-violet-1: oklch(76% 0.11 320);
   --color-light-violet-0: oklch(86% 0.08 320);
 
+  /* Screen Breakpoints */
+  --screen-0: 20rem; /* 320px */
+  --screen-1: 30rem; /* 480px */
+  --screen-2: 40rem; /* 640px */
+  --screen-3: 48rem; /* 768px */
+  --screen-4: 64rem; /* 1024px */
+  --screen-5: 80rem; /* 1280px */
+  --screen-6: 90rem; /* 1440px */
+  --screen-7: 95rem; /* 1520px */
+  --screen-8: 105rem; /* 1680px */
+  --screen-9: 120rem; /* 1920px */
+  --screen-10: 140rem; /* 2240px */
+  --screen-11: 160rem; /* 2560px */
+
   /* Multiplier Properties */
   --multiplier-xs: 0.92;
   --multiplier-sm: 1.2;
   --multiplier-md: 1.35;
+  --multiplier-lg: 1.5;
 
   /* Radius Properties */
   --radius-min: 0.125rem;
   --radius-max: 0.375rem;
+
+  /* Action Radius Properties */
+  --radius-action-min: 3.5rem;
+  --radius-action-max: 5rem;
+
+  /* Stroke Properties */
+  --stroke-min: 0.0625rem;
+  --stroke-max: 0.15rem;
+  --stroke-offset: 0.125em;
 
   /* Screen Properties */
   --screen-min: 30rem;
@@ -83,10 +107,21 @@
   --space-min: 0.25rem;
   --space-max: 0.75rem;
 
-  /* Stroke Properties */
-  --stroke-min: 0.0625rem;
-  --stroke-max: 0.15rem;
-  --stroke-offset: 0.125em;
+  /* Layout Space Properties */
+  --space-layout-min: 0.5rem;
+  --space-layout-max: 1rem;
+
+  /* Input Space Properties */
+  --space-input-min: 0.5rem;
+  --space-input-max: 0.75rem;
+
+  /* Action Space Properties */
+  --space-action-min: 1.25rem;
+  --space-action-max: 2rem;
+
+  /* Icon Space Properties */
+  --space-icon-min: 1.25rem;
+  --space-icon-max: 1.5rem;
 
   /* Typography Properties */
   --text-min: 0.95rem;

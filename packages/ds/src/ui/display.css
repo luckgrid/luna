@@ -29,6 +29,11 @@
   border-bottom: 0;
 }
 
+:where(table) :is(thead, tfoot) :is(th, td) {
+  font-weight: var(--font-weight-semibold);
+  border-bottom-width: var(--stroke-2);
+}
+
 :where(table.striped) tbody tr:nth-child(odd) :is(th, td) {
   background-color: var(--table-row-bg);
 }
@@ -131,6 +136,7 @@ pre > samp {
 kbd {
   background-color: var(--code-kbd-bg);
   color: var(--code-kbd-fg);
+  font-weight: bolder;
   vertical-align: baseline;
 }
 
@@ -260,6 +266,7 @@ canvas {
 
 :where(details) summary[role="button"]::after {
   height: calc(var(--accordion-icon-size) * 1.5);
+  filter: brightness(0) invert(1);
 }
 
 :where(details[open]) > summary {

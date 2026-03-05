@@ -10,10 +10,10 @@ export default function Home() {
   return (
     <main>
       <Title>Hello World</Title>
-      <div class="stack">
+      <header>
         <h1>Luna UI + DS integration</h1>
 
-        <div class="cluster">
+        <div role="toolbar" aria-label="Button examples">
           <Button>Default</Button>
           <Button class="primary">Primary</Button>
           <Button class="secondary">Secondary</Button>
@@ -21,7 +21,9 @@ export default function Home() {
             <Button class="ghost">Ghost</Button>
           </Tooltip>
         </div>
+      </header>
 
+      <section>
         <Input
           label="Email"
           placeholder="you@example.com"
@@ -43,18 +45,20 @@ export default function Home() {
           ]}
         />
 
-        <div class="cluster">
+        <div role="toolbar" aria-label="Counter controls">
           <span>Scoped component test:</span>
           <Counter />
         </div>
+      </section>
 
+      <footer>
         <p>
           <Link href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">
             SolidStart docs
           </Link>{" "}
           and shared packages now work together.
         </p>
-      </div>
+      </footer>
     </main>
   );
 }

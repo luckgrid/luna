@@ -52,6 +52,10 @@ canvas {
   max-width: 100%;
 }
 
+:where(progress, [type="checkbox"], [type="radio"], [type="range"]) {
+  accent-color: var(--color-primary-bg);
+}
+
 /**
  * Typography additions
  */
@@ -63,17 +67,17 @@ strong {
 sub,
 sup {
   position: relative;
-  font-size: 0.75em;
+  font-size: var(--text-xs);
   line-height: var(--line-height-none);
   vertical-align: baseline;
 }
 
 sub {
-  bottom: -0.25em;
+  bottom: calc(var(--stroke-offset) * -2);
 }
 
 sup {
-  top: -0.5em;
+  top: calc(var(--stroke-offset) * -4);
 }
 
 address,
@@ -167,8 +171,16 @@ ul li {
   list-style: square;
 }
 
+a {
+  text-decoration: underline;
+}
+
+small {
+  font-size: var(--text-sm);
+}
+
 mark {
-  padding: 0.125rem 0.25rem;
+  padding: calc(var(--space-0) * 0.5) var(--space-0);
   background-color: color-mix(in oklab, var(--color-accent-bg) 55%, var(--color-bg));
   color: var(--color-fg);
   vertical-align: baseline;
@@ -179,8 +191,8 @@ blockquote {
   margin: 0;
   padding: var(--space-2);
   border-right: none;
-  border-left: 0.25rem solid var(--color-muted-border);
-  border-inline-start: 0.25rem solid var(--color-muted-border);
+  border-left: var(--space-0) solid var(--color-muted-border);
+  border-inline-start: var(--space-0) solid var(--color-muted-border);
   border-inline-end: none;
 }
 

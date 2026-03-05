@@ -294,6 +294,16 @@ progress::-moz-progress-bar {
   pointer-events: none;
 }
 
+:where(
+    button,
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [role="button"]
+  )[aria-busy="true"]::before {
+  filter: brightness(0) invert(1);
+}
+
 @keyframes loading-spin {
   to {
     transform: rotate(360deg);

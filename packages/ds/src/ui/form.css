@@ -31,6 +31,16 @@ textarea {
 [type="checkbox"],
 [type="radio"] {
   padding: 0;
+  border-width: var(--stroke-1);
+}
+
+[type="checkbox"][role="switch"] {
+  border-width: var(--stroke-2);
+}
+
+label:has([type="checkbox"], [type="radio"]) {
+  width: fit-content;
+  cursor: pointer;
 }
 
 ::-webkit-inner-spin-button,
@@ -41,7 +51,8 @@ textarea {
 [type="search"] {
   appearance: textfield;
   -webkit-appearance: textfield;
-  outline-offset: -2px;
+  outline-offset: calc(var(--stroke-0) * -2);
+  border-radius: var(--radius-action-0);
 }
 
 [type="search"]::-webkit-search-decoration {
@@ -77,7 +88,7 @@ textarea {
 }
 
 input:not([type="checkbox"], [type="radio"], [type="range"]) {
-  height: calc(var(--text-md) * 1.5 + var(--space-1) * 2 + var(--stroke-1) * 2);
+  height: calc(var(--text-md) * 1.5 + var(--space-input-0) * 2 + var(--stroke-1) * 2);
 }
 
 fieldset {
@@ -110,7 +121,7 @@ input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
 select,
 textarea {
   appearance: none;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-input-0) var(--space-input-1);
 }
 
 input,
@@ -155,6 +166,21 @@ input:not([type="submit"], [type="button"], [type="reset"], [role="switch"], [re
   --form-border: var(--color-primary-bg);
 }
 
+:where(
+  input:not(
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [type="checkbox"],
+    [type="radio"],
+    [type="file"]
+  ),
+  select,
+  textarea
+) {
+  --form-outline-width: var(--stroke-0);
+}
+
 input:not(
     [type="submit"],
     [type="button"],
@@ -164,7 +190,7 @@ input:not(
     [readonly]
   ):focus,
 :where(select, textarea):not([readonly]):focus {
-  --form-shadow: 0 0 0 var(--stroke-2) var(--color-input-ring);
+  --form-shadow: 0 0 0 var(--form-outline-width) var(--color-input-ring);
 }
 
 input:not([type="submit"], [type="button"], [type="reset"])[disabled],
@@ -191,10 +217,10 @@ label[aria-disabled="true"] input[disabled] {
     [type="week"],
     [type="range"]
   )[aria-invalid] {
-  --form-icon-space: 1.5rem;
-  padding-inline-end: calc(var(--space-2) + var(--form-icon-space)) !important;
-  background-position: center right 0.75rem;
-  background-size: 1rem auto;
+  --form-icon-space: var(--space-icon-0);
+  padding-inline-end: calc(var(--space-input-1) + var(--form-icon-space)) !important;
+  background-position: center right var(--space-input-1);
+  background-size: var(--text-md) auto;
   background-repeat: no-repeat;
 }
 
@@ -260,7 +286,7 @@ label[aria-disabled="true"] input[disabled] {
     [aria-invalid="true"],
     [aria-invalid="false"]
   ) {
-  background-position: center left 0.75rem;
+  background-position: center left var(--space-input-1);
 }
 
 input::placeholder,
@@ -279,15 +305,119 @@ textarea {
 }
 
 select:not([multiple], [size]) {
-  padding-inline-end: calc(var(--space-2) + 1.5rem);
+  padding-inline-end: calc(var(--space-input-1) + var(--space-icon-0));
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: center right 0.75rem;
+  background-position: center right var(--space-input-1);
   background-size: 1rem auto;
   background-repeat: no-repeat;
 }
 
 [dir="rtl"] select:not([multiple], [size]) {
-  background-position: center left 0.75rem;
+  background-position: center left var(--space-input-1);
+}
+
+/**
+ * Search/Input Group ([role="search"])
+ */
+:where([role="search"]) {
+  --group-space: var(--space-2);
+  --group-radius: var(--radius-action-0);
+  --group-border-width: var(--stroke-1);
+  --group-shadow: 0 0 0 transparent;
+  --group-shadow-focus-with-button: 0 0 0 var(--stroke-2) var(--color-primary-ring);
+  --group-shadow-focus-with-input: 0 0 0 var(--stroke-2) var(--color-primary-ring);
+
+  display: inline-flex;
+  position: relative;
+  width: 100%;
+  margin-bottom: var(--group-space);
+  border-radius: var(--group-radius);
+  box-shadow: var(--group-shadow);
+  vertical-align: middle;
+  transition: box-shadow 150ms ease;
+}
+
+:where([role="search"]) > *,
+:where([role="search"]) input:not([type="checkbox"], [type="radio"]),
+:where([role="search"]) select {
+  position: relative;
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
+:where([role="search"]) > :not(:first-child),
+:where([role="search"]) input:not([type="checkbox"], [type="radio"]):not(:first-child),
+:where([role="search"]) select:not(:first-child) {
+  margin-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+:where([role="search"]) > :not(:last-child),
+:where([role="search"]) input:not([type="checkbox"], [type="radio"]):not(:last-child),
+:where([role="search"]) select:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+:where([role="search"]) > :focus,
+:where([role="search"]) input:not([type="checkbox"], [type="radio"]):focus,
+:where([role="search"]) select:focus {
+  z-index: 2;
+}
+
+:where([role="search"])
+  :is(
+    button,
+    [type="submit"],
+    [type="reset"],
+    [type="button"],
+    [role="button"],
+    input:not([type="checkbox"], [type="radio"]),
+    select
+  ):not(:first-child) {
+  margin-left: calc(var(--group-border-width) * -1);
+}
+
+:where([role="search"])
+  :is(button, [type="submit"], [type="reset"], [type="button"], [role="button"]) {
+  width: auto;
+  padding-inline: var(--space-action-0);
+}
+
+@supports selector(:has(*)) {
+  :where([role="search"]):has(
+    button:focus,
+    [type="submit"]:focus,
+    [type="button"]:focus,
+    [role="button"]:focus
+  ) {
+    --group-shadow: var(--group-shadow-focus-with-button);
+  }
+
+  :where([role="search"]):has(input:not([type="submit"], [type="button"]):focus, select:focus) {
+    --group-shadow: var(--group-shadow-focus-with-input);
+  }
+
+  :where([role="search"]):has(input:not([type="submit"], [type="button"]):focus, select:focus)
+    :is(button, [type="submit"], [type="button"], [role="button"]) {
+    --button-shadow: 0 0 0 var(--group-border-width) var(--color-primary-border);
+  }
+
+  :where([role="search"])
+    :is(button, [type="submit"], [type="reset"], [type="button"], [role="button"]):focus {
+    box-shadow: none;
+  }
+}
+
+:where([role="search"]) > :first-child {
+  border-top-left-radius: var(--radius-4);
+  border-bottom-left-radius: var(--radius-4);
+}
+
+:where([role="search"]) > :last-child {
+  border-top-right-radius: var(--radius-4);
+  border-bottom-right-radius: var(--radius-4);
 }
 
 textarea {

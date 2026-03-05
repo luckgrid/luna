@@ -69,19 +69,16 @@
   --radius-3: calc(var(--radius-2) * var(--multiplier-sm));
   --radius-4: calc(var(--radius-3) * var(--multiplier-sm));
 
-  /* Screen Breakpoints */
-  --screen-0: 20rem; /* 320px */
-  --screen-1: 30rem; /* 480px */
-  --screen-2: 40rem; /* 640px */
-  --screen-3: 48rem; /* 768px */
-  --screen-4: 64rem; /* 1024px */
-  --screen-5: 80rem; /* 1280px */
-  --screen-6: 90rem; /* 1440px */
-  --screen-7: 95rem; /* 1520px */
-  --screen-8: 105rem; /* 1680px */
-  --screen-9: 120rem; /* 1920px */
-  --screen-10: 140rem; /* 2240px */
-  --screen-11: 160rem; /* 2560px */
+  --radius-action-0: clamp(
+    var(--radius-action-min),
+    calc(
+      var(--radius-action-min) + (var(--radius-action-max) - var(--radius-action-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--radius-action-max)
+  );
+  --radius-action-1: calc(var(--radius-action-0) * var(--multiplier-xs));
+  --radius-action-2: calc(var(--radius-action-1) * var(--multiplier-xs));
 
   /* Stroke */
   --stroke-0: clamp(
@@ -109,6 +106,52 @@
   --space-2: calc(var(--space-1) * var(--multiplier-md));
   --space-3: calc(var(--space-2) * var(--multiplier-md));
   --space-4: calc(var(--space-3) * var(--multiplier-md));
+
+  --space-layout-0: clamp(
+    var(--space-layout-min),
+    calc(
+      var(--space-layout-min) + (var(--space-layout-max) - var(--space-layout-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--space-layout-max)
+  );
+  --space-layout-1: calc(var(--space-layout-0) * var(--multiplier-md));
+  --space-layout-2: calc(var(--space-layout-1) * var(--multiplier-md));
+  --space-layout-3: calc(var(--space-layout-2) * var(--multiplier-md));
+  --space-layout-4: calc(var(--space-layout-3) * var(--multiplier-md));
+
+  --space-input-0: clamp(
+    var(--space-input-min),
+    calc(
+      var(--space-input-min) + (var(--space-input-max) - var(--space-input-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--space-input-max)
+  );
+  --space-input-1: calc(var(--space-input-0) * var(--multiplier-sm));
+  --space-input-2: calc(var(--space-input-1) * var(--multiplier-sm));
+
+  --space-action-0: clamp(
+    var(--space-action-min),
+    calc(
+      var(--space-action-min) + (var(--space-action-max) - var(--space-action-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--space-action-max)
+  );
+  --space-action-1: calc(var(--space-action-0) * var(--multiplier-sm));
+  --space-action-2: calc(var(--space-action-1) * var(--multiplier-sm));
+
+  --space-icon-0: clamp(
+    var(--space-icon-min),
+    calc(
+      var(--space-icon-min) + (var(--space-icon-max) - var(--space-icon-min)) *
+        ((100vw - var(--screen-min)) / (var(--screen-max) - var(--screen-min)))
+    ),
+    var(--space-icon-max)
+  );
+  --space-icon-1: calc(var(--space-icon-0) * var(--multiplier-sm));
+  --space-icon-2: calc(var(--space-icon-1) * var(--multiplier-sm));
 
   /* Typography */
   --font-family-sans:
