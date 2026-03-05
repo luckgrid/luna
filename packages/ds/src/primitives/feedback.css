@@ -3,7 +3,7 @@
  */
 @scope ([data-tooltip]) {
   :where(:scope) {
-    --tooltip-bg: color-mix(in oklab, var(--color-fg) 88%, var(--color-black));
+    --tooltip-bg: color-mix(in oklab, var(--color-fg) 90%, var(--color-panel-bg));
     --tooltip-fg: var(--color-white);
     --tooltip-border: color-mix(in oklab, var(--color-fg) 20%, transparent);
     --tooltip-radius: var(--radius-1);
@@ -155,6 +155,17 @@
     :where(:scope[data-placement="right"]:is(:focus, :hover))::after {
       --tooltip-caret-slide-to: translate(calc(var(--tooltip-caret-size) * -1), -50%);
       transform: translate(calc(var(--tooltip-caret-size) * -0.2), -50%);
+    }
+  }
+
+  @container (max-width: 28rem) {
+    :where(:scope)::before {
+      box-sizing: border-box;
+      inline-size: 100%;
+      max-inline-size: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      text-overflow: clip;
     }
   }
 }

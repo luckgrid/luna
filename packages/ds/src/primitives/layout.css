@@ -63,7 +63,7 @@ section {
 }
 
 /**
- * Stack Group ([role="group"])
+ * Stack Group
  */
 [role="group"] {
   display: flex;
@@ -73,10 +73,11 @@ section {
 }
 
 /**
- * Cluster Group ([role="toolbar"])
+ * Cluster Group
  */
 [role="toolbar"] {
   display: flex;
+  container-type: inline-size;
   flex-wrap: wrap;
   gap: var(--spacing-1);
   align-items: center;
