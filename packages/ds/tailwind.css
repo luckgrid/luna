@@ -1,0 +1,25 @@
+@layer properties, theme, base, layout, action, navigation, form, display, feedback, utilities;
+
+@source "../../apps/**/*.{tsx,ts}";
+@source "../ui/**/*.{tsx,ts}";
+
+@import "./src/properties.css" layer(properties);
+@import "tailwindcss/theme" layer(theme);
+@import "./src/theme.css" layer(theme);
+@import "./src/variants.css";
+
+/* Base */
+@import "tailwindcss/preflight" layer(base);
+@import "./src/base.css" layer(base);
+
+/* Primitives */
+@import "./src/primitives/layout.css" layer(layout);
+@import "./src/primitives/action.css" layer(action);
+@import "./src/primitives/navigation.css" layer(navigation);
+@import "./src/primitives/form.css" layer(form);
+@import "./src/primitives/display.css" layer(display);
+@import "./src/primitives/feedback.css" layer(feedback);
+
+/* Utilities */
+@import "tailwindcss/utilities" layer(utilities);
+@import "./src/utilities.css";

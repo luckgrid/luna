@@ -1,0 +1,102 @@
+/**
+ * Layout
+ */
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+header,
+main,
+footer,
+aside,
+section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-layout-1);
+}
+
+@scope (body) {
+  :where(
+    :scope > header,
+    :scope > * > header,
+    :scope > footer,
+    :scope > * > footer,
+    :scope > aside,
+    :scope > * > aside
+  ) {
+    padding-block: var(--spacing-layout-1);
+    padding-inline: var(--spacing-layout-2);
+    background-color: var(--color-layout-bg);
+    color: var(--color-layout-fg);
+  }
+
+  :where(:scope > header, :scope > * > header) {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    backdrop-filter: blur(var(--blur-md));
+  }
+
+  :where(:scope > aside, :scope > * > aside) {
+    background-color: var(--color-layout-bg);
+    color: var(--color-layout-fg);
+  }
+
+  :where(:scope > main, :scope > * > main) {
+    flex: 1;
+  }
+}
+
+@scope (main) {
+  :where(:scope > header, :scope > footer, :scope > section, :scope > aside) {
+    padding: var(--spacing-layout-2);
+  }
+}
+
+@scope (section) {
+  :where(:scope > header, :scope > footer, :scope > aside) {
+    padding: var(--spacing-layout-1);
+  }
+}
+
+/**
+ * Stack Group ([role="group"])
+ */
+[role="group"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  width: 100%;
+}
+
+/**
+ * Cluster Group ([role="toolbar"])
+ */
+[role="toolbar"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+  align-items: center;
+  align-content: flex-start;
+  inline-size: 100%;
+}
+
+:where([role="toolbar"] > *) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+/**
+ * Panel Group ([role="region"])
+ */
+[role="region"] {
+  container-type: inline-size;
+  padding: var(--spacing-2);
+  border: var(--stroke-1) solid var(--color-panel-border);
+  border-radius: var(--radius-2);
+  background-color: var(--color-panel-bg);
+  color: var(--color-panel-fg);
+}

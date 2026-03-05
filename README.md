@@ -127,5 +127,5 @@ proto install
 proto outdated
 
 # update a pinned tool version in .prototools
-proto pin bun <version>
+proto pin <tool> <version>
 ```

@@ -1,0 +1,294 @@
+@theme inline {
+  /* Breakpoints */
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+  --breakpoint-xs: 30rem;
+  --breakpoint-3xl: 90rem;
+  --breakpoint-4xl: 120rem;
+  --breakpoint-5xl: 160rem;
+
+  /* Color Palette */
+
+  --color-*: initial;
+  --color-black: oklch(0% 0 0);
+  --color-dark-gray-0: oklch(12% 0.004 260);
+  --color-dark-gray-1: oklch(22% 0.005 260);
+  --color-dark-gray-2: oklch(34% 0.006 260);
+  --color-gray: oklch(50% 0.005 260);
+  --color-light-gray-2: oklch(74% 0.006 260);
+  --color-light-gray-1: oklch(86% 0.005 260);
+  --color-light-gray-0: oklch(96% 0.004 260);
+  --color-white: oklch(100% 0 0);
+
+  --color-dark-red-0: oklch(28% 0.12 28);
+  --color-dark-red-1: oklch(36% 0.14 28);
+  --color-dark-red-2: oklch(46% 0.16 28);
+  --color-red: oklch(58% 0.2 28);
+  --color-light-red-2: oklch(68% 0.16 28);
+  --color-light-red-1: oklch(78% 0.12 28);
+  --color-light-red-0: oklch(88% 0.08 28);
+
+  --color-dark-orange-0: oklch(30% 0.1 55);
+  --color-dark-orange-1: oklch(40% 0.12 55);
+  --color-dark-orange-2: oklch(50% 0.14 55);
+  --color-orange: oklch(62% 0.16 55);
+  --color-light-orange-2: oklch(72% 0.13 55);
+  --color-light-orange-1: oklch(82% 0.1 55);
+  --color-light-orange-0: oklch(90% 0.07 55);
+
+  --color-dark-yellow-0: oklch(36% 0.08 95);
+  --color-dark-yellow-1: oklch(46% 0.1 95);
+  --color-dark-yellow-2: oklch(56% 0.12 95);
+  --color-yellow: oklch(72% 0.14 95);
+  --color-light-yellow-2: oklch(80% 0.11 95);
+  --color-light-yellow-1: oklch(88% 0.08 95);
+  --color-light-yellow-0: oklch(94% 0.06 95);
+
+  --color-dark-green-0: oklch(28% 0.08 145);
+  --color-dark-green-1: oklch(36% 0.1 145);
+  --color-dark-green-2: oklch(46% 0.12 145);
+  --color-green: oklch(60% 0.15 145);
+  --color-light-green-2: oklch(70% 0.12 145);
+  --color-light-green-1: oklch(80% 0.1 145);
+  --color-light-green-0: oklch(88% 0.07 145);
+
+  --color-dark-blue-0: oklch(26% 0.1 258);
+  --color-dark-blue-1: oklch(34% 0.13 258);
+  --color-dark-blue-2: oklch(44% 0.16 258);
+  --color-blue: oklch(58% 0.2 258);
+  --color-light-blue-2: oklch(68% 0.15 258);
+  --color-light-blue-1: oklch(78% 0.12 258);
+  --color-light-blue-0: oklch(88% 0.08 258);
+
+  --color-dark-indigo-0: oklch(24% 0.1 290);
+  --color-dark-indigo-1: oklch(32% 0.12 290);
+  --color-dark-indigo-2: oklch(42% 0.14 290);
+  --color-indigo: oklch(54% 0.16 290);
+  --color-light-indigo-2: oklch(66% 0.13 290);
+  --color-light-indigo-1: oklch(76% 0.1 290);
+  --color-light-indigo-0: oklch(86% 0.08 290);
+
+  --color-dark-violet-0: oklch(26% 0.11 320);
+  --color-dark-violet-1: oklch(34% 0.13 320);
+  --color-dark-violet-2: oklch(44% 0.15 320);
+  --color-violet: oklch(56% 0.17 320);
+  --color-light-violet-2: oklch(66% 0.14 320);
+  --color-light-violet-1: oklch(76% 0.11 320);
+  --color-light-violet-0: oklch(86% 0.08 320);
+
+  /* Theme Colors */
+
+  --color-bg: light-dark(var(--color-light-gray-0), var(--color-dark-gray-0));
+  --color-fg: light-dark(var(--color-dark-gray-0), var(--color-light-gray-0));
+  --color-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-ring: light-dark(var(--color-blue), var(--color-light-blue-2));
+
+  --color-layout-bg: light-dark(
+    --alpha(var(--color-light-gray-1) / 40%),
+    --alpha(var(--color-dark-gray-1) / 40%)
+  );
+  --color-layout-fg: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-layout-border: light-dark(var(--color-gray), var(--color-light-gray-2));
+  --color-layout-ring: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+
+  --color-panel-bg: light-dark(
+    --alpha(var(--color-light-gray-2) / 40%),
+    --alpha(var(--color-dark-gray-2) / 40%)
+  );
+  --color-panel-fg: light-dark(var(--color-black), var(--color-white));
+  --color-panel-border: light-dark(var(--color-light-gray-1), var(--color-dark-gray-1));
+  --color-panel-ring: light-dark(var(--color-light-gray-0), var(--color-dark-gray-0));
+
+  --color-input-bg: var(--color-white);
+  --color-input-fg: var(--color-dark-gray-0);
+  --color-input-border: var(--color-gray);
+  --color-input-ring: var(--color-light-gray-0);
+
+  --color-muted-bg: light-dark(var(--color-light-gray-1), var(--color-dark-gray-2));
+  --color-muted-fg: light-dark(var(--color-gray), var(--color-light-gray-2));
+  --color-muted-border: light-dark(var(--color-light-gray-2), var(--color-dark-gray-2));
+  --color-muted-ring: light-dark(var(--color-light-gray-0), var(--color-dark-gray-0));
+
+  --color-neutral-bg: light-dark(var(--color-black), var(--color-white));
+  --color-neutral-fg: light-dark(var(--color-white), var(--color-black));
+  --color-neutral-border: light-dark(var(--color-dark-gray-0), var(--color-light-gray-0));
+  --color-neutral-ring: light-dark(var(--color-light-gray-0), var(--color-dark-gray-0));
+
+  --color-primary-bg: light-dark(var(--color-blue), var(--color-light-blue-2));
+  --color-primary-fg: light-dark(var(--color-white), var(--color-dark-gray-0));
+  --color-primary-border: light-dark(var(--color-dark-blue-2), var(--color-blue));
+  --color-primary-ring: light-dark(var(--color-light-blue-0), var(--color-dark-blue-0));
+
+  --color-secondary-bg: light-dark(var(--color-dark-gray-2), var(--color-light-gray-2));
+  --color-secondary-fg: light-dark(var(--color-light-gray-0), var(--color-dark-gray-0));
+  --color-secondary-border: light-dark(var(--color-dark-gray-1), var(--color-light-gray-1));
+  --color-secondary-ring: light-dark(var(--color-dark-gray-0), var(--color-light-gray-0));
+
+  --color-accent-bg: light-dark(var(--color-blue), var(--color-light-blue-2));
+  --color-accent-fg: light-dark(var(--color-white), var(--color-black));
+  --color-accent-border: light-dark(var(--color-dark-blue-2), var(--color-light-blue-1));
+  --color-accent-ring: light-dark(var(--color-light-blue-0), var(--color-dark-blue-0));
+
+  --color-alert-bg: light-dark(var(--color-red), var(--color-light-red-2));
+  --color-alert-fg: light-dark(var(--color-white), var(--color-black));
+  --color-alert-border: light-dark(var(--color-dark-red-2), var(--color-red));
+  --color-alert-ring: light-dark(var(--color-light-red-0), var(--color-dark-red-0));
+
+  /* Spacing */
+
+  --spacing: 0.25rem;
+
+  --spacing-0: clamp(var(--prop-space-min), calc(0.134615rem + 0.384615vw), var(--prop-space-max));
+  --spacing-1: calc(var(--spacing-0) * var(--prop-multiplier-md));
+  --spacing-2: calc(var(--spacing-1) * var(--prop-multiplier-md));
+  --spacing-3: calc(var(--spacing-2) * var(--prop-multiplier-md));
+  --spacing-4: calc(var(--spacing-3) * var(--prop-multiplier-md));
+
+  --spacing-layout-0: clamp(
+    var(--prop-space-layout-min),
+    calc(0.384615rem + 0.384615vw),
+    var(--prop-space-layout-max)
+  );
+  --spacing-layout-1: calc(var(--spacing-layout-0) * var(--prop-multiplier-md));
+  --spacing-layout-2: calc(var(--spacing-layout-1) * var(--prop-multiplier-md));
+  --spacing-layout-3: calc(var(--spacing-layout-2) * var(--prop-multiplier-md));
+  --spacing-layout-4: calc(var(--spacing-layout-3) * var(--prop-multiplier-md));
+
+  --spacing-input-0: clamp(
+    var(--prop-space-input-min),
+    calc(0.442308rem + 0.192308vw),
+    var(--prop-space-input-max)
+  );
+  --spacing-input-1: calc(var(--spacing-input-0) * var(--prop-multiplier-sm));
+  --spacing-input-2: calc(var(--spacing-input-1) * var(--prop-multiplier-sm));
+
+  --spacing-action-0: clamp(
+    var(--prop-space-action-min),
+    calc(1.076923rem + 0.576923vw),
+    var(--prop-space-action-max)
+  );
+  --spacing-action-1: calc(var(--spacing-action-0) * var(--prop-multiplier-sm));
+  --spacing-action-2: calc(var(--spacing-action-1) * var(--prop-multiplier-sm));
+
+  --spacing-icon-0: clamp(
+    var(--prop-space-icon-min),
+    calc(1.192308rem + 0.192308vw),
+    var(--prop-space-icon-max)
+  );
+  --spacing-icon-1: calc(var(--spacing-icon-0) * var(--prop-multiplier-sm));
+  --spacing-icon-2: calc(var(--spacing-icon-1) * var(--prop-multiplier-sm));
+
+  /* Borders */
+
+  --radius-*: initial;
+  --radius-0: clamp(var(--prop-radius-min), calc(0.067308rem + 0.192308vw), var(--prop-radius-max));
+  --radius-1: calc(var(--radius-0) * var(--prop-multiplier-sm));
+  --radius-2: calc(var(--radius-1) * var(--prop-multiplier-sm));
+  --radius-3: calc(var(--radius-2) * var(--prop-multiplier-sm));
+  --radius-4: calc(var(--radius-3) * var(--prop-multiplier-sm));
+
+  --radius-action-0: clamp(
+    var(--prop-radius-action-min),
+    calc(3.153846rem + 1.153846vw),
+    var(--prop-radius-action-max)
+  );
+  --radius-action-1: calc(var(--radius-action-0) * var(--prop-multiplier-xs));
+  --radius-action-2: calc(var(--radius-action-1) * var(--prop-multiplier-xs));
+
+  --border-width-0: clamp(
+    var(--prop-stroke-min),
+    calc(0.042308rem + 0.067308vw),
+    var(--prop-stroke-max)
+  );
+  --border-width-1: calc(var(--border-width-0) * var(--prop-multiplier-sm));
+  --border-width-2: calc(var(--border-width-1) * var(--prop-multiplier-sm));
+  --border-width-3: calc(var(--border-width-2) * var(--prop-multiplier-sm));
+  --border-width-4: calc(var(--border-width-3) * var(--prop-multiplier-sm));
+
+  --outline-width-0: var(--border-width-0);
+  --outline-width-1: var(--border-width-1);
+  --outline-width-2: var(--border-width-2);
+  --outline-width-3: var(--border-width-3);
+  --outline-width-4: var(--border-width-4);
+
+  --outline-offset-0: var(--prop-stroke-offset);
+
+  /* Typography */
+
+  --text-*: initial;
+  --text-base: clamp(
+    var(--prop-text-min),
+    calc(
+      var(--prop-text-min) + (var(--prop-text-max) - var(--prop-text-min)) * var(--prop-text-ratio)
+    ),
+    var(--prop-text-max)
+  );
+
+  --text-sm: calc(var(--text-base) * var(--prop-multiplier-xs));
+  --text-sm--line-height: clamp(1.4, calc(1.35 + (1.55 - 1.35) * var(--prop-text-ratio)), 1.55);
+  --text-sm--letter-spacing: clamp(
+    0.005em,
+    calc(0.004em + (0.012em - 0.004em) * var(--prop-text-ratio)),
+    0.012em
+  );
+  --text-sm--font-weight: var(--font-weight-medium);
+
+  --text-xs: calc(var(--text-sm) * var(--prop-multiplier-xs));
+  --text-xs--line-height: clamp(1.45, calc(1.4 + (1.6 - 1.4) * var(--prop-text-ratio)), 1.6);
+  --text-xs--letter-spacing: clamp(
+    0.01em,
+    calc(0.008em + (0.02em - 0.008em) * var(--prop-text-ratio)),
+    0.02em
+  );
+  --text-xs--font-weight: var(--font-weight-medium);
+
+  --text-md: var(--text-base);
+  --text-md--line-height: clamp(1.35, calc(1.3 + (1.5 - 1.3) * var(--prop-text-ratio)), 1.5);
+  --text-md--letter-spacing: clamp(
+    0em,
+    calc(0em + (0.002em - 0em) * var(--prop-text-ratio)),
+    0.002em
+  );
+  --text-md--font-weight: var(--font-weight-medium);
+
+  --text-lg: calc(var(--text-base) * var(--prop-multiplier-sm));
+  --text-lg--line-height: clamp(1.25, calc(1.2 + (1.4 - 1.2) * var(--prop-text-ratio)), 1.4);
+  --text-lg--letter-spacing: clamp(
+    -0.015em,
+    calc(-0.006em + (-0.015em - -0.006em) * var(--prop-text-ratio)),
+    -0.006em
+  );
+  --text-lg--font-weight: var(--font-weight-semibold);
+
+  --text-xl: calc(var(--text-lg) * var(--prop-multiplier-sm));
+  --text-xl--line-height: clamp(1.2, calc(1.15 + (1.35 - 1.15) * var(--prop-text-ratio)), 1.35);
+  --text-xl--letter-spacing: clamp(
+    -0.02em,
+    calc(-0.01em + (-0.02em - -0.01em) * var(--prop-text-ratio)),
+    -0.01em
+  );
+  --text-xl--font-weight: var(--font-weight-semibold);
+
+  --text-2xl: calc(var(--text-xl) * var(--prop-multiplier-sm));
+  --text-2xl--line-height: clamp(1.15, calc(1.1 + (1.3 - 1.1) * var(--prop-text-ratio)), 1.3);
+  --text-2xl--letter-spacing: clamp(
+    -0.03em,
+    calc(-0.015em + (-0.03em - -0.015em) * var(--prop-text-ratio)),
+    -0.015em
+  );
+  --text-2xl--font-weight: var(--font-weight-semibold);
+
+  --text-3xl: calc(var(--text-2xl) * var(--prop-multiplier-sm));
+  --text-3xl--line-height: clamp(1.1, calc(1.05 + (1.25 - 1.05) * var(--prop-text-ratio)), 1.25);
+  --text-3xl--letter-spacing: clamp(
+    -0.04em,
+    calc(-0.02em + (-0.04em - -0.02em) * var(--prop-text-ratio)),
+    -0.02em
+  );
+  --text-3xl--font-weight: var(--font-weight-semibold);
+}

@@ -1,15 +1,4 @@
-@import "@luna/ds/styles.css";
-
-body {
-  font-family:
-    "Geist",
-    "Inter",
-    "SF Pro Text",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-}
+@import "@luna/ds/tailwind.css";
 
 #app {
   display: flex;

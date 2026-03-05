@@ -15,10 +15,10 @@ export default function Home() {
 
         <div role="toolbar" aria-label="Button examples">
           <Button>Default</Button>
-          <Button class="primary">Primary</Button>
-          <Button class="secondary">Secondary</Button>
+          <Button class="button-primary">Primary</Button>
+          <Button class="button-secondary">Secondary</Button>
           <Tooltip content="This is a custom tooltip from @luna/ui">
-            <Button class="ghost">Ghost</Button>
+            <Button class="button-ghost">Ghost</Button>
           </Tooltip>
         </div>
       </header>
@@ -40,7 +40,7 @@ export default function Home() {
             {
               title: "How do apps override styles?",
               content:
-                "Each app imports @luna/ds/styles.css from its own app.css and can layer local overrides there.",
+                "Each app imports @luna/ds/tailwind.css from its own app.css and can layer local overrides there.",
             },
           ]}
         />

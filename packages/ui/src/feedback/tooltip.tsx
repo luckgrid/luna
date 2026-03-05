@@ -1,25 +1,19 @@
-import type { ParentProps } from "solid-js";
+import type { JSX, ParentProps } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cx } from "../utils/cx";
-
-export type TooltipProps = ParentProps<{
-  content: string;
-  placement?: "top" | "bottom" | "left" | "right";
-  class?: string;
-}>;
+export type TooltipProps = ParentProps<
+  JSX.HTMLAttributes<HTMLDivElement> & {
+    content: string;
+    placement?: "top" | "bottom" | "left" | "right";
+  }
+>;
 
 export function Tooltip(props: TooltipProps) {
-  const [local] = splitProps(props, ["children", "content", "placement", "class"]);
+  const [local, rest] = splitProps(props, ["children", "content", "placement"]);
 
   return (
-    <span
-      class={cx(local.class)}
-      data-tooltip={local.content}
-      data-placement={local.placement}
-      tabindex={0}
-    >
+    <div data-tooltip={local.content} data-placement={local.placement} tabindex={0} {...rest}>
       {local.children}
-    </span>
+    </div>
   );
 }
