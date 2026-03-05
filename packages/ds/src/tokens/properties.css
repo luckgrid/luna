@@ -80,6 +80,10 @@
   --screen-10: 140rem; /* 2240px */
   --screen-11: 160rem; /* 2560px */
 
+  /* Screen Properties */
+  --screen-min: 30rem;
+  --screen-max: 160rem;
+
   /* Multiplier Properties */
   --multiplier-xs: 0.92;
   --multiplier-sm: 1.2;
@@ -98,10 +102,6 @@
   --stroke-min: 0.0625rem;
   --stroke-max: 0.15rem;
   --stroke-offset: 0.125em;
-
-  /* Screen Properties */
-  --screen-min: 30rem;
-  --screen-max: 160rem;
 
   /* Space Properties */
   --space-min: 0.25rem;
