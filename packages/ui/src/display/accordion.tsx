@@ -13,6 +13,16 @@ export type AccordionProps = ParentProps<
   }
 >;
 
+export type AccordionItemProps = ParentProps<
+  JSX.HTMLAttributes<HTMLDetailsElement> & {
+    open?: boolean;
+  }
+>;
+
+export type AccordionTriggerProps = ParentProps<JSX.HTMLAttributes<HTMLElement>>;
+
+export type AccordionContentProps = ParentProps<JSX.HTMLAttributes<HTMLDivElement>>;
+
 export function Accordion(props: AccordionProps) {
   const [local, rest] = splitProps(props, ["items", "children"]);
 
@@ -33,42 +43,14 @@ export function Accordion(props: AccordionProps) {
   );
 }
 
-export type AccordionItemProps = ParentProps<
-  JSX.HTMLAttributes<HTMLDetailsElement> & {
-    open?: boolean;
-  }
->;
-
 export function AccordionItem(props: AccordionItemProps) {
-  const [local, rest] = splitProps(props, ["children"]);
-
-  return (
-    <details data-slot="accordion-item" {...rest}>
-      {local.children}
-    </details>
-  );
+  return <details data-slot="accordion-item" {...props} />;
 }
-
-export type AccordionTriggerProps = ParentProps<JSX.HTMLAttributes<HTMLElement>>;
 
 export function AccordionTrigger(props: AccordionTriggerProps) {
-  const [local, rest] = splitProps(props, ["children"]);
-
-  return (
-    <summary data-slot="accordion-trigger" {...rest}>
-      {local.children}
-    </summary>
-  );
+  return <summary data-slot="accordion-trigger" {...props} />;
 }
 
-export type AccordionContentProps = ParentProps<JSX.HTMLAttributes<HTMLDivElement>>;
-
 export function AccordionContent(props: AccordionContentProps) {
-  const [local, rest] = splitProps(props, ["children"]);
-
-  return (
-    <div data-content data-slot="accordion-content" {...rest}>
-      {local.children}
-    </div>
-  );
+  return <div data-content data-slot="accordion-content" {...props} />;
 }

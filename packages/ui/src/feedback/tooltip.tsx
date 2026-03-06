@@ -9,11 +9,9 @@ export type TooltipProps = ParentProps<
 >;
 
 export function Tooltip(props: TooltipProps) {
-  const [local, rest] = splitProps(props, ["children", "content", "placement"]);
+  const [local, rest] = splitProps(props, ["content", "placement"]);
 
   return (
-    <div data-tooltip={local.content} data-placement={local.placement} tabindex={0} {...rest}>
-      {local.children}
-    </div>
+    <div data-tooltip={local.content} data-placement={local.placement} tabindex={0} {...rest} />
   );
 }
