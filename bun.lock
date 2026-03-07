@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "luna",
@@ -8,7 +9,7 @@
         "oxfmt": "^0.36.0",
         "oxlint": "^1.51.0",
         "oxlint-tsgolint": "^0.16.0",
-        "typescript": "^5",
+        "typescript": "^5.9.3",
       },
     },
     "apps/web": {

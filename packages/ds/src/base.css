@@ -144,8 +144,13 @@ hgroup > *:not(:first-child):last-child {
   font-size: var(--text-md);
 }
 
+ul,
+ol {
+  padding-inline-start: 1.25em;
+}
+
 :where(ul li) {
-  list-style: square;
+  list-style-type: square;
 }
 
 a {
@@ -157,7 +162,7 @@ small {
 }
 
 mark {
-  padding: calc(var(--spacing-0) * 0.5) var(--spacing-0);
+  padding: calc(var(--spacing-box-0) * 0.5) var(--spacing-box-0);
   background-color: color-mix(in oklab, var(--color-accent-bg) 55%, var(--color-bg));
   color: var(--color-fg);
   vertical-align: baseline;
@@ -166,10 +171,10 @@ mark {
 blockquote {
   display: block;
   margin: 0;
-  padding: var(--spacing-2);
+  padding: var(--spacing-box-2);
   border-right: none;
-  border-left: var(--spacing-0) solid var(--color-muted-border);
-  border-inline-start: var(--spacing-0) solid var(--color-muted-border);
+  border-left: calc(var(--border-width-4) * 2) solid var(--color-muted-border);
+  border-inline-start: calc(var(--border-width-4) * 2) solid var(--color-muted-border);
   border-inline-end: none;
 }
 

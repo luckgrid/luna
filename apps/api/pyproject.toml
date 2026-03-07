@@ -1,0 +1,14 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "FastAPI + Pydantic AI backend"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["fastapi", "uvicorn", "pydantic-ai", "pydantic"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []

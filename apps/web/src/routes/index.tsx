@@ -1,10 +1,6 @@
-import { Accordion } from "@luna/ui/accordion";
-import { Button } from "@luna/ui/button";
-import { Input } from "@luna/ui/input";
+import { ButtonLink } from "@luna/ui/button";
 import { Link } from "@luna/ui/link";
-import { Tooltip } from "@luna/ui/tooltip";
 import { Title } from "@solidjs/meta";
-import Counter from "~/components/counter";
 
 export default function Home() {
   return (
@@ -16,46 +12,23 @@ export default function Home() {
           <p>A Moonrepo starter template using Bun, SolidStart, and Solid Router.</p>
         </hgroup>
         <div role="toolbar" aria-label="Button examples">
-          <Button>Default</Button>
-          <Button class="button-primary">Primary</Button>
-          <Button class="button-secondary">Secondary</Button>
-          <Tooltip content="This is a custom tooltip from @luna/ui">
-            <Button class="button-ghost">Ghost</Button>
-          </Tooltip>
+          <ButtonLink href="https://github.com/luckgrid/luna">Get Started</ButtonLink>
         </div>
       </header>
 
       <section>
-        <Input aria-label="Email" placeholder="email@example.com" type="email" />
-
-        <Accordion
-          items={[
-            {
-              title: "Why this package split?",
-              content:
-                "Apps share reusable components through @luna/ui and design tokens/styles through @luna/ds.",
-            },
-            {
-              title: "How do apps override styles?",
-              content:
-                "Each app imports @luna/ds/tailwind.css from its own app.css and can layer local overrides there.",
-            },
-          ]}
-        />
-
-        <div role="toolbar" aria-label="Counter controls">
-          <span>Scoped component test:</span>
-          <Counter />
-        </div>
+        <h2>Features</h2>
+        <p>
+          Luna is a monorepo starter template that provides a foundation for building web apps with
+          SolidJS. It includes a design system, UI components, and a chatbot powered by Pydantic AI
+          and FastAPI.
+        </p>
       </section>
 
       <footer>
-        <p>
-          <Link href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">
-            SolidStart docs
-          </Link>{" "}
-          and shared packages now work together.
-        </p>
+        <small>
+          Built with <Link href="https://github.com/luckgrid/luna">Luna</Link>.
+        </small>
       </footer>
     </main>
   );

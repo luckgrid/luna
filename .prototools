@@ -1,6 +1,6 @@
-proto = "0.55.3"
-moon = "2.0.3"
-bun = "1.3.0"
+proto = "0.55.4"
+moon = "2.0.4"
+bun = "1.3.10"
 
 [settings]
 detect-strategy = "prefer-prototools"

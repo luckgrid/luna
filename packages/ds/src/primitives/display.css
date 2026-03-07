@@ -2,7 +2,7 @@
  * Table
  */
 table {
-  --table-space: var(--spacing-1);
+  --table-space: var(--spacing-box-1);
   --table-border: var(--color-border);
   --table-bg: var(--color-bg);
   --table-fg: var(--color-fg);
@@ -119,12 +119,12 @@ code,
 kbd,
 samp {
   display: inline-block;
-  padding: calc(var(--spacing-1) * 0.375);
+  padding: calc(var(--spacing-box-1) * 0.375);
 }
 
 pre {
   display: block;
-  margin-bottom: var(--spacing-2);
+  margin-bottom: var(--spacing-box-2);
   overflow-x: auto;
 }
 
@@ -136,7 +136,7 @@ pre {
 
   :scope > :is(code, samp) {
     display: block;
-    padding: var(--spacing-2);
+    padding: var(--spacing-box-2);
     background-color: transparent;
     line-height: 1.5;
   }
@@ -160,7 +160,7 @@ figure {
 
 @scope (figure) {
   :scope figcaption {
-    padding: calc(var(--spacing-2) * 0.5) 0;
+    padding: calc(var(--spacing-box-2) * 0.5) 0;
     color: var(--color-muted-fg);
   }
 }
@@ -170,7 +170,7 @@ figure {
  */
 hr {
   height: 0;
-  margin: var(--spacing-3) 0;
+  margin: var(--spacing-box-3) 0;
   border: 0;
   border-top: var(--border-width-1) solid
     color-mix(in oklab, var(--color-border) 80%, var(--color-muted-fg));
@@ -190,7 +190,7 @@ canvas {
  * Accordion
  */
 details {
-  --accordion-space: var(--spacing-3);
+  --accordion-space: var(--spacing-box-3);
   --accordion-summary-close: var(--color-panel-fg);
   --accordion-summary-open: var(--color-panel-fg);
   --accordion-summary-active: var(--color-primary-bg);
@@ -315,17 +315,16 @@ details[open] {
  * Card
  */
 article {
-  --card-space-y: var(--spacing-2);
-  --card-space-x: var(--spacing-2);
+  --card-space: var(--spacing-box-4);
   --card-radius: var(--radius-2);
   --card-bg: var(--color-panel-bg);
   --card-fg: var(--color-panel-fg);
   --card-border: var(--color-panel-border);
-  --card-layout-bg: color-mix(in oklab, var(--color-muted-bg) 72%, var(--color-panel-bg));
+  --card-layout-bg: color-mix(in oklab, var(--color-muted-bg) 80%, var(--color-panel-bg));
   --card-shadow: var(--shadow-sm);
 
-  margin-bottom: var(--spacing-3);
-  padding: var(--card-space-y) var(--card-space-x);
+  margin-bottom: var(--spacing-box-3);
+  padding: var(--card-space) var(--card-space);
   border-radius: var(--card-radius);
   background-color: var(--card-bg);
   color: var(--card-fg);
@@ -333,24 +332,28 @@ article {
 }
 
 @scope (article) {
-  :scope > :is(header, footer) {
-    margin-inline: calc(var(--card-space-x) * -1);
-    padding: calc(var(--card-space-y) * 0.66) var(--card-space-x);
+  :where(:scope > :is(header, footer, section)) {
+    margin-inline: calc(var(--card-space) * -1);
+    padding: calc(var(--card-space) * 0.66) var(--card-space);
     background-color: var(--card-layout-bg);
   }
 
-  :scope > header {
-    margin-top: calc(var(--card-space-y) * -1);
-    margin-bottom: var(--card-space-y);
-    border-bottom: var(--border-width-1) solid var(--card-border);
+  :where(:scope > :is(header, footer)) {
+    display: flex;
+    flex-direction: row;
+    gap: calc(var(--card-space) * 0.5);
+  }
+
+  :where(:scope > header) {
+    justify-content: space-between;
+    margin-top: calc(var(--card-space) * -1);
     border-top-right-radius: var(--card-radius);
     border-top-left-radius: var(--card-radius);
   }
 
-  :scope > footer {
-    margin-top: var(--card-space-y);
-    margin-bottom: calc(var(--card-space-y) * -1);
-    border-top: var(--border-width-1) solid var(--card-border);
+  :where(:scope > footer) {
+    justify-content: flex-end;
+    margin-bottom: calc(var(--card-space) * -1);
     border-bottom-right-radius: var(--card-radius);
     border-bottom-left-radius: var(--card-radius);
   }

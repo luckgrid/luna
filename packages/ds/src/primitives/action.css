@@ -32,9 +32,8 @@ button,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-1);
-  min-height: calc(var(--spacing-action-0) * 2);
-  padding: var(--spacing-1) var(--spacing-4);
+  gap: var(--spacing-box-1);
+  padding: var(--spacing-input-1) var(--spacing-input-3);
   border: var(--border-width-1) solid var(--button-border);
   border-radius: var(--radius-2);
   outline: none;
@@ -168,14 +167,14 @@ button,
  * Dialog
  */
 dialog {
-  --dialog-overlay-bg: color-mix(in oklab, var(--color-black) 36%, transparent);
-  --dialog-overlay-filter: blur(4px);
+  --dialog-overlay-bg: color-mix(in oklab, var(--color-black) 60%, transparent);
+  --dialog-overlay-filter: blur(--blur-md);
   --dialog-color: var(--color-fg);
   --dialog-surface-bg: var(--color-neutral-bg);
   --dialog-surface-fg: var(--color-neutral-fg);
   --dialog-surface-border: var(--color-neutral-border);
   --dialog-surface-radius: var(--radius-2);
-  --dialog-space: var(--spacing-2);
+  --dialog-space: var(--spacing-layout-1);
   --dialog-max-w-sm: min(92svw, 31.875rem); /* 510px cap */
   --dialog-max-w-md: min(92svw, 43.75rem); /* 700px cap */
   --dialog-close-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M3 3l10 10M13 3L3 13'/%3E%3C/svg%3E");

@@ -7,11 +7,11 @@
     --tooltip-fg: var(--color-white);
     --tooltip-border: color-mix(in oklab, var(--color-fg) 20%, transparent);
     --tooltip-radius: var(--radius-1);
-    --tooltip-padding-y: calc(var(--spacing-1) * 0.5);
-    --tooltip-padding-x: var(--spacing-1);
+    --tooltip-padding-y: calc(var(--spacing-box-1) * 0.5);
+    --tooltip-padding-x: var(--spacing-box-1);
     --tooltip-size: var(--text-xs);
-    --tooltip-offset: var(--spacing-1);
-    --tooltip-caret-size: calc(var(--spacing-1) * 0.55);
+    --tooltip-offset: var(--spacing-box-1);
+    --tooltip-caret-size: calc(var(--spacing-box-1) * 0.55);
     --tooltip-z: 99;
     --tooltip-slide-to: translate(-50%, calc(var(--tooltip-offset) * -1));
     --tooltip-caret-slide-to: translate(-50%, calc(var(--tooltip-offset) * -0.55));
@@ -196,7 +196,7 @@ progress {
   --progress-fill: var(--color-primary-bg);
   --progress-radius: var(--radius-1);
   --progress-height: var(--border-width-4);
-  --progress-space: var(--spacing-1);
+  --progress-space: var(--spacing-box-1);
   --progress-transition: 150ms ease;
 
   display: inline-block;
@@ -280,7 +280,7 @@ progress::-moz-progress-bar {
 }
 
 [aria-busy="true"]:not(input, select, textarea, html, form):not(:empty)::before {
-  margin-inline-end: calc(var(--spacing-2) * 0.5);
+  margin-inline-end: calc(var(--spacing-box-2) * 0.5);
 }
 
 [aria-busy="true"]:not(input, select, textarea, html, form):empty {

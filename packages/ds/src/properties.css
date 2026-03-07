@@ -1,34 +1,21 @@
 :root {
-  --prop-multiplier-xs: 0.92;
-  --prop-multiplier-sm: 1.2;
-  --prop-multiplier-md: 1.35;
+  --multiplier-xs: 1.08;
+  --multiplier-sm: 1.2;
+  --multiplier-md: 1.35;
+  --multiplier-lg: 1.5;
+  --multiplier-xl: 1.7;
 
-  --prop-viewport-min: 30rem;
-  --prop-viewport-max: 160rem;
+  --viewport-min: 30rem;
+  --viewport-max: 160rem;
 
-  --prop-radius-min: 0.125rem;
-  --prop-radius-max: 0.375rem;
-  --prop-radius-action-min: 3.5rem;
-  --prop-radius-action-max: 5rem;
+  --curve-min: 0.25rem;
+  --curve-max: 0.625rem;
 
-  --prop-stroke-min: 0.0625rem;
-  --prop-stroke-max: 0.15rem;
-  --prop-stroke-offset: 0.125em;
+  --stroke-min: 0.0625rem;
+  --stroke-max: 0.15rem;
+  --stroke-offset: 0.125em;
 
-  --prop-space-min: 0.25rem;
-  --prop-space-max: 0.75rem;
-  --prop-space-layout-min: 0.5rem;
-  --prop-space-layout-max: 1rem;
-  --prop-space-input-min: 0.5rem;
-  --prop-space-input-max: 0.75rem;
-  --prop-space-action-min: 1.25rem;
-  --prop-space-action-max: 2rem;
-  --prop-space-icon-min: 1.25rem;
-  --prop-space-icon-max: 1.5rem;
-
-  --prop-text-min: 0.95rem;
-  --prop-text-max: 1.1rem;
-  --prop-text-ratio: calc(
-    (100vw - var(--prop-viewport-min)) / (var(--prop-viewport-max) - var(--prop-viewport-min))
-  );
+  --type-min: 0.95rem;
+  --type-max: 1.1rem;
+  --type-ratio: calc((100vw - var(--viewport-min)) / (var(--viewport-max) - var(--viewport-min)));
 }

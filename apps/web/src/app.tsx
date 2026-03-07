@@ -14,9 +14,10 @@ export default function App() {
           <header>
             <nav>
               <a href="/">Home</a>
-              <div class="flex gap-2" aria-label="Main navigation">
-                <a href="/about">About</a>
+              <div class="flex gap-4" aria-label="Main navigation">
                 <a href="/design-system">Design System</a>
+                <a href="/ui">UI</a>
+                <a href="/ai">AI</a>
               </div>
             </nav>
           </header>

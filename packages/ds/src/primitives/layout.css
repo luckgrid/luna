@@ -26,7 +26,7 @@ section {
     :scope > aside,
     :scope > * > aside
   ) {
-    padding-block: var(--spacing-layout-1);
+    padding-block: var(--spacing-box-2);
     padding-inline: var(--spacing-layout-2);
     background-color: var(--color-layout-bg);
     color: var(--color-layout-fg);
@@ -46,6 +46,14 @@ section {
 
   :where(:scope > main, :scope > * > main) {
     flex: 1;
+  }
+}
+
+@scope (:where(header, footer, section)) {
+  :where(:scope > hgroup) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-box-0);
   }
 }
 
@@ -73,7 +81,7 @@ section {
 [role="group"] {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-box-2);
   width: 100%;
 }
 
@@ -84,7 +92,7 @@ section {
   display: flex;
   container-type: inline-size;
   flex-wrap: wrap;
-  gap: var(--spacing-1);
+  gap: var(--spacing-box-1);
   align-items: center;
   align-content: flex-start;
   inline-size: 100%;
@@ -100,7 +108,7 @@ section {
  */
 [role="region"] {
   container-type: inline-size;
-  padding: var(--spacing-2);
+  padding: var(--spacing-box-2);
   border: var(--stroke-1) solid var(--color-panel-border);
   border-radius: var(--radius-2);
   background-color: var(--color-panel-bg);

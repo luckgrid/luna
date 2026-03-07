@@ -76,10 +76,10 @@ a[role="button"] {
  */
 nav,
 [role="navigation"] {
-  --nav-element-space-y: var(--spacing-1);
-  --nav-element-space-x: var(--spacing-1);
-  --nav-link-space-y: var(--spacing-1);
-  --nav-link-space-x: var(--spacing-1);
+  --nav-element-space-y: var(--spacing-box-1);
+  --nav-element-space-x: var(--spacing-box-1);
+  --nav-link-space-y: var(--spacing-box-1);
+  --nav-link-space-x: var(--spacing-box-1);
   --nav-breadcrumb-divider: "/";
 }
 
@@ -204,15 +204,15 @@ nav,
 
 /* Nav utilities */
 :where(nav.nav-compact, [role="navigation"].nav-compact) {
-  --nav-element-space-y: calc(var(--spacing-1) * 0.5);
-  --nav-element-space-x: var(--spacing-1);
-  --nav-link-space-y: calc(var(--spacing-1) * 0.5);
-  --nav-link-space-x: var(--spacing-1);
+  --nav-element-space-y: calc(var(--spacing-box-1) * 0.5);
+  --nav-element-space-x: var(--spacing-box-1);
+  --nav-link-space-y: calc(var(--spacing-box-1) * 0.5);
+  --nav-link-space-x: var(--spacing-box-1);
 }
 
 :where(nav.nav-loose, [role="navigation"].nav-loose) {
-  --nav-element-space-y: var(--spacing-2);
-  --nav-element-space-x: var(--spacing-2);
-  --nav-link-space-y: var(--spacing-1);
-  --nav-link-space-x: var(--spacing-2);
+  --nav-element-space-y: var(--spacing-box-2);
+  --nav-element-space-x: var(--spacing-box-2);
+  --nav-link-space-y: var(--spacing-box-1);
+  --nav-link-space-x: var(--spacing-box-2);
 }

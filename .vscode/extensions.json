@@ -1,5 +1,8 @@
 {
   "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "dotenv.dotenvx-vscode",
+    "fastapilabs.fastapi-vscode",
     "moonrepo.moon-console",
     "oven.bun-vscode",
     "oxc.oxc-vscode",

@@ -55,7 +55,7 @@ label:has([type="checkbox"], [type="radio"]) {
   appearance: textfield;
   -webkit-appearance: textfield;
   outline-offset: calc(var(--outline-width-0) * -2);
-  border-radius: var(--radius-action-0);
+  border-radius: var(--radius-4);
 }
 
 [type="search"]::-webkit-search-decoration {
@@ -96,7 +96,7 @@ input:not([type="checkbox"], [type="radio"], [type="range"]) {
 
 fieldset {
   width: 100%;
-  margin: 0 0 var(--spacing-2);
+  margin: 0 0 var(--spacing-box-2);
   padding: 0;
   border: 0;
 }
@@ -104,13 +104,13 @@ fieldset {
 label,
 fieldset legend {
   display: block;
-  margin-bottom: calc(var(--spacing-2) * 0.375);
+  margin-bottom: calc(var(--spacing-box-2) * 0.375);
   color: var(--color-fg);
   font-weight: 600;
 }
 
 fieldset legend {
-  margin-bottom: calc(var(--spacing-2) * 0.5);
+  margin-bottom: calc(var(--spacing-box-2) * 0.5);
 }
 
 input:not([type="checkbox"], [type="radio"]),
@@ -293,7 +293,7 @@ select:invalid {
 input:not([type="checkbox"], [type="radio"]),
 select,
 textarea {
-  margin-bottom: var(--spacing-2);
+  margin-bottom: var(--spacing-box-2);
 }
 
 select:not([multiple], [size]) {
@@ -564,7 +564,7 @@ input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"])[type
 }
 
 [type="file"]::file-selector-button {
-  margin-right: calc(var(--spacing-2) / 2);
+  margin-right: calc(var(--spacing-box-2) / 2);
   padding: calc(var(--spacing-input-0) * 0.5) var(--spacing-input-1);
 }
 
@@ -718,8 +718,8 @@ input:not(
  */
 @scope ([role="search"]) {
   :where(:scope) {
-    --group-space: var(--spacing-2);
-    --group-radius: var(--radius-action-0);
+    --group-space: var(--spacing-box-2);
+    --group-radius: var(--radius-4);
     --group-border-width: var(--border-width-1);
     --group-shadow: 0 0 0 transparent;
     --group-shadow-focus-with-button: var(--shadow-2xs), 0 0 0 2px var(--color-primary-ring);
@@ -786,7 +786,7 @@ input:not(
 
   :where(:scope :is(button, [type="submit"], [type="reset"], [type="button"], [role="button"])) {
     width: auto;
-    padding-inline: var(--spacing-action-0);
+    padding-inline: var(--spacing-input-2);
   }
 
   @supports selector(:has(*)) {
@@ -833,8 +833,8 @@ textarea {
 :where(input, select, textarea, fieldset) + small {
   display: block;
   width: 100%;
-  margin-top: calc(var(--spacing-2) * -0.75);
-  margin-bottom: var(--spacing-2);
+  margin-top: calc(var(--spacing-box-2) * -0.75);
+  margin-bottom: var(--spacing-box-2);
   color: var(--color-muted-fg);
 }
 

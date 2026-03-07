@@ -16,25 +16,6 @@ export default function DesignSystemPage() {
             without dependencies, only HTML primitives.
           </p>
         </hgroup>
-        <nav>
-          <ul>
-            <li>
-              <a href="#" data-theme-switcher="auto" onClick={(event) => event.preventDefault()}>
-                Auto
-              </a>
-            </li>
-            <li>
-              <a href="#" data-theme-switcher="light" onClick={(event) => event.preventDefault()}>
-                Light
-              </a>
-            </li>
-            <li>
-              <a href="#" data-theme-switcher="dark" onClick={(event) => event.preventDefault()}>
-                Dark
-              </a>
-            </li>
-          </ul>
-        </nav>
       </header>
 
       <section id="preview">
@@ -307,18 +288,31 @@ export default function DesignSystemPage() {
         </details>
       </section>
 
-      <article id="article">
+      <section id="article">
         <h2>Article</h2>
-        <p>
-          Nullam dui arcu, malesuada et sodales eu, efficitur vitae dolor. Sed ultricies dolor non
-          ante vulputate hendrerit. Vivamus sit amet suscipit sapien. Nulla iaculis eros a elit
-          pharetra egestas. Nunc placerat facilisis cursus. Sed vestibulum metus eget dolor pharetra
-          rutrum.
-        </p>
-        <footer>
-          <small>Duis nec elit placerat, suscipit nibh quis, finibus neque.</small>
-        </footer>
-      </article>
+        <article>
+          <header>
+            <h3>Lorem ipsum dolor sit amet</h3>
+          </header>
+          <section>
+            <h4>Lorem ipsum dolor sit amet</h4>
+            <p>
+              Nullam dui arcu, malesuada et sodales eu, efficitur vitae dolor. Sed ultricies dolor
+              non ante vulputate hendrerit. Vivamus sit amet suscipit sapien. Nulla iaculis eros a
+              elit pharetra egestas. Nunc placerat facilisis cursus. Sed vestibulum metus eget dolor
+              pharetra rutrum.
+            </p>
+            <p>
+              Sed ultricies dolor non ante vulputate hendrerit. Vivamus sit amet suscipit sapien.
+              Nulla iaculis eros a elit pharetra egestas. Nunc placerat facilisis cursus. Sed
+              vestibulum metus eget dolor pharetra rutrum.
+            </p>
+          </section>
+          <footer>
+            <small>Duis nec elit placerat, suscipit nibh quis, finibus neque.</small>
+          </footer>
+        </article>
+      </section>
 
       <section id="group">
         <h2>Group</h2>
@@ -357,13 +351,17 @@ export default function DesignSystemPage() {
         <dialog id="modalExample" open>
           <article>
             <header>
-              <button aria-label="Close" onClick={() => setIsModalOpen(false)}></button>
               <h3>Confirm your action!</h3>
+              <button aria-label="Close" onClick={() => setIsModalOpen(false)}>
+                &times;
+              </button>
             </header>
-            <p>
-              Cras sit amet maximus risus. Pellentesque sodales odio sit amet augue finibus
-              pellentesque. Nullam finibus risus non semper euismod.
-            </p>
+            <section>
+              <p>
+                Cras sit amet maximus risus. Pellentesque sodales odio sit amet augue finibus
+                pellentesque. Nullam finibus risus non semper euismod.
+              </p>
+            </section>
             <footer>
               <button role="button" onClick={() => setIsModalOpen(false)}>
                 Cancel

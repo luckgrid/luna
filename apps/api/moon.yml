@@ -1,0 +1,16 @@
+language: python
+
+tasks:
+  dev:
+    command: "uv run uvicorn src.main:app --reload --port 3001"
+    description: "Run API development server"
+    env:
+      PYTHONPATH: "src"
+
+  run:
+    command: "uv run python src/main.py"
+    description: "Run API server"
+
+  setup:
+    command: "uv sync"
+    description: "Install dependencies"
