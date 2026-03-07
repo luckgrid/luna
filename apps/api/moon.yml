@@ -14,7 +14,6 @@ project:
 
 tasks:
   setup:
-    description: "Sync Python workspace dependencies"
     command: "uv"
     args: ["sync"]
     inputs:
@@ -25,7 +24,6 @@ tasks:
       runFromWorkspaceRoot: true
 
   dev:
-    description: "Run API development server"
     command: "uv"
     args:
       - "run"
@@ -44,9 +42,10 @@ tasks:
       - "8080"
     env:
       PYTHONPATH: "src"
+    options:
+      persistent: true
 
   start:
-    description: "Start API server"
     command: "uv"
     args:
       - "run"
@@ -60,3 +59,5 @@ tasks:
       - "pydantic"
       - "python"
       - "src/main.py"
+    options:
+      persistent: true

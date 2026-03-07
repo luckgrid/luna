@@ -12,9 +12,6 @@
   "oxc.unusedDisableDirectives": "deny",
   "typescript.tsdk": "node_modules/typescript/lib",
   "yaml.schemas": {
-    "https://moonrepo.dev/schemas/tasks.json": [
-      "file:///Users/dvz/Luckgrid/Code/Templates/luna/.moon/tasks/api.yml",
-      "file:///Users/dvz/Luckgrid/Code/Templates/luna/.moon/tasks/app.yml"
-    ]
+    ".moon/cache/schemas/tasks.json": [".moon/tasks/*.yml"]
   }
 }

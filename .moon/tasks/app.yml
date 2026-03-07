@@ -24,6 +24,8 @@ tasks:
   dev:
     command: "bun run dev"
     preset: "server"
+    options:
+      persistent: true
 
   optimize:
     command: "bun run optimize"
@@ -41,3 +43,5 @@ tasks:
     deps:
       - "build"
     preset: "server"
+    options:
+      persistent: true

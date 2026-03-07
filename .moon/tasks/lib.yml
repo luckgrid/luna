@@ -30,3 +30,5 @@ tasks:
     inputs:
       - "@group(configs)"
       - "@group(sources)"
+    options:
+      runFromWorkspaceRoot: true
