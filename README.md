@@ -25,6 +25,7 @@ A monorepo starter template using moonrepo, bun, solid-start, and oxc.
 ### Apps
 
 - Web app: [`apps/web/README.md`](apps/web/README.md)
+- API app: [`apps/api/README.md`](apps/api/README.md) - FastAPI + Pydantic AI backend for AI features
 
 ### Packages
 
@@ -70,9 +71,25 @@ moon run web:dev
 moon run web:build
 moon run web:start
 
+moon run api:dev
+moon run api:start
+moon run api:setup
+
 # run across application-layer projects from root scripts
 bun run dev
 bun run build
+```
+
+## Running Both Apps
+
+Run both the web app and API concurrently:
+
+```sh
+# Terminal 1 - Web app
+moon run web:dev
+
+# Terminal 2 - API
+moon run api:dev
 ```
 
 ## Configurations
@@ -104,7 +121,7 @@ bun run build
 
 ## Dependency Maintenance
 
-Use Bun workspace commands from the repository root:
+Use Bun workspace commands from the repository root for Node.js dependencies:
 
 ```sh
 # check outdated dependencies across all workspaces
@@ -115,6 +132,17 @@ bun update --recursive
 
 # update to latest versions across all workspaces
 bun update --recursive --latest
+```
+
+Python dependencies (API app):
+
+```sh
+# Install/update Python dependencies
+cd apps/api
+uv sync
+
+# Add a dependency
+uv add <package>
 ```
 
 Toolchain (`.prototools`) maintenance:

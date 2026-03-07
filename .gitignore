@@ -1,11 +1,14 @@
+# local cache
+.cache/
 
 # moon
 .moon/cache
 .moon/docker
 
-# build output
+# build
 .output/
 .vinxi/
+build/
 dist/
 app.config.timestamp_*.js
 
@@ -13,12 +16,20 @@ app.config.timestamp_*.js
 .env.keys
 .env*.local
 
-# dependencies
+# virtual environments
+.venv/
+
+# node
 node_modules/
 
-# local caches
-.cache/
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.egg-info/
+.eggs/
 
-# system files
+# OS
 .DS_Store
 Thumbs.db

@@ -4,11 +4,7 @@ version = "0.1.0"
 description = "FastAPI + Pydantic AI backend"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["fastapi", "uvicorn", "pydantic-ai", "pydantic"]
+dependencies = ["fastapi", "uvicorn", "pydantic-ai", "pydantic", "pydantic-settings"]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.uv]
-dev-dependencies = []
+[dependency-groups]
+dev = []

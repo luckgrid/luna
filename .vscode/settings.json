@@ -10,5 +10,11 @@
   "oxc.fmt.configPath": ".oxfmtrc.json",
   "oxc.typeAware": true,
   "oxc.unusedDisableDirectives": "deny",
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "yaml.schemas": {
+    "https://moonrepo.dev/schemas/tasks.json": [
+      "file:///Users/dvz/Luckgrid/Code/Templates/luna/.moon/tasks/api.yml",
+      "file:///Users/dvz/Luckgrid/Code/Templates/luna/.moon/tasks/app.yml"
+    ]
+  }
 }

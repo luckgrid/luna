@@ -1,36 +1,41 @@
-# App tasks inherited by projects in the application layer.
 inheritedBy:
-  layers:
-    - "application"
+  language: typescript
+  layer: application
 
 fileGroups:
-  vite:
-    - "public/**/*"
+  configs:
+    - "*.config.ts"
+    - "*.json"
+  sources:
     - "src/**/*"
-    - "vite.config.*"
-  sources: []
+  assets:
+    - "public/**/*"
+    - "**/*.css"
 
 tasks:
   build:
     command: "bun run build"
     inputs:
-      - "@group(vite)"
       - "@group(sources)"
     outputs:
       - ".output"
       - "dist"
+
   dev:
     command: "bun run dev"
     preset: "server"
+
   optimize:
     command: "bun run optimize"
     options:
       runInCI: false
+
   preview:
     command: "bun run preview"
     deps:
       - "build"
     preset: "server"
+
   start:
     command: "bun run start"
     deps:

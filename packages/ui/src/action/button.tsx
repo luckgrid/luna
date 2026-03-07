@@ -1,5 +1,6 @@
 import type { JSX, ParentProps } from "solid-js";
 
+import { Link } from "../navigation/link";
 import { cx } from "../utils/cx";
 
 export type ButtonProps = ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>;
@@ -33,7 +34,7 @@ export function TextButton(props: ButtonProps) {
 }
 
 export function ButtonLink(props: ButtonLinkProps) {
-  return <a role="button" {...props} />;
+  return <Link role="button" {...props} />;
 }
 
 export function PrimaryButtonLink(props: ButtonLinkProps) {

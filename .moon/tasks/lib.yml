@@ -1,23 +1,32 @@
-# Library tasks inherited by projects in the library layer.
 inheritedBy:
-  layers:
-    - "library"
+  language: typescript
+  layer: library
 
 fileGroups:
+  configs:
+    - "*.config.ts"
+    - "*.json"
   sources:
     - "src/**/*"
-    - "package.json"
-    - "tsconfig.json"
 
 tasks:
   build:
     command: "bun run build"
     inputs:
+      - "@group(configs)"
       - "@group(sources)"
     outputs:
       - "dist"
+
   dev:
     command: "bun run dev"
     preset: "server"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
   typecheck:
     command: "bun run typecheck"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"

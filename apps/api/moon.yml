@@ -1,16 +1,62 @@
 language: python
+layer: application
+stack: backend
+
+fileGroups:
+  configs:
+    - "*.toml"
+  sources:
+    - "src/**/*"
+
+project:
+  name: api
+  description: FastAPI + Pydantic AI backend for AI features.
 
 tasks:
+  setup:
+    description: "Sync Python workspace dependencies"
+    command: "uv"
+    args: ["sync"]
+    inputs:
+      - "@group(configs)"
+    outputs:
+      - "uv.lock"
+    options:
+      runFromWorkspaceRoot: true
+
   dev:
-    command: "uv run uvicorn src.main:app --reload --port 3001"
     description: "Run API development server"
+    command: "uv"
+    args:
+      - "run"
+      - "--with"
+      - "pydantic-ai"
+      - "--with"
+      - "fastapi"
+      - "--with"
+      - "uvicorn"
+      - "--with"
+      - "pydantic"
+      - "uvicorn"
+      - "src.main:app"
+      - "--reload"
+      - "--port"
+      - "8080"
     env:
       PYTHONPATH: "src"
 
-  run:
-    command: "uv run python src/main.py"
-    description: "Run API server"
-
-  setup:
-    command: "uv sync"
-    description: "Install dependencies"
+  start:
+    description: "Start API server"
+    command: "uv"
+    args:
+      - "run"
+      - "--with"
+      - "pydantic-ai"
+      - "--with"
+      - "fastapi"
+      - "--with"
+      - "uvicorn"
+      - "--with"
+      - "pydantic"
+      - "python"
+      - "src/main.py"

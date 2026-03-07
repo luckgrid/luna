@@ -23,7 +23,7 @@ export default function AI() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3001/chat", {
+      const response = await fetch("http://localhost:8080/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -41,23 +41,32 @@ export default function AI() {
 
       const decoder = new TextDecoder();
       let assistantMessage = "";
+      let sseBuffer = "";
 
       // Add empty assistant message
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
       while (true) {
-        // eslint-disable-next-line no-await-in-loop
+        // eslint-disable-next-line no-await-in-loop -- streaming requires sequential reads
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
+        sseBuffer += decoder.decode(value, { stream: true });
+        const lines = sseBuffer.split("\n");
+        sseBuffer = lines.pop() ?? "";
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const data = line.slice(6);
             if (data === "[DONE]") continue;
-            assistantMessage += data;
+
+            // Some providers stream cumulative snapshots, while others stream deltas.
+            if (data.startsWith(assistantMessage)) {
+              assistantMessage = data;
+            } else {
+              assistantMessage += data;
+            }
+
             setMessages((prev) => {
               const updated = [...prev];
               updated[updated.length - 1] = {

@@ -2,18 +2,46 @@
 import os
 from typing import Any
 
-from fastapi import FastAPI, SSEEvent
+from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pydantic_ai import Agent
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Application settings loaded from environment variables."""
+    
+    model_config = SettingsConfigDict(
+        env_file=".env.local",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+    
+    ai_model: str = "openai:gpt-4o-mini"
+    openai_api_key: str | None = None
+
+
+settings = Settings()
+
+# Export API key to environment for pydantic-ai
+if settings.openai_api_key:
+    os.environ["OPENAI_API_KEY"] = settings.openai_api_key
 
 app = FastAPI()
 
-# Configure model - uses OpenAI by default, override with env vars
-# For local testing, can use Ollama: OllamaModel('llama3.2')
-model = os.getenv("AI_MODEL", "openai:gpt-4o-mini")
+# CORS for web app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-agent = Agent(model)
+# Configure agent with settings
+agent = Agent(settings.ai_model)
 
 
 class ChatRequest(BaseModel):
@@ -65,4 +93,4 @@ async def chat(request: ChatRequest) -> StreamingResponse:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=3001)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
