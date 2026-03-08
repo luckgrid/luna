@@ -140,6 +140,7 @@ textarea {
   --form-bg: var(--color-input-bg);
   --form-fg: var(--color-input-fg);
   --form-border: var(--color-input-border);
+  --form-ring: var(--color-primary-ring);
   --form-valid: light-dark(var(--color-green), var(--color-dark-green-2));
   --form-invalid: var(--color-alert-bg);
   --form-ring-opacity: 60%;
@@ -150,7 +151,7 @@ textarea {
   --form-shadow-focus:
     var(--shadow-2xs), 0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
     0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
-      color-mix(in oklab, var(--color-input-ring) var(--form-ring-opacity), transparent);
+      color-mix(in oklab, var(--form-ring) var(--form-ring-opacity), transparent);
   --form-shadow-valid-focus:
     var(--shadow-2xs), 0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
     0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
@@ -359,6 +360,27 @@ textarea[aria-invalid] {
   margin-inline-end: 0.5em;
   vertical-align: middle;
   cursor: pointer;
+}
+
+:where([type="checkbox"], [type="radio"]):focus-visible {
+  box-shadow:
+    0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
+    0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
+      color-mix(in oklab, var(--form-ring) var(--form-ring-opacity), transparent);
+}
+
+:where([type="checkbox"], [type="radio"])[aria-invalid="false"]:focus-visible {
+  box-shadow:
+    0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
+    0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
+      color-mix(in oklab, var(--form-valid) var(--form-ring-opacity), transparent);
+}
+
+:where([type="checkbox"], [type="radio"])[aria-invalid="true"]:focus-visible {
+  box-shadow:
+    0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
+    0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
+      color-mix(in oklab, var(--form-invalid) var(--form-ring-opacity), transparent);
 }
 
 [type="checkbox"]::-ms-check,

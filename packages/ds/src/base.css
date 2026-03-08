@@ -240,6 +240,10 @@ textarea,
   border-radius: var(--radius-1);
 }
 
+:where(input:not([type="checkbox"], [type="radio"]), select, textarea):focus-visible {
+  border-radius: var(--radius-1);
+}
+
 [dir="rtl"] {
   direction: rtl;
 }
