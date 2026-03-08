@@ -25,9 +25,16 @@ button,
   --button-bg: var(--color-neutral-bg);
   --button-fg: var(--color-neutral-fg);
   --button-border: var(--color-neutral-bg);
-  --button-ring: var(--color-neutral-ring);
+  --button-ring: var(--color-primary-ring);
+  --button-ring-opacity: 60%;
+  --button-focus-gap-width: var(--outline-width-1);
+  --button-focus-ring-width: var(--outline-width-2);
+  --button-focus-gap-color: var(--color-bg);
   --button-shadow: var(--shadow-xs);
-  --button-shadow-focus: 0 0 0 2px var(--button-ring);
+  --button-shadow-focus:
+    0 0 0 var(--button-focus-gap-width) var(--button-focus-gap-color),
+    0 0 0 calc(var(--button-focus-gap-width) + var(--button-focus-ring-width))
+      color-mix(in oklab, var(--button-ring) var(--button-ring-opacity), transparent);
 
   display: inline-flex;
   align-items: center;
@@ -90,6 +97,27 @@ button,
   --button-fg: var(--color-secondary-fg);
   --button-border: var(--color-secondary-bg);
   --button-ring: var(--color-secondary-ring);
+  --button-shadow: 0 0 0 transparent;
+
+  background-color: transparent;
+  color: var(--button-bg);
+  border-color: var(--button-bg);
+}
+
+:where(
+    button,
+    [type="submit"],
+    [type="reset"],
+    [type="button"],
+    [role="button"]
+  ).button-secondary:is(
+    [aria-current]:not([aria-current="false"]),
+    :hover,
+    :active,
+    :focus-visible
+  ) {
+  background-color: color-mix(in oklab, var(--button-bg) 12%, transparent);
+  border-color: var(--button-bg);
 }
 
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).button-alert {
@@ -100,30 +128,56 @@ button,
 }
 
 /* Button variant utilities */
-:where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).button-outline {
-  --button-shadow: 0 0 0 transparent;
-
-  background-color: transparent;
-  color: var(--button-bg);
-  border-color: var(--button-bg);
-}
-
-:where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).button-outline:is(
-    :hover,
-    :active,
-    :focus-visible
-  ) {
-  background-color: color-mix(in oklab, var(--button-bg) 12%, transparent);
-}
 
 :where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).button-text {
   --button-shadow: 0 0 0 transparent;
 
   min-height: auto;
   padding-inline: 0;
+  border-radius: var(--radius-1);
   border-color: transparent;
   background-color: transparent;
-  color: var(--button-bg);
+  color: var(--button-text-fg, var(--color-fg));
+}
+
+:where(
+    button,
+    [type="submit"],
+    [type="reset"],
+    [type="button"],
+    [role="button"]
+  ).button-text.button-primary {
+  --button-text-fg: var(--color-primary-bg);
+}
+
+:where(
+    button,
+    [type="submit"],
+    [type="reset"],
+    [type="button"],
+    [role="button"]
+  ).button-text.button-secondary {
+  --button-text-fg: var(--color-secondary-bg);
+}
+
+:where(
+    button,
+    [type="submit"],
+    [type="reset"],
+    [type="button"],
+    [role="button"]
+  ).button-text.button-alert {
+  --button-text-fg: var(--color-alert-bg);
+}
+
+:where(
+    button,
+    [type="submit"],
+    [type="reset"],
+    [type="button"],
+    [role="button"]
+  ).button-text.button-ghost {
+  --button-text-fg: color-mix(in oklab, var(--color-fg) 80%, transparent);
 }
 
 :where(
@@ -133,6 +187,17 @@ button,
     [type="button"],
     [role="button"]
   ).button-text:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+:where(
+    button,
+    [type="submit"],
+    [type="reset"],
+    [type="button"],
+    [role="button"]
+  ).button-text:focus-visible {
   text-decoration: underline;
   text-underline-offset: 0.22em;
 }
@@ -161,6 +226,17 @@ button,
     .button-alert
   ):is(:hover, :active, :focus-visible) {
   color: var(--color-button-fg);
+}
+
+:where(button, [type="submit"], [type="reset"], [type="button"], [role="button"]).button-text:is(
+    [aria-current]:not([aria-current="false"]),
+    :hover,
+    :active,
+    :focus-visible
+  ) {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--button-text-fg, var(--color-fg));
 }
 
 /* 

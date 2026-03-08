@@ -142,11 +142,23 @@ textarea {
   --form-border: var(--color-input-border);
   --form-valid: light-dark(var(--color-green), var(--color-dark-green-2));
   --form-invalid: var(--color-alert-bg);
+  --form-ring-opacity: 60%;
+  --form-focus-gap-width: var(--outline-width-1);
+  --form-focus-ring-width: var(--outline-width-2);
+  --form-focus-gap-color: var(--color-bg);
   --form-shadow: none;
-  --form-shadow-focus: var(--shadow-2xs), 0 0 0 2px var(--color-input-ring);
+  --form-shadow-focus:
+    var(--shadow-2xs), 0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
+    0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
+      color-mix(in oklab, var(--color-input-ring) var(--form-ring-opacity), transparent);
   --form-shadow-valid-focus:
-    var(--shadow-2xs), 0 0 0 2px color-mix(in oklab, var(--form-valid) 30%, transparent);
-  --form-shadow-invalid-focus: var(--shadow-2xs), 0 0 0 2px var(--form-invalid);
+    var(--shadow-2xs), 0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
+    0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
+      color-mix(in oklab, var(--form-valid) var(--form-ring-opacity), transparent);
+  --form-shadow-invalid-focus:
+    var(--shadow-2xs), 0 0 0 var(--form-focus-gap-width) var(--form-focus-gap-color),
+    0 0 0 calc(var(--form-focus-gap-width) + var(--form-focus-ring-width))
+      color-mix(in oklab, var(--form-invalid) var(--form-ring-opacity), transparent);
 
   border: var(--border-width-1) solid var(--form-border);
   border-radius: var(--radius-1);
@@ -584,7 +596,8 @@ input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"])[type
 [type="file"]:focus::file-selector-button {
   box-shadow:
     var(--shadow-2xs),
-    0 0 0 var(--outline-width-1) var(--color-primary-ring);
+    0 0 0 var(--outline-width-1) var(--color-bg),
+    0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-primary-ring) 60%, transparent);
 }
 
 /**
@@ -732,8 +745,12 @@ input:not(
     --group-radius: var(--radius-1);
     --group-border-width: var(--border-width-1);
     --group-shadow: 0 0 0 transparent;
-    --group-shadow-focus-with-button: var(--shadow-2xs), 0 0 0 2px var(--color-primary-ring);
-    --group-shadow-focus-with-input: var(--shadow-2xs), 0 0 0 2px var(--color-primary-ring);
+    --group-shadow-focus-with-button:
+      var(--shadow-2xs), 0 0 0 var(--outline-width-1) var(--color-bg),
+      0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-primary-ring) 60%, transparent);
+    --group-shadow-focus-with-input:
+      var(--shadow-2xs), 0 0 0 var(--outline-width-1) var(--color-bg),
+      0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-primary-ring) 60%, transparent);
     --group-button-shadow-focus: var(--shadow-2xs), 0 0 0 1px var(--color-primary-border);
 
     display: inline-flex;

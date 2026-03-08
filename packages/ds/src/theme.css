@@ -203,7 +203,11 @@
   --outline-width-3: var(--border-width-3);
   --outline-width-4: var(--border-width-4);
 
-  --outline-offset-0: var(--stroke-offset);
+  --outline-offset-0: clamp(0.08em, calc(0.08em + (0.14em - 0.08em) * var(--type-ratio)), 0.14em);
+  --outline-offset-1: calc(var(--outline-offset-0) * var(--multiplier-sm));
+  --outline-offset-2: calc(var(--outline-offset-1) * var(--multiplier-sm));
+  --outline-offset-3: calc(var(--outline-offset-2) * var(--multiplier-sm));
+  --outline-offset-4: calc(var(--outline-offset-3) * var(--multiplier-sm));
 
   /* Typography */
 

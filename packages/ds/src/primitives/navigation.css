@@ -8,10 +8,18 @@ a:not([role="button"]),
   --link-underline: color-mix(in oklab, var(--link-color) 45%, transparent);
   --link-hover-underline: color-mix(in oklab, var(--link-hover) 65%, transparent);
   --link-ring: var(--color-primary-ring);
-  --link-shadow-focus: 0 0 0 2px var(--link-ring);
+  --link-ring-opacity: 60%;
+  --link-focus-gap-width: var(--outline-width-1);
+  --link-focus-ring-width: var(--outline-width-2);
+  --link-focus-gap-color: var(--color-bg);
+  --link-shadow-focus:
+    0 0 0 var(--link-focus-gap-width) var(--link-focus-gap-color),
+    0 0 0 calc(var(--link-focus-gap-width) + var(--link-focus-ring-width))
+      color-mix(in oklab, var(--link-ring) var(--link-ring-opacity), transparent);
   --link-text-decoration: none;
 
   outline: none;
+  border-radius: var(--radius-1);
   background-color: transparent;
   color: var(--link-color);
   text-decoration: var(--link-text-decoration);

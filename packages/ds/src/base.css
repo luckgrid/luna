@@ -3,7 +3,8 @@
 ::before,
 ::backdrop,
 ::file-selector-button {
-  outline-color: --alpha(var(--color-ring, currentColor) / 50%);
+  outline-color: --alpha(var(--color-ring, currentColor) / 60%);
+  outline-offset: var(--outline-width-1);
   border-color: var(--color-border, currentColor);
 }
 
@@ -233,6 +234,10 @@ textarea,
 [tabindex] {
   -ms-touch-action: manipulation;
   touch-action: manipulation;
+}
+
+:where(summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  border-radius: var(--radius-1);
 }
 
 [dir="rtl"] {
