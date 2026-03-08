@@ -15,7 +15,17 @@
   --stroke-max: 0.15rem;
   --stroke-offset: 0.125em;
 
-  --type-min: 0.95rem;
-  --type-max: 1.1rem;
-  --type-ratio: calc((100vw - var(--viewport-min)) / (var(--viewport-max) - var(--viewport-min)));
+  --type-min: 1rem;
+  --type-max: 1.25rem;
+  --type-ratio: clamp(
+    0,
+    calc((100vw - var(--viewport-min)) / (var(--viewport-max) - var(--viewport-min))),
+    1
+  );
+  --type-step-min: 1.25;
+  --type-step-max: 1.333;
+  --type-base: calc(var(--type-min) + (var(--type-max) - var(--type-min)) * var(--type-ratio));
+  --type-step: calc(
+    var(--type-step-min) + (var(--type-step-max) - var(--type-step-min)) * var(--type-ratio)
+  );
 }

@@ -10,14 +10,15 @@
     "./input": "./src/form/input.tsx",
     "./link": "./src/navigation/link.tsx",
     "./tooltip": "./src/feedback/tooltip.tsx",
-    "./utils": "./src/utils/cx.ts",
+    "./utils": "./src/utils/core.ts",
     "./utils/*": "./src/utils/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "typescript": "^5"

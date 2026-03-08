@@ -6,6 +6,7 @@ fileGroups:
   configs:
     - "*.config.ts"
     - "*.json"
+    - ".env*"
   sources:
     - "src/**/*"
   assets:
@@ -22,9 +23,9 @@ tasks:
       - "dist"
 
   dev:
-    command: "bun run dev"
-    preset: "server"
+    command: "bun run dev --port ${WEB_PORT:-3000}"
     options:
+      envFile: "/.env.local"
       persistent: true
 
   optimize:
@@ -42,6 +43,16 @@ tasks:
     command: "bun run start"
     deps:
       - "build"
-    preset: "server"
     options:
+      envFile: "/.env.local"
       persistent: true
+
+  clean:
+    command: "git"
+    args:
+      - "clean"
+      - "-fdx"
+      - "--"
+      - ".output"
+      - "dist"
+      - "node_modules"

@@ -1,7 +1,7 @@
 import type { JSX, ParentProps } from "solid-js";
 
 import { Link } from "../navigation/link";
-import { cx } from "../utils/cx";
+import { cx } from "../utils/core";
 
 export type ButtonProps = ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>;
 
@@ -21,12 +21,12 @@ export function SecondaryButton(props: ButtonProps) {
   return <Button {...props} class={cx("button-secondary", props.class)} />;
 }
 
-export function GhostButton(props: ButtonProps) {
-  return <Button {...props} class={cx("button-ghost", props.class)} />;
+export function AlertButton(props: ButtonProps) {
+  return <Button {...props} class={cx("button-alert", props.class)} />;
 }
 
-export function OutlineButton(props: ButtonProps) {
-  return <Button {...props} class={cx("button-outline", props.class)} />;
+export function GhostButton(props: ButtonProps) {
+  return <Button {...props} class={cx("button-ghost", props.class)} />;
 }
 
 export function TextButton(props: ButtonProps) {
@@ -45,12 +45,12 @@ export function SecondaryButtonLink(props: ButtonLinkProps) {
   return <ButtonLink {...props} class={cx("button-secondary", props.class)} />;
 }
 
-export function GhostButtonLink(props: ButtonLinkProps) {
-  return <ButtonLink {...props} class={cx("button-ghost", props.class)} />;
+export function AlertButtonLink(props: ButtonLinkProps) {
+  return <ButtonLink {...props} class={cx("button-alert", props.class)} />;
 }
 
-export function OutlineButtonLink(props: ButtonLinkProps) {
-  return <ButtonLink {...props} class={cx("button-outline", props.class)} />;
+export function GhostButtonLink(props: ButtonLinkProps) {
+  return <ButtonLink {...props} class={cx("button-ghost", props.class)} />;
 }
 
 export function TextButtonLink(props: ButtonLinkProps) {

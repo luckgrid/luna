@@ -32,3 +32,12 @@ tasks:
       - "@group(sources)"
     options:
       runFromWorkspaceRoot: true
+
+  clean:
+    command: "git"
+    args:
+      - "clean"
+      - "-fdx"
+      - "--"
+      - "dist"
+      - "node_modules"

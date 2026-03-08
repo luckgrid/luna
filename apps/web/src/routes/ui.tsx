@@ -19,9 +19,11 @@ export default function Home() {
           <Button>Default</Button>
           <Button class="button-primary">Primary</Button>
           <Button class="button-secondary">Secondary</Button>
+          <Button class="button-alert">Alert</Button>
           <Tooltip content="This is a custom tooltip from @luna/ui">
             <Button class="button-ghost">Ghost</Button>
           </Tooltip>
+          <Button class="button-text">Text</Button>
         </div>
       </header>
 

@@ -1,6 +1,12 @@
 /**
  * Form
  */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-box-2);
+}
+
 input,
 optgroup,
 select,
@@ -54,8 +60,8 @@ label:has([type="checkbox"], [type="radio"]) {
 [type="search"] {
   appearance: textfield;
   -webkit-appearance: textfield;
-  outline-offset: calc(var(--outline-width-0) * -2);
-  border-radius: var(--radius-4);
+  outline-offset: var(--outline-offset-1);
+  border-radius: var(--radius-1);
 }
 
 [type="search"]::-webkit-search-decoration {
@@ -103,8 +109,9 @@ fieldset {
 
 label,
 fieldset legend {
-  display: block;
-  margin-bottom: calc(var(--spacing-box-2) * 0.375);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-box-2) * 0.375);
   color: var(--color-fg);
   font-weight: 600;
 }
@@ -131,13 +138,15 @@ input,
 select,
 textarea {
   --form-bg: var(--color-input-bg);
-  --form-border: var(--color-input-border);
   --form-fg: var(--color-input-fg);
+  --form-border: var(--color-input-border);
+  --form-valid: light-dark(var(--color-green), var(--color-dark-green-2));
+  --form-invalid: var(--color-alert-bg);
   --form-shadow: none;
   --form-shadow-focus: var(--shadow-2xs), 0 0 0 2px var(--color-input-ring);
   --form-shadow-valid-focus:
-    var(--shadow-2xs), 0 0 0 2px color-mix(in oklab, var(--color-green) 30%, transparent);
-  --form-shadow-invalid-focus: var(--shadow-2xs), 0 0 0 2px var(--color-alert-ring);
+    var(--shadow-2xs), 0 0 0 2px color-mix(in oklab, var(--form-valid) 30%, transparent);
+  --form-shadow-invalid-focus: var(--shadow-2xs), 0 0 0 2px var(--form-invalid);
 
   border: var(--border-width-1) solid var(--form-border);
   border-radius: var(--radius-1);
@@ -584,8 +593,9 @@ input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"])[type
 [type="range"] {
   appearance: none;
   width: 100%;
-  height: 1.25rem;
-  background: none;
+  height: var(--border-width-4);
+  background: 0 0;
+  background-color: var(--color-input-border);
 }
 
 [type="range"]::-webkit-slider-runnable-track,
@@ -593,7 +603,7 @@ input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"])[type
 [type="range"]::-ms-track {
   width: 100%;
   height: 0.375rem;
-  border-radius: var(--radius-1);
+  border-radius: var(--border-width-4);
   background-color: var(--color-input-border);
   transition:
     background-color 150ms ease,
@@ -607,9 +617,9 @@ input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"])[type
   width: 1.25rem;
   height: 1.25rem;
   margin-top: -0.4375rem;
-  border: 2px solid var(--color-primary-border);
+  border: 2px solid var(--color-input-ring);
   border-radius: 50%;
-  background-color: var(--color-primary-bg);
+  background-color: var(--color-input-ring);
   cursor: pointer;
   transition:
     background-color 150ms ease,
@@ -618,8 +628,8 @@ input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"])[type
 
 [type="range"]:active,
 [type="range"]:focus-within {
-  --range-track: color-mix(in oklab, var(--color-primary-border) 80%, var(--color-input-border));
-  --range-thumb: color-mix(in oklab, var(--color-primary-bg) 80%, var(--color-bg));
+  --range-track: color-mix(in oklab, var(--color-input-border) 80%, var(--color-input-border));
+  --range-thumb: color-mix(in oklab, var(--color-input-ring) 80%, var(--color-input-ring));
 }
 
 [type="range"]:active::-webkit-slider-runnable-track,
@@ -719,7 +729,7 @@ input:not(
 @scope ([role="search"]) {
   :where(:scope) {
     --group-space: var(--spacing-box-2);
-    --group-radius: var(--radius-4);
+    --group-radius: var(--radius-1);
     --group-border-width: var(--border-width-1);
     --group-shadow: 0 0 0 transparent;
     --group-shadow-focus-with-button: var(--shadow-2xs), 0 0 0 2px var(--color-primary-ring);

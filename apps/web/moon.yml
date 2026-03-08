@@ -2,6 +2,14 @@ language: typescript
 layer: application
 stack: frontend
 
+fileGroups:
+  configs:
+    - "*.config.ts"
+    - "*.json"
+    - ".env*"
+  sources:
+    - "src/**/*"
+
 project:
   name: web
   description: Luna marketing web app built with Solid Start.

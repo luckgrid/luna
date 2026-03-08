@@ -29,6 +29,8 @@ __pycache__/
 *.pyc
 *.egg-info/
 .eggs/
+.pytest_cache/
+.ruff_cache/
 
 # OS
 .DS_Store

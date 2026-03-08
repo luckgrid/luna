@@ -56,6 +56,6 @@ moon run ui:typecheck
 
 ## Internal imports
 
-Inside `packages/ui/src`, prefer relative imports (for example `../utils/cx` or `../utils/navigation`) instead of app-level aliases like `~/*`.
+Inside `packages/ui/src`, prefer relative imports (for example `../utils/core` or `../utils/navigation`) instead of app-level aliases like `~/*`.
 
 Extract shared logic into `src/utils/*` and consume it from components, rather than duplicating helpers across component files.

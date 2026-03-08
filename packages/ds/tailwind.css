@@ -1,7 +1,7 @@
 @layer properties, theme, base, layout, action, navigation, form, display, feedback, utilities;
 
-@source "../../apps/**/*.{tsx,ts}";
-@source "../ui/**/*.{tsx,ts}";
+@source "../../apps/web/src/**/*.{tsx,ts}";
+@source "../ui/src/**/*.{tsx,ts}";
 
 @import "./src/properties.css" layer(properties);
 @import "tailwindcss/theme" layer(theme);

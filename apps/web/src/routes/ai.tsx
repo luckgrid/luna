@@ -1,6 +1,9 @@
 import { createSignal, For } from "solid-js";
 import { Title } from "@solidjs/meta";
 
+// API URL from Nitro public config (no VITE_ prefix needed)
+const API_BASE_URL = import.meta.env.NITRO_PUBLIC_API_BASE_URL || "http://localhost:8080";
+
 type Message = {
   role: "user" | "assistant";
   content: string;
@@ -23,7 +26,7 @@ export default function AI() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:8080/chat", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -98,11 +101,13 @@ export default function AI() {
       <section class="chat-container">
         <div class="chat-messages">
           <For each={messages()}>
-            {(msg) => (
-              <div class={`message message-${msg.role}`}>
-                <div class="message-content">{msg.content}</div>
-              </div>
-            )}
+            {(msg) =>
+              msg.content.trim().length > 0 && (
+                <div class={`message message-${msg.role}`}>
+                  <div class="message-content">{msg.content}</div>
+                </div>
+              )
+            }
           </For>
           {loading() && (
             <div class="message message-assistant">

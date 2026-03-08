@@ -46,3 +46,16 @@ bun run start
 - app scripts: [`package.json`](package.json)
 - Vite config: [`vite.config.ts`](vite.config.ts)
 - TypeScript config: [`tsconfig.json`](tsconfig.json)
+- environment config: [`.env.local`](.env.local)
+
+## Environment Variables
+
+The web app uses Nitro's public runtime config for cross-service communication:
+
+| Variable       | Description                | Default                 |
+| -------------- | -------------------------- | ----------------------- |
+| `API_BASE_URL` | API server URL for AI chat | `http://localhost:8080` |
+
+Nitro exposes public config to the client as `import.meta.env.NITRO_PUBLIC_*` without requiring the `VITE_` prefix.
+
+Environment variables are loaded from the root `.env.local` via moon's `envFile` option in `moon.yml`, then passed to Nitro's `runtimeConfig.public` in `vite.config.ts`.

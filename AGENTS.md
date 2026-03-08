@@ -9,15 +9,15 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 - Run commands from the repository root unless an app/package README says otherwise.
 - Keep app-specific scripts in each app's `package.json`; shared orchestration goes through moon/root scripts.
 
-## Fast References
+## Quick References
 
 - Project overview and stack: [`README.md` (Tech Stack)](README.md#tech-stack)
-- Toolchain and `.prototools` usage: [`README.md` (Toolchains)](README.md#toolchains)
-- Workspace layout and root scripts: [`README.md` (Workspaces)](README.md#workspaces)
+- Toolchain and `.prototools` usage: [`README.md` (Dependencies and Tools)](README.md#dependencies-and-tools)
+- Workspace layout and root scripts: [`README.md` (Workspace Layout)](README.md#workspace-layout), [`README.md` (Common Commands)](README.md#common-commands)
 - Setup flow: [`README.md` (Quick start)](README.md#quick-start)
-- Lint/format/typecheck commands: [`README.md` (Code Quality)](README.md#code-quality)
-- App task execution: [`README.md` (Moon Tasks)](README.md#moon-tasks)
-- Config file map: [`README.md` (Configurations)](README.md#configurations)
+- Lint/format/typecheck commands: [`README.md` (Code Quality)](README.md#code-quality), [`README.md` (Common Commands)](README.md#common-commands)
+- App task execution: [`README.md` (App Tasks)](README.md#app-tasks-moon)
+- Config file map: [`README.md` (Configuration Map)](README.md#configuration-map)
 - Dependency and toolchain maintenance: [`README.md` (Dependency Maintenance)](README.md#dependency-maintenance)
 
 ## Key Paths

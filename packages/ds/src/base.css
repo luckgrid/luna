@@ -22,7 +22,7 @@
 
 :root {
   font-weight: var(--font-weight-medium);
-  font-size: var(--text-base);
+  font-size: var(--text-md);
   line-height: var(--text-md--line-height);
   font-family: var(--font-sans);
   text-underline-offset: var(--outline-offset-0);

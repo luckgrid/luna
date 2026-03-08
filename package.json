@@ -8,19 +8,18 @@
   ],
   "type": "module",
   "scripts": {
-    "postinstall": "bun run setup",
     "setup": "moon run :setup",
     "build": "moon run :build --query \"projectLayer=application\"",
     "dev": "moon run :dev --query \"projectLayer=application\"",
     "start": "moon run :start --query \"projectLayer=application\"",
-    "clean": "moon clean --all",
     "typecheck": "tsc --build --verbose",
     "check": "bun run lint && bun run format:check && bun run typecheck",
     "fix": "bun run lint:fix && bun run format",
     "format": "oxfmt .",
     "format:check": "oxfmt --list-different .",
     "lint": "oxlint .",
-    "lint:fix": "oxlint --fix ."
+    "lint:fix": "oxlint --fix .",
+    "clean": "moon run :clean && moon clean --all && git clean -fdx -- .cache node_modules"
   },
   "devDependencies": {
     "@types/bun": "latest",
