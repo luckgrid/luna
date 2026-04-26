@@ -191,4 +191,3 @@ func Categories(posts []Post) []string {
 	sort.Strings(out)
 	return out
 }
-

@@ -11,25 +11,29 @@ fileGroups:
   sources:
     - "main.go"
     - "src/**/*"
+  assets:
     - "public/**/*"
+    - "**/*.css"
 
 tasks:
-  setup:
+  install:
     command: "go"
     args: ["mod", "download"]
     inputs:
       - "go.mod"
       - "go.sum"
 
-  generate:
+  templates:
     command: "go"
     args: ["tool", "templ", "generate"]
+    deps:
+      - "install"
     inputs:
       - "src/**/*.templ"
     outputs:
       - "src/**/*_templ.go"
 
-  css:
+  styles:
     command: "bunx"
     args:
       - "@tailwindcss/cli"
@@ -51,8 +55,8 @@ tasks:
     command: "go"
     args: ["run", "."]
     deps:
-      - "generate"
-      - "css"
+      - "templates"
+      - "styles"
     inputs:
       - "@group(sources)"
       - "@group(configs)"
@@ -71,12 +75,49 @@ tasks:
       - "--cmd"
       - "go run . --serve --port ${WEB_PORT:-3000}"
     deps:
-      - "setup"
-      - "css"
+      - "build"
     options:
       envFile: "/.env.local"
       persistent: true
       runInCI: false
+
+  lint:
+    command: "go"
+    args: ["vet", "./..."]
+    deps:
+      - "build"
+    inputs:
+      - "@group(sources)"
+      - "main.go"
+
+  lint-fix:
+    command: "go"
+    args: ["fmt", "./..."]
+    deps:
+      - "build"
+    inputs:
+      - "@group(sources)"
+      - "main.go"
+
+  format:
+    command: "go"
+    args: ["fmt", "./..."]
+    deps:
+      - "build"
+    inputs:
+      - "@group(sources)"
+      - "main.go"
+
+  format-check:
+    command: sh
+    args:
+      - "-c"
+      - "if gofmt -l -e main.go src | grep -q .; then echo 'Files need gofmt:'; gofmt -l -e main.go src; exit 1; fi"
+    deps:
+      - "build"
+    inputs:
+      - "@group(sources)"
+      - "main.go"
 
   clean:
     command: "git"

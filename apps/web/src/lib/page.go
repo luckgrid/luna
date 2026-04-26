@@ -22,4 +22,3 @@ func WritePage(distDir, rel string, c templ.Component) error {
 	defer f.Close()
 	return c.Render(context.Background(), f)
 }
-

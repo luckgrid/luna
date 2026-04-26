@@ -7,7 +7,7 @@ javascript:
 bun: {}
 
 # Python is still unstable in moon v2 and is intentionally NOT enabled here.
-# `apps/api` declares `language: python` and uses an explicit `uv sync` setup
+# `apps/api` declares `language: python` and uses an explicit `uv sync` `build`
 # task (see `.moon/tasks/py-api.yml`); toolchain auto-management would clash
 # with the existing `.venv` and `pyproject.toml` layout.
 

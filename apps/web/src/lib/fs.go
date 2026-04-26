@@ -56,4 +56,3 @@ func ServeDir(distDir, port string) error {
 	mux.Handle("/", http.FileServer(http.Dir(distDir)))
 	return http.ListenAndServe(addr, mux)
 }
-

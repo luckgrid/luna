@@ -2,7 +2,7 @@ proto = "0.56.4"
 moon = "2.2.3"
 bun = "1.3.13"
 python = "3.14.4"
-go = "1.24"
+go = "1.26.2"
 
 [settings]
 detect-strategy = "prefer-prototools"

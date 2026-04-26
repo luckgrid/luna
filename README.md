@@ -1,209 +1,124 @@
 # Luna
 
-Monorepo starter template powered by Bun + moonrepo, with:
+Luna is a polyglot monorepo starter built around **moonrepo** for the task graph, **proto** and [`.prototools`](.prototools) for pinned runtimes (Bun, Go, Python, moon), and **Bun workspaces** for JavaScript and TypeScript packages. The template layers three application stacks on that foundation: a **SolidStart** interactive app with SSR and streaming, a **Go + templ** static site generator for server-rendered HTML and Markdown, and a **FastAPI** service with Pydantic and Pydantic AI. Shared libraries live under `packages/*`. Use each app or package README for ports, env files, and moon task details.
 
-- `apps/app`: SolidStart interactive/SSR app (Vite + Nitro + Solid Router)
-- `apps/web`: Static marketing/content site (Go + templ + goldmark)
-- `apps/api`: FastAPI backend with Pydantic AI
-- shared UI/design-system packages under `packages/*`
+## Tech Stacks
 
-## Tech Stack
+### Core monorepo and toolchain
 
-- Monorepo orchestration with moonrepo + Bun workspaces
-- SolidStart interactive app (`apps/app`) with Vite and Nitro
-- Go + templ static site (`apps/web`) with goldmark Markdown and reusable layout templates
-- FastAPI backend (`apps/api`) using Pydantic AI + Pydantic
-- OXC + TypeScript for quality and type safety
-- Toolchains pinned with proto (`.prototools`)
+- 🟢 [Bun](https://bun.sh/) ([documentation](https://bun.sh/docs)) — JavaScript runtime, package manager, and workspace command runner
+- 🌙 [Moon](https://moonrepo.dev/) ([documentation](https://moonrepo.dev/docs)) — task orchestration and project graph
+- ⚙️ [Proto](https://moonrepo.dev/proto) — installs and pins tools from [`.prototools`](.prototools)
 
-For the complete dependency list (with links), see [Dependencies and Tools](#dependencies-and-tools).
+### Interactive application stack (SolidStart)
+
+SolidStart on **Vite** and **Nitro** is the stack for SPA-style apps that need **SSR**, **client-side fine-grained signals** (SolidJS), **routing** (Solid Router), and **streaming** responses. Nitro gives you a server runtime alongside the browser bundle, so the same project can grow full-stack APIs and server logic without leaving the framework.
+
+- ⚛️ [SolidStart](https://start.solidjs.com/) ([documentation](https://docs.solidjs.com/solid-start)) — full-stack app framework for `apps/app`
+- 🧩 [SolidJS](https://www.solidjs.com/) ([documentation](https://docs.solidjs.com/)) — reactive UI library
+- 🔀 [Solid Router](https://docs.solidjs.com/solid-router/) — routing for Solid apps
+- ⚡ [Vite](https://vite.dev/) ([guide](https://vite.dev/guide/)) — dev server and build tooling
+- 🔥 [Nitro](https://nitro.build/) ([guide](https://nitro.build/guide)) — server runtime used by SolidStart
+- 🎨 [Tailwind CSS v4](https://tailwindcss.com/) ([documentation](https://tailwindcss.com/docs)) — utility CSS used by `@luna/ds` (consumed from the interactive app and the static site pipeline)
+
+### Static site generator stack (Go and templ)
+
+The `apps/web` stack is a **server-side static site generator**: Go drives **templ** templates and **goldmark** Markdown into HTML on the server, with a classic SSG output layout. It fits marketing and content sites first, but you can add **signal-style** or fragment-driven interactivity (for example [Datastar](https://data-star.dev/) or similar) **without** a client-side router or heavy SPA shell when you outgrow pure static pages.
+
+- 🐹 [Go](https://go.dev/) ([documentation](https://go.dev/doc/)) — runtime for the generator; version pinned in [`.prototools`](.prototools)
+- 📄 [templ](https://templ.guide/) — compile-time HTML components; the CLI is a [Go 1.24+ tool dependency](https://templ.guide/quick-start/installation#go-install-as-tool) in [`apps/web/go.mod`](apps/web/go.mod) (`go tool templ` in moon tasks — no separate global install)
+- 📝 [goldmark](https://github.com/yuin/goldmark) — Markdown rendering (including frontmatter-related extensions as wired in the app)
+
+### API service stack (FastAPI and Pydantic)
+
+The `apps/api` stack centers on **FastAPI**, **Pydantic**, and **Pydantic AI** for a **pure backend** HTTP API: validation, settings, and agent-style features stay on the server. The same patterns extend to larger deployments (multiple services, workers, or runtimes) when you outgrow a single process; this repo keeps one API project as the starting point.
+
+- 🐍 [Python](https://www.python.org/) — runtime (version pinned in [`.prototools`](.prototools))
+- 📦 [uv](https://docs.astral.sh/uv/) — environments and lockfiles
+- 🚀 [FastAPI](https://fastapi.tiangolo.com/) — API framework
+- 🤖 [Pydantic AI](https://ai.pydantic.dev/) — AI agent patterns on the backend
+- ✅ [Pydantic](https://docs.pydantic.dev/) — schemas and models
+- ⚙️ [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) — environment-driven settings
+- 🌐 [Uvicorn](https://www.uvicorn.org/) — ASGI server
+
+### Workspace quality (TypeScript and OXC)
+
+- 🧹 [OXC (`oxlint` + `oxfmt`)](https://oxc.rs/) ([documentation](https://oxc.rs/docs/guide/usage/linter.html)) — linting and formatting for JS/TS at the repo root
+- 🟦 [TypeScript](https://www.typescriptlang.org/) ([documentation](https://www.typescriptlang.org/docs/)) — static typing and project references across workspaces
 
 ## Quick Start
 
-Run everything from the repository root unless an app README says otherwise.
+Run commands from the repository root unless an app README says otherwise.
 
 ```sh
-# 1) Install pinned tools from .prototools (proto, moon, bun, python, go)
-proto install
-
-# 2) Install JS/TS dependencies
-bun install
-
-# 3) Boot all apps with one command
-bun run dev
+proto install    # pinned tools from .prototools (proto, moon, bun, python, go)
+bun install      # workspace dependencies
+bun run dev      # all application-layer dev tasks (see moon query / app READMEs for subsets)
 ```
 
-`bun run dev` (= `moon run :dev --query "projectLayer=application"`) runs each
-app's `dev` task, which has its `setup`/`generate`/`css` deps wired up — so the
-first run also handles:
+For a full compile of every application project first, run **`bun run build`**. Default ports are documented in each app README and can be overridden via [`.env.local`](.env.local).
 
-- `web:setup` → `go mod download` (pulls templ, goldmark, goldmark-meta)
-- `web:css` → builds `apps/web/dist/styles.css` via the Tailwind v4 CLI (`src/styles.css` imports `@luna/ds`)
-- `web:dev` → `go tool templ generate --watch` + `go run . --serve` in `apps/web`
-- `api:setup` → `uv sync` (creates `.venv`, installs Python deps)
-- `api:dev` → Uvicorn with reload
-- `app:dev` → Vite dev server
+## Workspaces
 
-The [`templ`](https://templ.guide/) CLI is pinned per-project via the `tool`
-directive in [`apps/web/go.mod`](apps/web/go.mod) and invoked with `go tool
-templ` — no global Go install required.
+- **`apps/app/`** — SolidStart (SSR, Vite, Nitro) · [README](apps/app/README.md)
+- **`apps/web/`** — Go + templ SSG · [README](apps/web/README.md)
+- **`apps/api/`** — FastAPI + Pydantic AI · [README](apps/api/README.md)
+- **`packages/ui/`** — shared Solid UI · [README](packages/ui/README.md)
+- **`packages/ds/`** — design system / Tailwind · [README](packages/ds/README.md)
 
-Default ports: `app` → `3001`, `web` → `3000`, `api` → `8080` (override via
-[`.env.local`](.env.local)).
+Moon wires install, templates, styles, build, and dev tasks per project; **`web:dev`** depends on an initial **`web:build`**, and **`api:dev`** depends on **`api:build`** (`uv sync`) so first-time dev pulls toolchains and dependencies. For step-by-step task graphs (templ, Tailwind CLI, `go run`, Uvicorn, Vite), follow each workspace README above.
 
-To verify quality before committing:
+## Commands
+
+### Root scripts (Bun)
+
+These scripts target the **application layer** (all `apps/*` projects), matching what you use day to day from the repo root:
 
 ```sh
-bun run check     # oxlint + oxfmt --check + tsc --build
+bun run dev         # moon run :dev --query "projectLayer=application"
+bun run build       # moon run :build --query "projectLayer=application"
+bun run start       # moon run :start --query "projectLayer=application"
+bun run clean       # moon clean --all (+ root clean steps — see package.json)
 ```
 
-## Workspace Layout
-
-```txt
-apps/
-  app/        # SolidStart interactive/SSR app
-  web/        # Go + templ static marketing/content site
-  api/        # FastAPI + Pydantic AI backend
-packages/
-  ui/         # shared Solid UI components (consumed by apps/app)
-  ds/         # shared design-system styles (consumed by both apps)
-```
-
-More details:
-
-- App: [`apps/app/README.md`](apps/app/README.md)
-- Web: [`apps/web/README.md`](apps/web/README.md)
-- API: [`apps/api/README.md`](apps/api/README.md)
-- UI package: [`packages/ui/README.md`](packages/ui/README.md)
-- Design system package: [`packages/ds/README.md`](packages/ds/README.md)
-
-## Common Commands
-
-### Root Scripts
-
-```sh
-bun run dev         # run application-layer dev tasks
-bun run build       # build application-layer projects
-bun run start       # start application-layer projects
-bun run clean       # moon clean --all
-```
-
-### Code Quality
+### Code quality (Bun)
 
 ```sh
 bun run lint
 bun run format:check
 bun run typecheck
-bun run check       # lint + format:check + typecheck
+bun run check       # lint + format:check + typecheck (includes api/web moon tasks)
 
 bun run lint:fix
 bun run format
-bun run fix         # lint:fix + format
+bun run fix         # lint:fix + format (includes api/web moon tasks)
 ```
 
-### App Tasks (moon)
+### Moon: single apps, subsets, and packages
+
+Pass **multiple `project:task` targets** to run them in one invocation:
 
 ```sh
-# App (SolidStart)
-moon run app:dev
-moon run app:build
-moon run app:start
-
-# Web (Go + templ static site)
-moon run web:dev
-moon run web:build
-moon run web:setup
-
-# API
-moon run api:setup
-moon run api:dev
-moon run api:start
+moon run app:dev api:dev              # interactive app + API only (no web)
+moon run app:build api:build web:build
 ```
 
-## Run All Apps Locally
+Use **`--query`** to filter the graph instead of listing every target (same query language as `moon query projects`):
 
 ```sh
-# Single command from repo root (all application-layer dev tasks)
-bun run dev
-
-# Or run in separate terminals
-# Terminal 1: moon run app:dev
-# Terminal 2: moon run web:dev
-# Terminal 3: moon run api:dev
+moon run :dev --query 'project=[app,api]'
+moon run :typecheck --query "projectLayer=library"   # shared packages (tasks they inherit)
+moon query projects --help                           # filters: --id, --language, --layer, etc.
 ```
 
-`bun run dev` uses the root script to run all app-level dev tasks together.
-
-App runs via Vite dev server (`APP_PORT=3001`). Web serves generated `dist/`
-on `WEB_PORT=3000`. API runs via Uvicorn on `API_PORT=8080`.
-
-## Managing Running Servers
-
-### Check Running Processes
+Examples for **shared packages**:
 
 ```sh
-# Check if a port is in use (e.g., 8080 for API, 3001 for app, 3000 for web)
-lsof -i :8080
-lsof -i :3001
-lsof -i :3000
-
-# List all node/python processes running uvicorn or vite
-ps aux | grep -E "(uvicorn|vite)" | grep -v grep
+moon run ds:typecheck
+moon run ui:typecheck
 ```
 
-### Kill Running Servers
-
-```sh
-# Kill process on a specific port
-kill -9 <PID>
-
-# Or use pkill to kill by process name
-pkill -f "uvicorn src.main:app"   # API
-pkill -f "vite"                   # Web
-
-# Kill all node processes (if needed)
-pkill -f "node"
-```
-
-### Common Issues
-
-- **Address already in use**: Port is still held by a previous process. Find and kill it with `lsof -i :<port>`.
-- **Multiple dev servers**: Running `bun run dev` or `moon run :dev` starts all apps - use `moon run api:dev` or `moon run web:dev` to run a single app.
-- **`go` runs `gh browse` or errors like "accepts at most 1 arg"**: An interactive shell alias for `go` is still active. Sourcing `.zshrc` does not remove aliases already defined in that session — run `unalias go` (or open a new terminal), then ensure real Go is on `PATH` (after `proto install`, use `command -v go` and `go version`). To bypass an alias once, use `\go` or `command go`. Moon tasks invoke `go` without your zsh aliases, so `moon run web:generate` still works.
-
-## Dependencies and Tools
-
-### TypeScript and Frontend
-
-- 🟢 [Bun](https://bun.sh/) - JS runtime, package manager, and workspace command runner
-- 🌙 [Moon](https://moonrepo.dev/) - task orchestration and project graph
-- ⚙️ [Proto](https://moonrepo.dev/proto) - pinned toolchain management via [`.prototools`](.prototools)
-- ⚛️ [SolidStart](https://start.solidjs.com/) - full-stack app framework for `apps/app`
-- 🧩 [SolidJS](https://www.solidjs.com/) - reactive UI library
-- 🔀 [Solid Router](https://docs.solidjs.com/solid-router/) - routing for Solid apps
-- ⚡ [Vite](https://vite.dev/) - dev server and build tooling
-- 🔥 [Nitro](https://nitro.build/) - server runtime used by SolidStart
-- 🎨 [Tailwind CSS v4](https://tailwindcss.com/) - utility CSS used by `@luna/ds`
-- 🧹 [OXC (`oxlint` + `oxfmt`)](https://oxc.rs/) - linting and formatting
-- 🟦 [TypeScript](https://www.typescriptlang.org/) - static typing and project references
-
-### Go and Static Site
-
-- 🐹 [Go](https://go.dev/) - runtime for the static site generator (`apps/web`), version pinned in [`.prototools`](.prototools)
-- 📄 [templ](https://templ.guide/) - compile-time HTML components for Go; the CLI is a [Go 1.24+ tool dependency](https://templ.guide/quick-start/installation#go-install-as-tool) in [`apps/web/go.mod`](apps/web/go.mod) (`go tool templ`, used by moon tasks — no separate global install)
-- 📝 [goldmark](https://github.com/yuin/goldmark) - Markdown rendering with frontmatter
-
-### Python and Backend AI API
-
-- 🐍 [Python](https://www.python.org/) - backend runtime (version pinned in [`.prototools`](.prototools))
-- 📦 [uv](https://docs.astral.sh/uv/) - Python dependency and environment management
-- 🚀 [FastAPI](https://fastapi.tiangolo.com/) - API framework
-- 🤖 [Pydantic AI](https://ai.pydantic.dev/) - AI agent framework for backend AI features
-- ✅ [Pydantic](https://docs.pydantic.dev/) - schema validation and data modeling
-- ⚙️ [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) - environment-driven settings
-- 🌐 [Uvicorn](https://www.uvicorn.org/) - ASGI server
-
-## Configuration Map
+## Configuration map
 
 - Tool/version pins: [`.prototools`](.prototools)
 - Workspace root scripts: [`package.json`](package.json)
@@ -219,88 +134,46 @@ pkill -f "node"
 - OXC formatter config: [`.oxfmtrc.json`](.oxfmtrc.json)
 - OXC linter config: [`.oxlintrc.json`](.oxlintrc.json)
 
-## Dependency Maintenance
+## Dependency maintenance
 
-### JS/TS (Bun workspaces)
+Repo-wide **outdated checks** and **upgrades** are scripted so every toolchain stays in sync:
 
-```sh
-# list outdated packages across workspaces
-bun outdated --recursive
-
-# update within semver ranges
-bun update --recursive
-
-# update to latest versions
-bun update --recursive --latest
-```
-
-### Python (`apps/api`)
+[`scripts/outdated.sh`](scripts/outdated.sh) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules. [`scripts/upgrade.sh`](scripts/upgrade.sh) applies upgrades across those tiers (proto → Bun → uv → Go). After `bun run upgrade`, review diffs and run `bun run check` before committing.
 
 ```sh
-# sync dependencies from pyproject/lock
-cd apps/api
-uv sync
-
-# add a dependency
-uv add <package>
+bun run outdated:check   # print reports only (exit 0)
+bun run outdated         # strict: exit 1 if anything is outdated (CI-friendly)
+bun run upgrade          # bump pins and dependencies repo-wide; then review and run bun run check
 ```
 
-### Go (`apps/web`)
+**Per stack (manual add / remove)** — use these when you are changing one project, not refreshing everything:
+
+- **Toolchain (proto)** — edit [`.prototools`](.prototools), then `proto install` (or `proto pin <tool> <version>`). Removing a tool line drops it from proto’s install set for this repo.
+- **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
+- **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
+- **Go (`apps/web`)** — `cd apps/web` then `go get example.com/module@v1.2.3` (or `@latest`); drop a direct dependency with `go get example.com/module@none` and run `go mod tidy`. The **templ** CLI stays aligned with the library via `go get -tool github.com/a-h/templ/cmd/templ@<version>` when you bump templ intentionally.
+
+## Troubleshooting
+
+### Port already in use (`EADDRINUSE`)
+
+Another process is still bound to the port (often after stopping a dev server).
 
 ```sh
-cd apps/web
-
-# bump the templ CLI (tool) and library together, then tidy
-go get -tool github.com/a-h/templ/cmd/templ@latest
-go mod tidy
+lsof -i :8080    # API default; try :3000 for web, :3001 for app
 ```
 
-### Toolchain Pins (`.prototools`)
+Note the `PID` from `lsof`, then:
 
 ```sh
-# install or update pinned tools
-proto install
-
-# check for newer versions
-proto outdated
-
-# pin a specific version
-proto pin <tool> <version>
+kill -9 <PID>
 ```
 
-## Resources
+### Stale API or Vite processes
 
-### Core Tooling
+If you know the command line, you can narrow cleanup:
 
-- [proto docs](https://moonrepo.dev/proto)
-- [moonrepo docs](https://moonrepo.dev/docs)
-- [Bun docs](https://bun.sh/docs)
-- [uv docs](https://docs.astral.sh/uv/)
-
-### Frontend Web Apps
-
-- [SolidStart docs](https://docs.solidjs.com/solid-start)
-- [SolidJS docs](https://docs.solidjs.com/)
-- [Solid Router docs](https://docs.solidjs.com/solid-router)
-- [Vite docs](https://vite.dev/guide/)
-- [Nitro docs](https://nitro.build/guide)
-- [Tailwind CSS v4 docs](https://tailwindcss.com/docs)
-
-### Static Site (Go)
-
-- [Go docs](https://go.dev/doc/)
-- [templ docs](https://templ.guide/)
-- [goldmark docs](https://github.com/yuin/goldmark)
-
-### Backend AI API
-
-- [FastAPI docs](https://fastapi.tiangolo.com/)
-- [Pydantic AI docs](https://ai.pydantic.dev/)
-- [Pydantic docs](https://docs.pydantic.dev/)
-- [pydantic-settings docs](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
-- [Uvicorn docs](https://www.uvicorn.org/)
-
-### Quality and Language
-
-- [OXC docs](https://oxc.rs/docs/guide/usage/linter.html)
-- [TypeScript docs](https://www.typescriptlang.org/docs/)
+```sh
+ps aux | grep -E "(uvicorn|vite)" | grep -v grep
+pkill -f "uvicorn src.main:app"   # API (adjust if your entrypoint differs)
+```

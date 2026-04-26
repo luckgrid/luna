@@ -30,6 +30,14 @@ tasks:
       persistent: true
       runInCI: false
 
+  start:
+    command: "bun run start"
+    deps:
+      - "build"
+    options:
+      envFile: "/.env.local"
+      persistent: true
+
   optimize:
     command: "bun run optimize"
     options:
@@ -40,14 +48,6 @@ tasks:
     deps:
       - "build"
     preset: "server"
-
-  start:
-    command: "bun run start"
-    deps:
-      - "build"
-    options:
-      envFile: "/.env.local"
-      persistent: true
 
   clean:
     command: "git"

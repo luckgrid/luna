@@ -153,8 +153,9 @@ moon run web:build       # templ generate → tailwindcss CLI → SSG → dist/
 moon run web:dev         # watch templ + serve dist/ on $WEB_PORT (default 3000)
 ```
 
-`bun run dev` from the repo root boots `web`, `app`, and `api` together
-with the right setup deps wired up.
+`bun run dev` from the repo root boots `web`, `app`, and `api` together;
+`web:dev` depends on `web:build`, so moon runs modules, templ, Tailwind, and a
+full SSG pass before the watch server starts.
 
 ## Deployment
 

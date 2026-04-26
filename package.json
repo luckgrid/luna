@@ -8,18 +8,20 @@
   ],
   "type": "module",
   "scripts": {
-    "setup": "moon run :setup",
     "build": "moon run :build --query \"projectLayer=application\"",
     "dev": "moon run :dev --query \"projectLayer=application\"",
     "start": "moon run :start --query \"projectLayer=application\"",
     "typecheck": "tsc --build --verbose",
     "check": "bun run lint && bun run format:check && bun run typecheck",
     "fix": "bun run lint:fix && bun run format",
-    "format": "oxfmt .",
-    "format:check": "oxfmt --list-different .",
-    "lint": "oxlint .",
-    "lint:fix": "oxlint --fix .",
-    "clean": "moon run :clean && moon clean --all && git clean -fdx -- .cache node_modules"
+    "format": "oxfmt . && moon run api:format web:format",
+    "format:check": "oxfmt --list-different . && moon run api:format-check web:format-check",
+    "lint": "oxlint . && moon run api:lint web:lint",
+    "lint:fix": "oxlint --fix . && moon run api:lint-fix web:lint-fix",
+    "clean": "moon run :clean && moon clean --all && git clean -fdx -- .cache node_modules",
+    "outdated:check": "bash scripts/outdated.sh",
+    "outdated": "bash scripts/outdated.sh --strict",
+    "upgrade": "bash scripts/upgrade.sh"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.2.4",

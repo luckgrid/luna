@@ -339,13 +339,13 @@ dialog[open="false"] {
     opacity: 1;
   }
 
-  @media (min-width: var(--breakpoint-sm)) {
+  @media (min-width: 40rem) {
     :where(:scope > article) {
       max-width: var(--dialog-max-w-sm);
     }
   }
 
-  @media (min-width: var(--breakpoint-md)) {
+  @media (min-width: 48rem) {
     :where(:scope > article) {
       max-width: var(--dialog-max-w-md);
     }

@@ -11,19 +11,20 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 ## Quick References
 
-- Project overview and stack: [`README.md` (Tech Stack)](README.md#tech-stack)
-- Toolchain and `.prototools` usage: [`README.md` (Dependencies and Tools)](README.md#dependencies-and-tools)
-- Workspace layout and root scripts: [`README.md` (Workspace Layout)](README.md#workspace-layout), [`README.md` (Common Commands)](README.md#common-commands)
-- Setup flow: [`README.md` (Quick start)](README.md#quick-start)
-- Lint/format/typecheck commands: [`README.md` (Code Quality)](README.md#code-quality), [`README.md` (Common Commands)](README.md#common-commands)
-- App task execution: [`README.md` (App Tasks)](README.md#app-tasks-moon)
-- Config file map: [`README.md` (Configuration Map)](README.md#configuration-map)
-- Dependency and toolchain maintenance: [`README.md` (Dependency Maintenance)](README.md#dependency-maintenance)
+- Stacks (tooling and documentation links): [`README.md` (Tech Stacks)](README.md#tech-stacks)
+- Proto / Bun / Moon pins: [`README.md` (Core monorepo and toolchain)](README.md#core-monorepo-and-toolchain)
+- Workspace paths and per-project READMEs: [`README.md` (Workspaces)](README.md#workspaces)
+- Root scripts, quality checks, and moon targets or queries: [`README.md` (Commands)](README.md#commands)
+- Setup flow: [`README.md` (Quick Start)](README.md#quick-start)
+- Config file map: [`README.md` (Configuration map)](README.md#configuration-map)
+- `outdated` / `upgrade` scripts and manual add-remove per stack: [`README.md` (Dependency maintenance)](README.md#dependency-maintenance)
+- Ports, stuck processes, shell `go` alias: [`README.md` (Troubleshooting)](README.md#troubleshooting)
 
 ## Key Paths
 
 - Toolchain pins: [`.prototools`](.prototools)
 - Root scripts/workspaces: [`package.json`](package.json)
+- Repo-wide outdated / upgrade: [`scripts/outdated.sh`](scripts/outdated.sh), [`scripts/upgrade.sh`](scripts/upgrade.sh)
 - Moon workspace/toolchains/tasks: [`.moon/`](.moon/)
 - TypeScript project references: [`tsconfig.json`](tsconfig.json), [`tsconfig.options.json`](tsconfig.options.json)
 - OXC config: [`.oxlintrc.json`](.oxlintrc.json), [`.oxfmtrc.json`](.oxfmtrc.json)

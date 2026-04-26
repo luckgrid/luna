@@ -13,7 +13,7 @@ fileGroups:
     - "tests/**/*"
 
 tasks:
-  setup:
+  build:
     command: "uv"
     args: ["sync"]
     inputs:
@@ -33,7 +33,7 @@ tasks:
       - "--port"
       - "${API_PORT:-8080}"
     deps:
-      - "setup"
+      - "build"
     env:
       PYTHONPATH: "src"
     options:
@@ -52,7 +52,7 @@ tasks:
       - "--port"
       - "${API_PORT:-8080}"
     deps:
-      - "setup"
+      - "build"
     env:
       PYTHONPATH: "src"
     options:
@@ -62,18 +62,32 @@ tasks:
   lint:
     command: "uv"
     args: ["run", "ruff", "check", "src"]
+    deps:
+      - "build"
     inputs:
       - "src/**/*.py"
 
   lint-fix:
     command: "uv"
     args: ["run", "ruff", "check", "--fix", "src"]
+    deps:
+      - "build"
     inputs:
       - "src/**/*.py"
 
   format:
     command: "uv"
     args: ["run", "ruff", "format", "src"]
+    deps:
+      - "build"
+    inputs:
+      - "src/**/*.py"
+
+  format-check:
+    command: "uv"
+    args: ["run", "ruff", "format", "--check", "src"]
+    deps:
+      - "build"
     inputs:
       - "src/**/*.py"
 

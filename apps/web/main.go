@@ -121,9 +121,9 @@ func main() {
 	flag.Parse()
 
 	site := Site{
-		Root:        *root,
-		Index:       pages.Index,
-		Pages:       map[string]func(p lib.Post) templ.Component{"legal": pages.Legal},
+		Root:  *root,
+		Index: pages.Index,
+		Pages: map[string]func(p lib.Post) templ.Component{"legal": pages.Legal},
 		Catalogs: []Catalog{
 			{Name: "posts", Index: posts.Page, Detail: posts.Post},
 		},
