@@ -1,22 +1,8 @@
 {
   "name": "web",
   "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "optimize": "vite optimize",
-    "start": "vite start",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@luna/ds": "workspace:*",
-    "@luna/ui": "workspace:*",
-    "@solidjs/meta": "^0.29.4",
-    "@solidjs/router": "^0.15.0",
-    "@solidjs/start": "2.0.0-alpha.2",
-    "nitro": "3.0.1-alpha.2",
-    "solid-js": "^1.9.5",
-    "vite": "^7.0.0"
+  "description": "Luna static marketing/content site (Go + templ + goldmark).",
+  "devDependencies": {
+    "@luna/ds": "workspace:*"
   }
 }

@@ -1,0 +1,29 @@
+package layouts
+
+import (
+	"github.com/luckgrid/luna/apps/web/src/components"
+	"github.com/luckgrid/luna/apps/web/src/lib"
+)
+
+// Post is the layout for a single article inside a catalog (e.g. an
+// individual blog post). It composes `Base` and `components.PageHeader`,
+// adds an optional date + tag list, and yields `{ children... }` for
+// the rendered Markdown body.
+templ Post(p lib.Post) {
+	@Base(p.Title, p.Description) {
+		<article>
+			@components.PageHeader(p.Eyebrow(), p.Title, p.Description)
+			if !p.Date.IsZero() {
+				<time datetime={ p.Date.Format("2006-01-02") }>{ p.Date.Format("Jan 2, 2006") }</time>
+			}
+			if len(p.Tags) > 0 {
+				<ul aria-label="Tags">
+					for _, t := range p.Tags {
+						<li>{ t }</li>
+					}
+				</ul>
+			}
+			{ children... }
+		</article>
+	}
+}

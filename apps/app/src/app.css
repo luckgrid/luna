@@ -1,5 +1,8 @@
 @import "@luna/ds/tailwind.css";
 
+@source "./";
+@source "../../../packages/ui/src/**/*.{tsx,ts}";
+
 #app {
   display: flex;
   flex-direction: column;

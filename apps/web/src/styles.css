@@ -1,0 +1,5 @@
+@import "@luna/ds/tailwind.css";
+
+@source "./**/*.templ";
+@source "./**/*_templ.go";
+@source "../main.go";

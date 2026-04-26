@@ -1,0 +1,23 @@
+package components
+
+// LayoutHeader is the site-wide top bar — brand link + main navigation.
+// Used by `layouts.Base` so every page gets the same chrome.
+templ LayoutHeader() {
+	<header>
+		<nav aria-label="Main navigation">
+			<a href="/">Luna</a>
+			<div class="flex gap-4">
+				<a href="/posts/">Posts</a>
+				<a href="/legal.html">Legal</a>
+			</div>
+		</nav>
+	</header>
+}
+
+// LayoutFooter is the site-wide footer. Pair with `LayoutHeader` via
+// `layouts.Base`.
+templ LayoutFooter() {
+	<footer>
+		<small>&copy; Luna template &middot; built with templ + goldmark</small>
+	</footer>
+}

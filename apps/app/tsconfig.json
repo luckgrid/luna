@@ -4,7 +4,7 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "noEmit": true,
-    "tsBuildInfoFile": "../../.cache/web.tsbuildinfo",
+    "tsBuildInfoFile": "../../.cache/app.tsbuildinfo",
     "types": ["vite/client"],
     "paths": {
       "~/*": ["./src/*"]

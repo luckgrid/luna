@@ -1,0 +1,49 @@
+package components
+
+import "github.com/luckgrid/luna/apps/web/src/lib"
+
+// PageHeader is a reusable page intro block: optional eyebrow label, h1
+// title, and optional lede paragraph. The eyebrow + h1 are wrapped in
+// `<hgroup>` so screen readers treat them as a single heading unit.
+//
+// Pass "" for fields that should be omitted.
+templ PageHeader(eyebrow, title, lede string) {
+	<header>
+		<hgroup>
+			if eyebrow != "" {
+				<p>{ eyebrow }</p>
+			}
+			<h1>{ title }</h1>
+		</hgroup>
+		if lede != "" {
+			<p>{ lede }</p>
+		}
+	</header>
+}
+
+// ListSection renders a titled `<section>` containing a list of post
+// links. It's the building block for catalog index pages — page
+// templates compose multiple ListSections (e.g. one per category) on top
+// of `layouts.Base`.
+//
+// Pass "" for the title to render the list without a heading.
+templ ListSection(title string, posts []lib.Post) {
+	<section aria-label={ title }>
+		if title != "" {
+			<h2>{ title }</h2>
+		}
+		<ul>
+			for _, p := range posts {
+				<li>
+					<a href={ templ.SafeURL(p.URL()) }>{ p.Title }</a>
+					if !p.Date.IsZero() {
+						<time datetime={ p.Date.Format("2006-01-02") }>{ p.Date.Format("Jan 2, 2006") }</time>
+					}
+					if p.Description != "" {
+						<p>{ p.Description }</p>
+					}
+				</li>
+			}
+		</ul>
+	</section>
+}

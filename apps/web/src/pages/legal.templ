@@ -1,0 +1,20 @@
+package pages
+
+import (
+	"github.com/luckgrid/luna/apps/web/src/components"
+	"github.com/luckgrid/luna/apps/web/src/layouts"
+	"github.com/luckgrid/luna/apps/web/src/lib"
+)
+
+// Legal renders /legal.html from src/content/legal.md.
+// It exists to demonstrate the "templ-only pages + markdown content"
+// convention: pages define layout/structure, content lives in src/content/.
+templ Legal(p lib.Post) {
+	@layouts.Base(p.Title, p.Description) {
+		@components.PageHeader(p.Eyebrow(), p.Title, p.Description)
+		<article>
+			@templ.Raw(p.HTML)
+		</article>
+	}
+}
+

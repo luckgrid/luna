@@ -1,0 +1,17 @@
+package pages
+
+import (
+	"github.com/luckgrid/luna/apps/web/src/components"
+	"github.com/luckgrid/luna/apps/web/src/layouts"
+	"github.com/luckgrid/luna/apps/web/src/lib"
+)
+
+// Index renders /index.html. The `latest` slice is the merged, newest-
+// first list of posts from every catalog registered in main.go.
+templ Index(latest []lib.Post) {
+	@layouts.Base("Luna", "Luna template static site.") {
+		@components.PageHeader("", "Luna static site template", "Minimal Go + templ SSG with Markdown content rendered through reusable layouts and components.")
+		@components.ListSection("Latest posts", latest)
+	}
+}
+

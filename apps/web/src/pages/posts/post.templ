@@ -1,0 +1,17 @@
+package posts
+
+import (
+	"github.com/luckgrid/luna/apps/web/src/layouts"
+	"github.com/luckgrid/luna/apps/web/src/lib"
+)
+
+// Post renders /posts/<slug>/ — a single article. The slug is the
+// Markdown filename (e.g. `hello-world.md` → `/posts/hello-world/`); the
+// frontmatter `category` field is shown as the post eyebrow but does
+// not appear in the URL.
+templ Post(p lib.Post) {
+	@layouts.Post(p) {
+		@templ.Raw(p.HTML)
+	}
+}
+

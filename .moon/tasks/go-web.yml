@@ -1,0 +1,88 @@
+inheritedBy:
+  language: go
+  layer: application
+  stack: frontend
+
+fileGroups:
+  configs:
+    - "go.mod"
+    - "go.sum"
+    - "*.yml"
+  sources:
+    - "main.go"
+    - "src/**/*"
+    - "public/**/*"
+
+tasks:
+  setup:
+    command: "go"
+    args: ["mod", "download"]
+    inputs:
+      - "go.mod"
+      - "go.sum"
+
+  generate:
+    command: "go"
+    args: ["tool", "templ", "generate"]
+    inputs:
+      - "src/**/*.templ"
+    outputs:
+      - "src/**/*_templ.go"
+
+  css:
+    command: "bunx"
+    args:
+      - "@tailwindcss/cli"
+      - "-i"
+      - "src/styles.css"
+      - "-o"
+      - "dist/styles.css"
+      - "--minify"
+    inputs:
+      - "src/**/*.css"
+      - "src/**/*.templ"
+      - "src/**/*_templ.go"
+      - "main.go"
+      - "/packages/ds/**/*.css"
+    outputs:
+      - "dist/styles.css"
+
+  build:
+    command: "go"
+    args: ["run", "."]
+    deps:
+      - "generate"
+      - "css"
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+    outputs:
+      - "dist"
+
+  dev:
+    command: "go"
+    args:
+      - "tool"
+      - "templ"
+      - "generate"
+      - "--watch"
+      - "--open-browser=false"
+      - "--proxy=http://localhost:${WEB_PORT:-3000}"
+      - "--cmd"
+      - "go run . --serve --port ${WEB_PORT:-3000}"
+    deps:
+      - "setup"
+      - "css"
+    options:
+      envFile: "/.env.local"
+      persistent: true
+      runInCI: false
+
+  clean:
+    command: "git"
+    args:
+      - "clean"
+      - "-fdx"
+      - "--"
+      - "dist"
+      - ":(glob)src/**/*_templ.go"

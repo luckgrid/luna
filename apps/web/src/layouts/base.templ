@@ -1,0 +1,30 @@
+package layouts
+
+import "github.com/luckgrid/luna/apps/web/src/components"
+
+// Base is the HTML shell every page renders into. Page templates pass
+// their content as `{ children... }`. This is the only layout that emits
+// `<html>`/`<head>`/`<body>`; the per-page chrome (eyebrow, title, list
+// sections, etc.) is composed from `src/components/page.templ`.
+templ Base(title, description string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			if description != "" {
+				<meta name="description" content={ description }/>
+			}
+			<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+			<link rel="stylesheet" href="/styles.css"/>
+		</head>
+		<body>
+			@components.LayoutHeader()
+			<main>
+				{ children... }
+			</main>
+			@components.LayoutFooter()
+		</body>
+	</html>
+}

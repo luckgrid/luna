@@ -1,0 +1,26 @@
+package posts
+
+import (
+	"github.com/luckgrid/luna/apps/web/src/components"
+	"github.com/luckgrid/luna/apps/web/src/layouts"
+	"github.com/luckgrid/luna/apps/web/src/lib"
+)
+
+// Page renders /posts/ — the catalog index. Posts are grouped by their
+// frontmatter `category` field (which never appears in URLs), so adding
+// a new category in a Markdown file is enough to surface a new section
+// here.
+templ Page(posts []lib.Post) {
+	@layouts.Base("Posts", "Articles, announcements, and guides.") {
+		@components.PageHeader("", "Posts", "Articles, announcements, and guides.")
+		{{ grouped := lib.GroupByCategory(posts) }}
+		{{ categories := lib.Categories(posts) }}
+		for _, cat := range categories {
+			@components.ListSection(cat, grouped[cat])
+		}
+		if uncat, ok := grouped[""]; ok {
+			@components.ListSection("Other", uncat)
+		}
+	}
+}
+

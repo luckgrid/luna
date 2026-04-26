@@ -6,7 +6,7 @@ export default defineConfig(
   mergeConfig(dsConfig, {
     plugins: [solidStart()],
     server: {
-      port: parseInt(process.env.WEB_PORT || "3000", 10),
+      port: parseInt(process.env.APP_PORT || "3001", 10),
     },
     nitro: {
       runtimeConfig: {

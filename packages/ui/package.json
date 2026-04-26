@@ -21,9 +21,9 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "peerDependencies": {
-    "solid-js": "^1.9.5"
+    "solid-js": "^1.9.12"
   }
 }

@@ -1,17 +1,19 @@
-# Enable JavaScript
+# Enable JavaScript (shared settings for bun/node/deno toolchains).
+# In moon v2, package manager and JS-wide settings live under `javascript:`.
 javascript:
-  # Use Bun as the package manager
   packageManager: bun
 
-# Enable Bun
-bun:
-  # Optionally pin a specific version
-  # version: "1.3.10"
+# Enable Bun (proto-pinned via `.prototools`).
+bun: {}
 
-# Enable Python project references integration
-python:
-  syncProjectReferences: true
+# Python is still unstable in moon v2 and is intentionally NOT enabled here.
+# `apps/api` declares `language: python` and uses an explicit `uv sync` setup
+# task (see `.moon/tasks/py-api.yml`); toolchain auto-management would clash
+# with the existing `.venv` and `pyproject.toml` layout.
 
-# Enable TypeScript project references integration
+# Enable TypeScript. Project-reference auto-sync is OFF because `@luna/ds` and
+# `@luna/ui` are source-first packages (consumed via Bun workspace resolution +
+# `moduleResolution: bundler`) with `noEmit: true`. TS v6 forbids referencing
+# non-emitting projects, so we let the root `tsconfig.json` own references.
 typescript:
-  syncProjectReferences: true
+  syncProjectReferences: false

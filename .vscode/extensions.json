@@ -1,8 +1,10 @@
 {
   "recommendations": [
+    "a-h.templ",
     "bradlc.vscode-tailwindcss",
     "dotenv.dotenvx-vscode",
     "fastapilabs.fastapi-vscode",
+    "golang.go",
     "moonrepo.moon-console",
     "oven.bun-vscode",
     "oxc.oxc-vscode",

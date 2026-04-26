@@ -1,6 +1,7 @@
 inheritedBy:
   language: typescript
   layer: application
+  stack: frontend
 
 fileGroups:
   configs:
@@ -23,10 +24,11 @@ tasks:
       - "dist"
 
   dev:
-    command: "bun run dev --port ${WEB_PORT:-3000}"
+    command: "bun run dev"
     options:
       envFile: "/.env.local"
       persistent: true
+      runInCI: false
 
   optimize:
     command: "bun run optimize"

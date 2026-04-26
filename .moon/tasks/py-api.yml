@@ -1,0 +1,98 @@
+inheritedBy:
+  language: python
+  layer: application
+  stack: backend
+
+fileGroups:
+  configs:
+    - "*.toml"
+    - ".env*"
+  sources:
+    - "src/**/*"
+  tests:
+    - "tests/**/*"
+
+tasks:
+  setup:
+    command: "uv"
+    args: ["sync"]
+    inputs:
+      - "@group(configs)"
+    outputs:
+      - "uv.lock"
+
+  dev:
+    command: "uv"
+    args:
+      - "run"
+      - "uvicorn"
+      - "src.main:app"
+      - "--reload"
+      - "--host"
+      - "${API_HOST:-localhost}"
+      - "--port"
+      - "${API_PORT:-8080}"
+    deps:
+      - "setup"
+    env:
+      PYTHONPATH: "src"
+    options:
+      envFile: "/.env.local"
+      persistent: true
+      runInCI: false
+
+  start:
+    command: "uv"
+    args:
+      - "run"
+      - "uvicorn"
+      - "src.main:app"
+      - "--host"
+      - "${API_HOST:-localhost}"
+      - "--port"
+      - "${API_PORT:-8080}"
+    deps:
+      - "setup"
+    env:
+      PYTHONPATH: "src"
+    options:
+      envFile: "/.env.local"
+      persistent: true
+
+  lint:
+    command: "uv"
+    args: ["run", "ruff", "check", "src"]
+    inputs:
+      - "src/**/*.py"
+
+  lint-fix:
+    command: "uv"
+    args: ["run", "ruff", "check", "--fix", "src"]
+    inputs:
+      - "src/**/*.py"
+
+  format:
+    command: "uv"
+    args: ["run", "ruff", "format", "src"]
+    inputs:
+      - "src/**/*.py"
+
+  test:
+    command: "uv"
+    args: ["run", "pytest", "tests/"]
+    inputs:
+      - "@group(sources)"
+      - "@group(tests)"
+    options:
+      envFile: "/.env.local"
+
+  clean:
+    command: "git"
+    args:
+      - "clean"
+      - "-fdx"
+      - "--"
+      - ".pytest_cache"
+      - ".ruff_cache"
+      - ".venv"
+      - ":(glob)**/__pycache__"

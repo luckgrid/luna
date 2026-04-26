@@ -1,7 +1,11 @@
 @layer properties, theme, base, layout, action, navigation, form, display, feedback, utilities;
 
-@source "../../apps/web/src/**/*.{tsx,ts}";
-@source "../ui/src/**/*.{tsx,ts}";
+/*
+ * Source paths are owned by each consumer app (see `@source` declarations in
+ * each app's entry CSS — e.g. `apps/app/src/app.css`, `apps/web/styles/app.css`).
+ * The design system stays neutral so adding new consumers does not require an
+ * edit here.
+ */
 
 @import "./src/properties.css" layer(properties);
 @import "tailwindcss/theme" layer(theme);

@@ -1,0 +1,7 @@
+language: typescript
+layer: application
+stack: frontend
+
+project:
+  name: app
+  description: Luna interactive/SSR app built with SolidStart.

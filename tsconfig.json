@@ -6,13 +6,13 @@
   "files": [],
   "references": [
     {
-      "path": "apps/web"
+      "path": "./apps/app"
     },
     {
-      "path": "packages/ui"
+      "path": "./packages/ds"
     },
     {
-      "path": "packages/ds"
+      "path": "./packages/ui"
     }
   ]
 }
