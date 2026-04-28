@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Upgrade toolchain pins, JS deps, Python (uv) lockfiles, and Go modules across the monorepo.
+# Update toolchain pins, JS deps, Python (uv) lockfiles, and Go modules across the monorepo.
 # Order: proto + Bun first (template primary stack), then uv, then Go.
 #
 # Usage:
-#   ./scripts/upgrade.sh
+#   ./scripts/update.sh
 #
 # Afterward: review diffs, run tests / bun run check, and commit.
 
@@ -45,4 +45,4 @@ require_cmd go
 )
 
 section "done — verify with bun run outdated and bun run check"
-echo "Upgrade steps finished. Review changes before committing."
+echo "Update steps finished. Review changes before committing."

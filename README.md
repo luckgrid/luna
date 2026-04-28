@@ -138,12 +138,12 @@ moon run ui:typecheck
 
 Repo-wide **outdated checks** and **upgrades** are scripted so every toolchain stays in sync:
 
-[`scripts/outdated.sh`](scripts/outdated.sh) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules. [`scripts/upgrade.sh`](scripts/upgrade.sh) applies upgrades across those tiers (proto → Bun → uv → Go). After `bun run upgrade`, review diffs and run `bun run check` before committing.
+[`scripts/outdated.sh`](scripts/outdated.sh) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules. [`scripts/update.sh`](scripts/update.sh) applies updates across those tiers (proto → Bun → uv → Go). After `bun run update`, review diffs and run `bun run check` before committing.
 
 ```sh
 bun run outdated:check   # print reports only (exit 0)
 bun run outdated         # strict: exit 1 if anything is outdated (CI-friendly)
-bun run upgrade          # bump pins and dependencies repo-wide; then review and run bun run check
+bun run update           # bump pins and dependencies repo-wide; then review and run bun run check
 ```
 
 **Per stack (manual add / remove)** — use these when you are changing one project, not refreshing everything:

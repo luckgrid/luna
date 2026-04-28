@@ -17,14 +17,14 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 - Root scripts, quality checks, and moon targets or queries: [`README.md` (Commands)](README.md#commands)
 - Setup flow: [`README.md` (Quick Start)](README.md#quick-start)
 - Config file map: [`README.md` (Configuration map)](README.md#configuration-map)
-- `outdated` / `upgrade` scripts and manual add-remove per stack: [`README.md` (Dependency maintenance)](README.md#dependency-maintenance)
+- `outdated` / `update` scripts and manual add-remove per stack: [`README.md` (Dependency maintenance)](README.md#dependency-maintenance)
 - Ports, stuck processes, shell `go` alias: [`README.md` (Troubleshooting)](README.md#troubleshooting)
 
 ## Key Paths
 
 - Toolchain pins: [`.prototools`](.prototools)
 - Root scripts/workspaces: [`package.json`](package.json)
-- Repo-wide outdated / upgrade: [`scripts/outdated.sh`](scripts/outdated.sh), [`scripts/upgrade.sh`](scripts/upgrade.sh)
+- Repo-wide outdated / update: [`scripts/outdated.sh`](scripts/outdated.sh), [`scripts/update.sh`](scripts/update.sh)
 - Moon workspace/toolchains/tasks: [`.moon/`](.moon/)
 - TypeScript project references: [`tsconfig.json`](tsconfig.json), [`tsconfig.options.json`](tsconfig.options.json)
 - OXC config: [`.oxlintrc.json`](.oxlintrc.json), [`.oxfmtrc.json`](.oxfmtrc.json)

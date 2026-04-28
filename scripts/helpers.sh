@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared helpers for monorepo dependency scripts (sourced by outdated.sh / upgrade.sh).
+# Shared helpers for monorepo dependency scripts (sourced by outdated.sh / update.sh).
 
 set -euo pipefail
 
@@ -89,8 +89,25 @@ process.exit(any ? 0 : 1);
 }
 
 bun_workspace_outdated() {
-	bun outdated 2>&1 | grep -q "| Package  | Current |" || return 1
-	return 0
+	# bun outdated prints a results table (format varies by version/platform),
+	# commonly either box-drawing or ASCII:
+	#   │ Package │ Current │ Update │ Latest │
+	# We want strict mode to fail if *any* rows are present, including cases where
+	# "Update" equals "Current" but "Latest" is newer (range doesn't allow it).
+	local out
+	out="$(bun outdated 2>&1 || true)"
+
+	# No table header => no results (or bun changed output); treat as OK.
+	echo "$out" | grep -qE '^(│[[:space:]]+Package[[:space:]]+│[[:space:]]+Current[[:space:]]+│|\|[[:space:]]*Package[[:space:]]*\|[[:space:]]*Current[[:space:]]*\|)' || return 1
+
+	# If there is any data row (not the header/separators), it's outdated.
+	# We look for a row that starts with a table border (│ or |) and contains a
+	# plausible semver-like "Current" version cell (digits + dot).
+	if echo "$out" | grep -qE '^(│|\|)[[:space:]]*[^|│]+[[:space:]]*(│|\|)[[:space:]]*[0-9]+(\.[0-9]+)+[[:space:]]*(│|\|)'; then
+		return 0
+	fi
+
+	return 1
 }
 
 uv_lock_has_upgrades() {
@@ -99,12 +116,38 @@ uv_lock_has_upgrades() {
 }
 
 go_mod_has_upgrades() {
-	local out
-	# Only direct requires in go.mod: transitive deps often show [newer] in
-	# `go list -u -m all` forever because MVS does not pull them without an
-	# explicit get — that is not what `go get -u ./...` / upgrade.sh fixes.
-	out="$(cd "$GO_MODULE_ROOT" && go list -u -m -f '{{if and (not .Main) (not .Indirect) .Update}}{{println .Path}}{{end}}' all 2>/dev/null || true)"
-	echo "$out" | grep -q .
+	# Strict gating should match what `scripts/update.sh` can actually change.
+	#
+	# `go list -u -m all` will almost always show newer versions for transitive deps,
+	# even after running updates, because MVS may keep older versions unless
+	# something in go.mod requires the newer one.
+	#
+	# So we only fail strict mode when a module *explicitly required in go.mod*
+	# (direct or indirect) has an available update.
+	local reqs updates tmp_req tmp_up
+	tmp_req="$(mktemp)"
+	tmp_up="$(mktemp)"
+
+	# shellcheck disable=SC2064
+	trap "rm -f \"$tmp_req\" \"$tmp_up\"" RETURN
+
+	reqs="$(cd "$GO_MODULE_ROOT" && go env GOMOD 2>/dev/null || true)"
+	[[ -n "$reqs" && -f "$reqs" ]] || return 1
+
+	# Extract module paths from `require (...)` and single-line `require` forms.
+	# Example lines:
+	#   github.com/foo/bar v1.2.3
+	#   github.com/foo/bar v1.2.3 // indirect
+	grep -E '^[[:space:]]*[^/[:space:]][^[:space:]]+[[:space:]]+v[0-9]' "$reqs" \
+		| awk '{print $1}' \
+		| sort -u >"$tmp_req"
+
+	# List modules that have an update available.
+	(cd "$GO_MODULE_ROOT" && go list -u -m -f '{{if .Update}}{{println .Path}}{{end}}' all 2>/dev/null || true) \
+		| sort -u >"$tmp_up"
+
+	# Intersection: any updated module that is required in go.mod?
+	comm -12 "$tmp_req" "$tmp_up" | grep -q .
 }
 
 sync_root_package_manager_bun() {

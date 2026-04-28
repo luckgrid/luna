@@ -57,18 +57,18 @@ if [[ "$STRICT" -eq 1 ]]; then
 		strict_ok "strict: Bun — OK (workspaces)"
 	fi
 	if uv_lock_has_upgrades; then
-		strict_need "strict: Python / uv — lockfile(s) can upgrade (see bun run upgrade)"
+		strict_need "strict: Python / uv — lockfile(s) can update (see bun run update)"
 		ST_FAIL_UV=1
 		FAILED=1
 	else
 		strict_ok "strict: Python / uv — OK"
 	fi
 	if go_mod_has_upgrades; then
-		strict_need "strict: Go — direct go.mod require(s) have a newer version"
+		strict_need "strict: Go — go.mod require(s) have a newer version"
 		ST_FAIL_GO=1
 		FAILED=1
 	else
-		strict_ok "strict: Go — OK (direct requires in go.mod)"
+		strict_ok "strict: Go — OK (go.mod requires)"
 	fi
 	section "strict summary"
 	if [[ "$FAILED" -eq 0 ]]; then
@@ -79,9 +79,9 @@ if [[ "$STRICT" -eq 1 ]]; then
 		[[ "$ST_FAIL_PROTO" -eq 1 ]] && strict_summary_bullet "proto (.prototools)"
 		[[ "$ST_FAIL_BUN" -eq 1 ]] && strict_summary_bullet "Bun workspaces"
 		[[ "$ST_FAIL_UV" -eq 1 ]] && strict_summary_bullet "Python / uv lockfile(s)"
-		[[ "$ST_FAIL_GO" -eq 1 ]] && strict_summary_bullet "Go (direct requires in go.mod)"
+		[[ "$ST_FAIL_GO" -eq 1 ]] && strict_summary_bullet "Go (go.mod requires)"
 		echo "" >&2
-		strict_hint "Exit code 1 is intentional (use in CI). To refresh everything: bun run upgrade"
+		strict_hint "Exit code 1 is intentional (use in CI). To refresh everything: bun run update"
 		strict_hint "For a non-gated report only: bun run outdated:check"
 	fi
 	exit "$FAILED"
