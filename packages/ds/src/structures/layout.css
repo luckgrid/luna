@@ -1,0 +1,152 @@
+/* Layout */
+@layer base, slots, variants, modifiers, patterns;
+
+/* Layout Base */
+@layer base {
+  body,
+  header,
+  main,
+  footer,
+  aside,
+  section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Body Layout Base */
+  body {
+    container-type: inline-size;
+    min-height: 100svh;
+  }
+
+  /* Main Layout Base */
+  main {
+    flex: 1 1 auto;
+  }
+}
+
+/* Layout Slots */
+@layer slots {
+  /* Body Layout Slots */
+  body {
+    & > :where(header, footer, aside, section) {
+      gap: var(--spacing-container);
+      padding-inline: var(--spacing-container);
+    }
+
+    & > :where(header, footer, section) {
+      padding-block: var(--spacing-layout);
+    }
+
+    & > :where(header, footer) {
+      justify-content: center;
+    }
+
+    /* Body Layout Header */
+    & > header {
+      min-block-size: var(--spacing-header);
+      padding-block: var(--spacing-panel);
+
+      & > nav {
+        justify-content: space-between;
+      }
+
+      /* Sticky header will gain a shadow after scrolling past 1px. */
+      &:where(.sticky, [data-sticky]) {
+        @supports (animation-timeline: scroll(root block)) {
+          animation: var(--animation-dropshadow);
+          animation-timeline: scroll(root block);
+          animation-range: 0 1px;
+
+          @media (prefers-reduced-motion: reduce) {
+            animation: none;
+            box-shadow: var(--shadow-1);
+          }
+        }
+
+        @supports not (animation-timeline: scroll(root block)) {
+          box-shadow: var(--shadow-1);
+        }
+      }
+    }
+
+    /* Body Layout Section */
+    & > section {
+      & > :where(header, footer, aside) {
+        padding: 0;
+      }
+
+      & > :where(header, footer) {
+        & :where(p, small) {
+          color: var(--color-fg-3);
+          font-size: var(--text-lg);
+          font-weight: var(--text-lg--font-weight);
+          line-height: var(--text-lg--line-height);
+          letter-spacing: var(--text-lg--letter-spacing);
+        }
+      }
+
+      & > :is([data-display], .display) {
+        --space: var(--spacing-20-40);
+      }
+    }
+
+    /* Body Layout Footer */
+    & > footer {
+      --logo-size: var(--spacing-256-512);
+      --min-height: calc(var(--logo-size) + var(--spacing-panel));
+
+      padding-bottom: var(--spacing-container);
+      isolation: isolate;
+      overflow: hidden;
+      align-items: center;
+      text-align: center;
+
+      & :is(a, button, [role="button"], [role="link"]) {
+        font-size: var(--text-sm);
+        font-weight: var(--text-sm--font-weight);
+        line-height: var(--text-sm--line-height);
+        letter-spacing: var(--text-sm--letter-spacing);
+      }
+
+      & :is([data-logo], .logo) {
+        z-index: -1;
+        position: relative;
+        width: 100%;
+        flex: 1 1 100%;
+        inline-size: var(--logo-size);
+        max-inline-size: none;
+        aspect-ratio: 1;
+        block-size: auto;
+        flex-shrink: 0;
+        -webkit-mask-position: bottom center;
+        mask-position: bottom center;
+
+        &:is(a):is(:hover, :focus, :active, :focus-visible) {
+          color: var(--color-accent);
+        }
+      }
+
+      @container (min-width: 30rem) {
+        position: relative;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: flex-end;
+        min-height: var(--min-height);
+
+        & :is([data-logo], .logo) {
+          position: absolute;
+          inset-block-end: 0;
+          inset-inline-start: 50%;
+          translate: -50% 0;
+          max-width: 50svw;
+        }
+
+        & > nav {
+          order: 999;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}

@@ -7,6 +7,10 @@
     "*.css"
   ],
   "exports": {
+    "./*": "./src/*.css",
+    "./components/*": "./src/components/*.css",
+    "./primitives/*": "./src/primitives/*.css",
+    "./structures/*": "./src/structures/*.css",
     "./tailwind.css": "./tailwind.css",
     "./vite.config": "./vite.config.ts"
   },

@@ -1,0 +1,24 @@
+/* Nav */
+@layer base, slots, variants, modifiers, patterns;
+
+/* Nav Base */
+@layer base {
+  nav,
+  [role="navigation"] {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-tap);
+  }
+}
+
+/* Nav Slots */
+@layer slots {
+  nav,
+  [role="navigation"] {
+    & > :is(div, ul, ol) {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-tap);
+    }
+  }
+}

@@ -1,0 +1,180 @@
+/* Tooltip */
+@layer base, slots, variants, modifiers, patterns;
+
+[data-tooltip],
+.tooltip {
+  --z: 99;
+  --padding-x: var(--space-box-1);
+  --padding-y: var(--space-tag-2);
+  --caret-size: calc(var(--padding-y) * 0.55);
+  --caret-slide-to: translate(-50%, calc(var(--padding-y) * -0.55));
+  --slide-to: translate(-50%, calc(var(--padding-y) * -1));
+  --fg: var(--color-bg);
+  --bg: color-mix(in oklab, var(--color-fg) 90%, var(--color-display));
+  --stroke: color-mix(in oklab, var(--fg) 20%, transparent);
+  --border-width: var(--space-stroke-1);
+  --border-style: solid;
+  --font: var(--font-sans);
+  --text: var(--text-legal);
+  --text-weight: 600;
+  --text-leading: 1.25;
+  --text-tracking: 0em;
+
+  position: relative;
+
+  &:where(:not(a, button, input, [role="button"])) {
+    text-decoration: none;
+    cursor: help;
+  }
+
+  &::before,
+  &::after {
+    z-index: var(--z);
+    display: block;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  &::before {
+    transform: translate(-50%, calc(var(--padding-y) * -1));
+    padding: var(--padding-y) var(--padding-x);
+    border-width: var(--border-width);
+    border-style: var(--border-style);
+    border-color: var(--stroke);
+    background-color: var(--bg);
+    color: var(--fg);
+    content: attr(data-tooltip);
+    font-size: var(--text);
+    font-style: var(--font);
+    font-weight: var(--text-weight);
+    line-height: var(--text-leading);
+    letter-spacing: var(--text-tracking);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &::after {
+    transform: translate(-50%, calc(var(--caret-size) * -0.75));
+    border-top: var(--caret-size) solid var(--bg);
+    border-right: var(--caret-size) solid transparent;
+    border-left: var(--caret-size) solid transparent;
+    content: "";
+  }
+
+  &:where([data-placement="bottom"])::before,
+  &:where([data-placement="bottom"])::after {
+    top: 100%;
+    bottom: auto;
+    transform: translate(-50%, var(--padding-y));
+  }
+
+  &:where([data-placement="bottom"])::after {
+    transform: translate(-50%, calc(var(--caret-size) * -1));
+    border: var(--caret-size) solid transparent;
+    border-bottom: var(--caret-size) solid var(--bg);
+  }
+
+  &:where([data-placement="left"])::before,
+  &:where([data-placement="left"])::after {
+    top: 50%;
+    right: 100%;
+    bottom: auto;
+    left: auto;
+    transform: translate(calc(var(--padding-y) * -1), -50%);
+  }
+
+  &:where([data-placement="left"])::after {
+    transform: translate(var(--caret-size), -50%);
+    border: var(--caret-size) solid transparent;
+    border-left: var(--caret-size) solid var(--bg);
+  }
+
+  &:where([data-placement="right"])::before,
+  &:where([data-placement="right"])::after {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 100%;
+    transform: translate(var(--padding-y), -50%);
+  }
+
+  &:where([data-placement="right"])::after {
+    transform: translate(calc(var(--caret-size) * -1), -50%);
+    border: var(--caret-size) solid transparent;
+    border-right: var(--caret-size) solid var(--bg);
+  }
+
+  &:is(:focus, :hover)::before,
+  &:is(:focus, :hover)::after {
+    opacity: 1;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:is(:focus, :hover)::before,
+    &:is(:focus, :hover)::after {
+      transform: translate(-50%, calc(var(--padding-y) * 3));
+      animation: var(--animation-slide-to);
+      opacity: 0;
+    }
+
+    &:is(:focus, :hover)::after {
+      transform: translate(-50%, calc(var(--padding-y) * -1.25));
+      animation: var(--animation-caret-slide-to);
+    }
+
+    &:where([data-placement="bottom"]):is(:focus, :hover)::before,
+    &:where([data-placement="bottom"]):is(:focus, :hover)::after {
+      --slide-to: translate(-50%, var(--padding-y));
+
+      transform: translate(-50%, calc(var(--padding-y) * -3));
+    }
+
+    &:where([data-placement="bottom"]):is(:focus, :hover)::after {
+      --caret-slide-to: translate(-50%, calc(var(--caret-size) * -1));
+
+      transform: translate(-50%, calc(var(--caret-size) * -2));
+    }
+
+    &:where([data-placement="left"]):is(:focus, :hover)::before,
+    &:where([data-placement="left"]):is(:focus, :hover)::after {
+      --slide-to: translate(calc(var(--padding-y) * -1), -50%);
+
+      transform: translate(calc(var(--padding-y) * 3), -50%);
+    }
+
+    &:where([data-placement="left"]):is(:focus, :hover)::after {
+      --caret-slide-to: translate(var(--caret-size), -50%);
+
+      transform: translate(calc(var(--caret-size) * 0.2), -50%);
+    }
+
+    &:where([data-placement="right"]):is(:focus, :hover)::before,
+    &:where([data-placement="right"]):is(:focus, :hover)::after {
+      --slide-to: translate(var(--padding-y), -50%);
+
+      transform: translate(calc(var(--padding-y) * -3), -50%);
+    }
+
+    &:where([data-placement="right"]):is(:focus, :hover)::after {
+      --caret-slide-to: translate(calc(var(--caret-size) * -1), -50%);
+
+      transform: translate(calc(var(--caret-size) * -0.2), -50%);
+    }
+  }
+
+  @container (max-width: 28rem) {
+    &::before {
+      box-sizing: border-box;
+      inline-size: 100%;
+      max-inline-size: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      text-overflow: clip;
+    }
+  }
+}

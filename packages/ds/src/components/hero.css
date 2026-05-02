@@ -1,0 +1,43 @@
+/* Hero */
+[data-hero] {
+  --space: var(--space-container);
+  --gap: var(--space);
+  --padding: var(--space);
+
+  position: relative;
+  padding: var(--padding);
+  gap: var(--gap);
+  text-align: center;
+  font-family: var(--font-sans);
+
+  & hgroup {
+    flex: 1;
+    max-width: none;
+    margin-inline: auto;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & [data-logo] {
+    --logo-size: var(--size-logo-2);
+  }
+
+  & :where(h1, h2) {
+    font-size: var(--text-hero);
+    font-weight: var(--text-hero--weight);
+    letter-spacing: var(--text-hero--tracking);
+    line-height: var(--text-hero--leading);
+  }
+
+  & p {
+    color: var(--color-fg);
+    font-size: var(--text-display);
+    letter-spacing: var(--text-hero--tracking);
+  }
+
+  & [data-flex] {
+    --gap: var(--space-wrap-1);
+
+    justify-content: center;
+  }
+}

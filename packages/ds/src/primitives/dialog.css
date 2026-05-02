@@ -1,0 +1,285 @@
+/* Dialog */
+@layer base, slots, variants, modifiers, patterns;
+
+/* Dialog Base */
+@layer base {
+  dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: inherit;
+    height: inherit;
+    min-width: 100%;
+    min-height: 100%;
+    padding: 0;
+    border: 0;
+    outline: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: transparent;
+    color: var(--color-fg);
+
+    &::backdrop {
+      border: 0;
+      outline: none;
+      background-color: var(--color-backdrop);
+      -webkit-backdrop-filter: var(--filter-backdrop);
+      backdrop-filter: var(--filter-backdrop);
+    }
+
+    /* Hidden when neither dialog `[open]` nor popover showing (`:popover-open`). */
+    &:not(:is(:popover-open, [open])),
+    &[open="false"] {
+      display: none;
+
+      &::backdrop {
+        display: none;
+      }
+    }
+  }
+}
+
+/* Dialog Slots */
+@layer slots {
+  dialog {
+    & > :is(article, [data-surface], [data-card], .surface, .card) {
+      --size: var(--spacing-container);
+
+      position: relative;
+      width: 100%;
+      max-width: calc(100svw - var(--size) * 2);
+      max-height: calc(100svh - var(--size) * 2);
+      margin: var(--size);
+      overflow: auto;
+
+      /* Close Button */
+      & :is(button, [role="button"])[rel="prev"] {
+        opacity: 0.5;
+
+        &:is([aria-current]:not([aria-current="false"]), :hover, :active, :focus, :focus-visible) {
+          opacity: 1;
+        }
+      }
+
+      /* Layout Slots */
+      & > :is(aside, header, section) {
+        gap: var(--spacing-surface);
+      }
+
+      & > footer {
+        gap: var(--spacing-8-16);
+
+        & :is([data-button="outline"], [data-button="ghost"], [data-button="text"]) {
+          order: 999;
+        }
+      }
+
+      @container (min-width: 30rem) {
+        & > footer {
+          flex-direction: row;
+          justify-content: flex-end;
+
+          & :is([data-button="outline"], [data-button="ghost"], [data-button="text"]) {
+            order: initial;
+          }
+        }
+      }
+
+      @container (min-width: 64rem) {
+        max-width: calc(60rem - var(--size) * 2);
+      }
+    }
+  }
+}
+
+/* Dialog Variants */
+@layer variants {
+  dialog {
+    /* Popover Variant */
+    &:is([data-popover], .popover) {
+      justify-content: end;
+      padding: var(--size);
+      background-color: transparent;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      pointer-events: none;
+
+      &::backdrop {
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          transparent 60%,
+          var(--color-backdrop) 80%,
+          var(--color-dark) 100%
+        );
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      &:is(:popover-open, [open], [open="true"]) {
+        pointer-events: auto;
+
+        &[data-preview-mode="hover"] {
+          display: block;
+          pointer-events: none;
+
+          /* Reset backdrop styles for popover */
+          &::backdrop {
+            background: transparent;
+            pointer-events: none;
+          }
+
+          & > :is(article, [data-surface], [data-card], .surface, .card) {
+            pointer-events: auto;
+          }
+        }
+      }
+
+      /*
+       * Article preview clones inherit `body` heading breaks (layout.css);
+       * reset so anchor-sized hover cards do not degenerate into single-glyph lines.
+       */
+      & :where(h1, h2, h3, h4, h5, h6, hgroup, summary, figcaption) {
+        hyphens: manual;
+        word-break: normal;
+        overflow-wrap: normal;
+      }
+
+      & > :is(article, [data-surface], [data-card], .surface, .card) {
+        position: relative;
+        display: flex;
+        flex: 0 1 auto;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        padding: var(--spacing-surface);
+        gap: var(--spacing-surface);
+        border-color: var(--color-accent);
+        overflow-x: visible;
+        overflow-y: auto;
+        overflow-wrap: anywhere;
+        color: var(--color-fg-1);
+
+        /* Override article gap defaults */
+        & > article {
+          gap: var(--spacing-16-32);
+        }
+
+        & :is(a:not([role="button"])) {
+          pointer-events: none;
+          color: inherit;
+          text-decoration: underline;
+          cursor: default;
+
+          /* Preview clones duplicate in-article links; keep them non-interactive and focus-free. */
+          &:is(:focus, :focus-visible) {
+            outline: none;
+            text-decoration: underline;
+          }
+        }
+      }
+
+      /* Dialog actions footer (sibling of `[data-card]`, not inside it). */
+      & > footer {
+        position: relative;
+        inline-size: 100%;
+        min-inline-size: 0;
+        display: flex;
+        flex-direction: row;
+        flex-shrink: 0;
+        justify-content: flex-end;
+        gap: var(--spacing-6-12);
+        margin-bottom: var(--spacing-container);
+        padding: 0;
+
+        & > :is(button, [role="button"]) {
+          --size: 1.25em;
+
+          min-inline-size: 0;
+          min-block-size: var(--size);
+          padding: var(--spacing-6-12);
+        }
+      }
+
+      @container (min-width: 64rem) {
+        /* Reset backdrop styles for popover */
+        &::backdrop {
+          background: transparent;
+        }
+
+        & > :is(article, [data-surface], [data-card], .surface, .card) {
+          inline-size: fit-content;
+          min-inline-size: min(100%, 20rem);
+          max-inline-size: calc(100svw - var(--size) * 2);
+          max-block-size: min(80svh, calc(100svh - var(--size) * 2));
+          overflow-x: visible;
+          overflow-y: auto;
+          word-break: normal;
+          overflow-wrap: normal;
+        }
+      }
+
+      /*
+       * Hover preview chrome: must use viewport width + interaction media so it matches
+       * `canOpenHoverPreview()` in footnotes.ts (`matchMedia('(min-width: 64rem)')`, not `@container`).
+       */
+      @media (min-width: 64rem) {
+        @media (hover: hover) and (pointer: fine) and (any-pointer: fine) and (any-hover: hover) {
+          justify-content: unset;
+          align-items: unset;
+
+          & > :is(footer, [data-variant="wrapper"], .wrapper) {
+            display: none;
+            pointer-events: none;
+          }
+
+          &[data-preview-mode="hover"] {
+            & > :is(article, [data-surface], [data-card], .surface, .card) {
+              position: fixed;
+              inset: auto auto max(var(--size), 10svh) 50%;
+              translate: -50% 0;
+              inline-size: fit-content;
+              min-inline-size: min(100%, 20rem);
+              max-inline-size: calc(80svw - var(--size) * 2);
+              max-block-size: min(80svh, calc(100svh - var(--size) * 2));
+              width: 100%;
+              overflow-x: visible;
+              overflow-y: auto;
+              display: flex;
+              flex-direction: column;
+              align-items: stretch;
+              justify-content: flex-start;
+              gap: var(--spacing-surface);
+              margin: 0;
+              word-break: normal;
+              overflow-wrap: normal;
+
+              /*
+               * Anchor the hover card above the trigger; `flip-block` / `flip-inline` try fallbacks
+               * keep it on-screen; `margin-block` gaps the card from the ref on either side. `position-visibility`
+               * avoids viewport overflow (see footnotes.ts `anchor-name`).
+               */
+              @supports (anchor-name: --fn-preview) {
+                position-anchor: --fn-preview;
+                position-visibility: no-overflow;
+                inset: auto;
+                translate: none;
+                top: auto;
+                right: auto;
+                bottom: anchor(top);
+                left: auto;
+                margin: var(--size);
+                justify-self: anchor-center;
+                position-try-fallbacks: flip-block, flip-inline;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,9 @@
 @import "@luna/ds/tailwind.css";
+@import "@luna/ds/structures.css" layer(structures);
+@import "@luna/ds/primitives.css" layer(primitives);
+@import "@luna/ds/components.css" layer(components);
 
-@source "./";
+@source "./**/*.{tsx,ts}";
 @source "../../../packages/ui/src/**/*.{tsx,ts}";
 
 #app {

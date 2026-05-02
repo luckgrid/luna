@@ -1,0 +1,206 @@
+/* Button */
+@layer base, slots, variants, modifiers, patterns;
+
+/* Button Base */
+@layer base {
+  button,
+  [type="submit"],
+  [type="reset"],
+  [type="button"] {
+    margin: 0;
+    overflow: visible;
+    -webkit-appearance: button;
+    appearance: button;
+  }
+
+  button,
+  [type="submit"],
+  [type="reset"],
+  [type="button"],
+  [role="button"] {
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-6-12);
+    padding: var(--spacing-8-16) var(--spacing-24-48);
+    box-shadow: var(--shadow-2);
+    border: var(--border-width-1) solid var(--color-action);
+    background-color: var(--color-fg);
+    color: var(--color-bg);
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    font-weight: var(--text-md--font-weight);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition-action);
+
+    &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+      box-shadow: var(--shadow-1);
+      border-color: var(--color-accent);
+      background-color: var(--color-accent);
+      color: var(--color-bg);
+      text-decoration: none;
+    }
+
+    &:focus-visible {
+      outline: var(--outline-width-2) solid
+        color-mix(in oklab, var(--color-accent) 80%, transparent);
+      outline-offset: var(--outline-offset-2);
+    }
+
+    &:is(:disabled, [disabled], [data-disabled], .disabled):not(
+        [aria-disabled="false"],
+        [data-disabled="false"]
+      ) {
+      opacity: 0.6;
+      pointer-events: none;
+      box-shadow: none;
+      text-decoration: none;
+    }
+  }
+}
+
+/* Button Slots */
+@layer slots {
+  button,
+  [type="submit"],
+  [type="reset"],
+  [type="button"],
+  [role="button"] {
+    & > :is(i, svg, [data-icon], .icon):not([data-icon-size], [class*="size-"]) {
+      --size: 0.95em;
+
+      inline-size: var(--size);
+      block-size: var(--size);
+      flex-shrink: 0;
+    }
+  }
+}
+
+/* Button Variants */
+@layer variants {
+  button,
+  [type="submit"],
+  [type="reset"],
+  [type="button"],
+  [role="button"] {
+    /* Reset Variants */
+    &:is(
+      [data-variant="icon"],
+      [data-variant="text"],
+      [data-variant="wrapper"],
+      .icon,
+      .text,
+      .wrapper
+    ) {
+      padding: 0;
+      box-shadow: none;
+      border-color: transparent;
+      background-color: transparent;
+      color: currentColor;
+
+      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+        box-shadow: none;
+        border-color: transparent;
+        background-color: transparent;
+        color: var(--color-accent);
+      }
+
+      &:is(:hover, :focus, :active) {
+        text-decoration: none;
+      }
+
+      &:focus-visible {
+        outline-style: dashed;
+        outline-offset: var(--spacing-1-3);
+      }
+    }
+
+    /* Hollow Variant */
+    &:is([data-variant="hollow"], .hollow) {
+      box-shadow: none;
+      border: var(--spacing-2-4) dashed var(--color-accent);
+      background-color: transparent;
+      color: var(--color-accent);
+
+      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+        box-shadow: var(--shadow-1);
+        border-color: var(--color-accent);
+        background-color: var(--color-accent);
+        color: var(--color-bg);
+      }
+    }
+
+    /* Ghost Variant */
+    &:is([data-variant="ghost"], .ghost) {
+      padding: var(--spacing-4-8) var(--spacing-16-32);
+      box-shadow: none;
+      border-style: dashed;
+      border-color: transparent;
+      background-color: transparent;
+      color: currentColor;
+      text-decoration: underline;
+      text-underline-offset: var(--spacing-4-6);
+
+      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+        box-shadow: none;
+        border-color: var(--color-accent);
+        background-color: transparent;
+        color: var(--color-accent);
+      }
+
+      &:focus-visible {
+        outline-style: dotted;
+      }
+    }
+
+    /* Icon Variant */
+    &:is([data-variant="icon"], .icon) {
+      --size: var(--spacing-24-32);
+
+      flex-shrink: 0;
+      font-size: var(--size);
+      line-height: 1;
+    }
+
+    /* Text Variant */
+    &:is([data-variant="text"], .text) {
+      text-decoration: none;
+      text-underline-offset: var(--spacing-2-4);
+
+      &:is(:hover, :focus) {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        text-decoration: none;
+      }
+    }
+
+    /* Wrapper Variant */
+    &:is([data-variant="wrapper"], .wrapper) {
+      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+        color: currentColor;
+      }
+    }
+  }
+}
+
+/* Button Modifiers */
+@layer modifiers {
+  button,
+  [type="submit"],
+  [type="reset"],
+  [type="button"],
+  [role="button"] {
+    &:is([data-modifier="full-width"], .full-width) {
+      width: 100%;
+    }
+  }
+}

@@ -1,0 +1,159 @@
+/* Card */
+[data-card] {
+  --bg: var(--color-display);
+  --fg: var(--color-fg);
+  --stroke: var(--color-display-stroke);
+  --border-style: solid;
+  --border-width: var(--space-stroke-2);
+  --outline-style: var(--border-style);
+  --outline-width: var(--space-stroke-1);
+  --outline-offset: var(--border-width);
+  --shadow: var(--shadow-4);
+  --space: var(--space-display);
+  --gap: var(--space);
+  --padding: var(--space);
+  --font: var(--font-sans);
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: end;
+  gap: var(--gap);
+  padding: var(--padding);
+  box-shadow: var(--shadow);
+  border-style: var(--border-style);
+  border-width: var(--border-width);
+  border-color: var(--stroke);
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+
+  &:is(form) {
+    --gap: var(--space-spread-1);
+
+    justify-content: stretch;
+
+    & > footer {
+      --position: calc(-1 * var(--padding));
+
+      position: sticky;
+      bottom: var(--position);
+      margin: var(--position);
+      padding: var(--padding);
+      background-color: var(--bg);
+    }
+  }
+
+  & :where(h1):not(& :is(header, section, footer, aside) :where(h1)) {
+    font-size: var(--text-title);
+    font-weight: var(--text-title--weight);
+    line-height: var(--text-title--leading);
+    letter-spacing: var(--text-title--tracking);
+  }
+
+  & :where(h2):not(& :is(header, section, footer, aside) :where(h2)) {
+    font-size: var(--text-heading);
+    font-weight: var(--text-heading--weight);
+    line-height: var(--text-heading--leading);
+    letter-spacing: var(--text-heading--tracking);
+  }
+
+  & :where(h3):not(& :is(header, section, footer, aside) :where(h3)) {
+    font-size: var(--text-headline);
+    font-weight: var(--text-headline--weight);
+    line-height: var(--text-headline--leading);
+    letter-spacing: var(--text-headline--tracking);
+  }
+
+  & :where(h4):not(& :is(header, section, footer, aside) :where(h4)) {
+    font-size: var(--text-subtitle);
+    font-weight: var(--text-subtitle--weight);
+    line-height: var(--text-subtitle--leading);
+    letter-spacing: var(--text-subtitle--tracking);
+  }
+
+  & :where(h5):not(& :is(header, section, footer, aside) :where(h5)) {
+    font-size: var(--text-display);
+    font-weight: var(--text-display--weight);
+    line-height: var(--text-display--leading);
+    letter-spacing: var(--text-display--tracking);
+  }
+
+  & :where(h6):not(& :is(header, section, footer, aside) :where(h6)) {
+    font-size: var(--text-lead);
+    font-weight: var(--text-lead--weight);
+    line-height: var(--text-lead--leading);
+    letter-spacing: var(--text-lead--tracking);
+  }
+
+  & :where(p) {
+    --fg: var(--color-display-fg);
+
+    color: var(--fg);
+  }
+
+  &:is(a, button, [role="button"]) {
+    --accent: var(--color-accent);
+
+    text-decoration: none;
+    transition: var(--transition-action);
+
+    &:hover,
+    &:focus,
+    &:active,
+    &:focus-visible {
+      --bg: color-mix(in oklab, var(--accent) 2%, transparent);
+      --shadow: var(--shadow-3);
+
+      text-decoration: none;
+      border-color: var(--accent);
+    }
+
+    &:focus,
+    &:active {
+      --shadow: var(--shadow-2);
+    }
+
+    &:focus-visible {
+      box-shadow: none;
+      outline-style: solid;
+      outline-width: var(--outline-width);
+      outline-color: color-mix(in oklab, var(--accent) 60%, transparent);
+      outline-offset: var(--outline-offset);
+    }
+  }
+
+  [data-display="list"] & {
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    &[data-message] {
+      --border-style: dashed;
+
+      min-height: calc(9rem - var(--space));
+      justify-content: center;
+    }
+
+    & hgroup {
+      gap: var(--space-tag-4);
+    }
+
+    &:is(a, button, [role="button"]) {
+      & [data-icon] {
+        opacity: 0;
+        transform: translateX(-0.35em);
+        pointer-events: none;
+        transition:
+          opacity var(--transition),
+          transform var(--transition);
+      }
+
+      &:is(:hover, :focus, :active, :focus-visible) [data-icon] {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+    }
+  }
+}

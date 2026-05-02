@@ -1,0 +1,29 @@
+/* Link */
+@layer base, slots, variants, modifiers, patterns;
+
+/* Link Base */
+@layer base {
+  a:not([role="button"]),
+  [role="link"] {
+    display: inline-flex;
+    align-items: baseline;
+    text-decoration: underline;
+    color: currentColor;
+    text-decoration-color: currentColor;
+    text-underline-offset: var(--spacing-3-5);
+    transition: var(--transition-link);
+
+    &:hover,
+    &:focus,
+    &:active {
+      text-decoration: none;
+      outline: none;
+    }
+
+    &:focus-visible {
+      text-decoration: none;
+      outline: var(--outline-width-2) dashed var(--color-action);
+      outline-offset: var(--outline-offset-2);
+    }
+  }
+}

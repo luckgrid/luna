@@ -1,0 +1,65 @@
+/* Progress */
+@layer base, slots, variants, modifiers, patterns;
+
+/* Progress Base */
+@layer base {
+  :where(
+    a,
+    button,
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [role="button"],
+    [role="link"]
+  )[aria-busy="true"] {
+    pointer-events: none;
+  }
+
+  progress {
+    --background-color: var(--color-surface);
+    --color: var(--color-accent);
+
+    display: inline-block;
+    vertical-align: baseline;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    overflow: hidden;
+    width: 100%;
+    height: var(--spacing-3-5);
+    border: 0;
+    background-color: var(--background-color);
+    color: var(--color);
+
+    &::-moz-progress-bar,
+    &[value]::-webkit-progress-value {
+      background-color: var(--color);
+    }
+
+    &::-webkit-progress-bar {
+      background-color: transparent;
+    }
+
+    &[value]::-webkit-progress-value {
+      transition: var(--transition-slider);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      &:indeterminate {
+        background: var(--background-color)
+          linear-gradient(to right, var(--color) 30%, var(--background-color) 30%) top left / 150%
+          150% no-repeat;
+        animation: var(--animation-slider);
+
+        &:dir(rtl) {
+          animation-direction: reverse;
+        }
+      }
+
+      &[value]::-webkit-progress-value,
+      &:indeterminate::-moz-progress-bar {
+        background-color: transparent;
+      }
+    }
+  }
+}
