@@ -141,7 +141,7 @@ templ Page(posts []lib.Post) {
 
 ## Prerequisites
 
-- Toolchains pinned in [`.prototools`](../../.prototools) (Go, Bun, etc.). Run `proto install` from the repo root so `go` resolves to that toolchain.
+- Toolchains pinned in [`.prototools`](../../.prototools) (Go, Bun, etc.). From the repo root run `bun run install` or `proto install` so `go` resolves to that toolchain.
 - The [`templ`](https://templ.guide/) CLI is pinned as a [Go tool](https://templ.guide/quick-start/installation#go-install-as-tool) in [`go.mod`](go.mod) (`tool github.com/a-h/templ/cmd/templ`). Moon runs `go tool templ` — no global `go install` step. To regenerate templates manually: `go tool templ generate` from this directory.
 
 ## Build and serve

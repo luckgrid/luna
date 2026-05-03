@@ -16,6 +16,7 @@ fileGroups:
     - "**/*.css"
 
 tasks:
+  # Go module prefetch; root `bun run install` runs this with `api:build` after proto + Bun.
   install:
     command: "go"
     args: ["mod", "download"]

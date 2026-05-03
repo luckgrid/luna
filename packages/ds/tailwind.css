@@ -2,11 +2,11 @@
 
 @import "tailwindcss/theme" layer(theme);
 @import "./src/theme.css" layer(theme);
-
 @import "tailwindcss/preflight" layer(base);
 @import "./src/base.css" layer(base);
-
+@import "./src/structures.css" layer(structures);
+@import "./src/primitives.css" layer(primitives);
+@import "./src/components.css" layer(components);
 @import "tailwindcss/utilities" layer(utilities);
 @import "./src/utilities.css";
-
 @import "./src/variants.css";

@@ -1,3 +1,19 @@
+/* Utilities */
+
+@layer utilities {
+  /* Sticky Utility */
+  [data-sticky],
+  [data-modifier="sticky"],
+  .sticky {
+    -webkit-backdrop-filter: var(--filter-backdrop);
+    backdrop-filter: var(--filter-backdrop);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--color-bg-2);
+  }
+}
+
 @utility no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

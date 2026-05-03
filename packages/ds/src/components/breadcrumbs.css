@@ -1,73 +1,80 @@
 /* Breadcrumbs */
 @layer base, slots, variants, modifiers, patterns;
 
-[data-breadcrumbs],
-.breadcrumbs {
-  --icon: var(--icon-chevron);
-  --icon-color: currentColor;
-  --icon-size: 1em;
-  --logo-size: var(--size-icon-1);
-  --fg: var(--color-fg);
-  --gap: var(--space-tag-2);
-  --text: var(--text-small);
-  --text-weight: 500;
-  --text-tracking: 0.02em;
-
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  gap: var(--gap);
-  color: var(--fg);
-  font-size: var(--text);
-  font-weight: var(--text-weight);
-  letter-spacing: var(--text-tracking);
-  text-transform: uppercase;
-
-  & > :where(li) {
-    display: inline-flex;
-    align-items: center;
-    min-width: 0;
-    gap: var(--gap);
+/* Breadcrumbs Base */
+@layer base {
+  [data-breadcrumbs],
+  .breadcrumbs {
+    list-style: none;
     margin: 0;
-  }
-
-  & > :where(li + li)::before {
-    flex-shrink: 0;
-    display: inline-block;
-    width: var(--icon-size);
-    height: var(--icon-size);
-    transform: rotate(-90deg);
-    background-color: var(--icon-color);
-    -webkit-mask-image: var(--icon);
-    -webkit-mask-position: center;
-    -webkit-mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    mask-image: var(--icon);
-    mask-position: center;
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    content: "";
-  }
-
-  & > :where(li[aria-current="page"]) {
-    --color: color-mix(in oklab, var(--color-display-fg) 75%, transparent);
-
-    flex: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
     min-width: 0;
+    overflow: hidden;
+    gap: var(--spacing-4-6);
+    color: var(--color-fg);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--text-sm--letter-spacing);
+    text-transform: uppercase;
   }
+}
 
-  & :is(li a) {
-    white-space: nowrap;
-    text-decoration: none;
-    outline: none;
+/* Breadcrumbs Slots */
+@layer slots {
+  [data-breadcrumbs],
+  .breadcrumbs {
+    /* Breadcrumb List Items */
+    & > li {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      gap: var(--spacing-4-6);
+      margin: 0;
+
+      & + li::before {
+        -webkit-mask-image: var(--icon-chevron);
+        -webkit-mask-position: center;
+        -webkit-mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-image: var(--icon-chevron);
+        mask-position: center;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        flex-shrink: 0;
+        transform: rotate(-90deg);
+        background-color: currentColor;
+        content: "";
+      }
+
+      &[aria-current="page"] {
+        flex: 1;
+        min-width: 0;
+        color: color-mix(in oklab, var(--color-fg-3) 75%, transparent);
+
+        & a {
+          color: inherit;
+        }
+      }
+    }
+
+    /* All List Item Links */
+    &:has(li a) {
+      white-space: nowrap;
+      text-decoration: none;
+      outline: none;
+    }
   }
+}
 
-  & :where([data-logo]) {
-    --logo-size: var(--logo-size);
+/* Breadcrumbs Modifiers */
+@layer modifiers {
+  :is([data-breadcrumbs], .breadcrumbs):has([data-logo], .logo) {
+    --size: var(--spacing-24-32);
   }
 }

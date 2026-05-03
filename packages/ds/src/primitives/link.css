@@ -22,7 +22,7 @@
 
     &:focus-visible {
       text-decoration: none;
-      outline: var(--outline-width-2) dashed var(--color-action);
+      outline: var(--outline-width-2) dashed var(--color-accent);
       outline-offset: var(--outline-offset-2);
     }
   }

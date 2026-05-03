@@ -1,158 +1,127 @@
 /* Card */
-[data-card] {
-  --bg: var(--color-display);
-  --fg: var(--color-fg);
-  --stroke: var(--color-display-stroke);
-  --border-style: solid;
-  --border-width: var(--space-stroke-2);
-  --outline-style: var(--border-style);
-  --outline-width: var(--space-stroke-1);
-  --outline-offset: var(--border-width);
-  --shadow: var(--shadow-4);
-  --space: var(--space-display);
-  --gap: var(--space);
-  --padding: var(--space);
-  --font: var(--font-sans);
+@layer base, slots, variants, modifiers, patterns;
 
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: end;
-  gap: var(--gap);
-  padding: var(--padding);
-  box-shadow: var(--shadow);
-  border-style: var(--border-style);
-  border-width: var(--border-width);
-  border-color: var(--stroke);
-  background-color: var(--bg);
-  color: var(--fg);
-  font-family: var(--font);
+/* Card Base */
+@layer base {
+  [data-card],
+  [data-surface="card"],
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: end;
+    gap: var(--spacing-surface);
+    padding: var(--spacing-surface);
+    box-shadow: var(--shadow-4);
+    border-style: solid;
+    border-width: var(--border-width-2);
+    border-color: var(--color-bg-4);
+    background-color: var(--color-bg-2);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+}
 
-  &:is(form) {
-    --gap: var(--space-spread-1);
-
-    justify-content: stretch;
-
-    & > footer {
-      --position: calc(-1 * var(--padding));
-
-      position: sticky;
-      bottom: var(--position);
-      margin: var(--position);
-      padding: var(--padding);
-      background-color: var(--bg);
+/* Card Slots */
+@layer slots {
+  [data-card],
+  [data-surface="card"],
+  .card {
+    &:has(p, small) {
+      color: var(--color-fg-3);
     }
   }
+}
 
-  & :where(h1):not(& :is(header, section, footer, aside) :where(h1)) {
-    font-size: var(--text-title);
-    font-weight: var(--text-title--weight);
-    line-height: var(--text-title--leading);
-    letter-spacing: var(--text-title--tracking);
-  }
+/* Card Variants */
+@layer variants {
+  [data-card],
+  [data-surface="card"],
+  .card {
+    /* Form Card Variant */
+    &:is(form) {
+      gap: var(--spacing-16-32);
+      justify-content: stretch;
 
-  & :where(h2):not(& :is(header, section, footer, aside) :where(h2)) {
-    font-size: var(--text-heading);
-    font-weight: var(--text-heading--weight);
-    line-height: var(--text-heading--leading);
-    letter-spacing: var(--text-heading--tracking);
-  }
-
-  & :where(h3):not(& :is(header, section, footer, aside) :where(h3)) {
-    font-size: var(--text-headline);
-    font-weight: var(--text-headline--weight);
-    line-height: var(--text-headline--leading);
-    letter-spacing: var(--text-headline--tracking);
-  }
-
-  & :where(h4):not(& :is(header, section, footer, aside) :where(h4)) {
-    font-size: var(--text-subtitle);
-    font-weight: var(--text-subtitle--weight);
-    line-height: var(--text-subtitle--leading);
-    letter-spacing: var(--text-subtitle--tracking);
-  }
-
-  & :where(h5):not(& :is(header, section, footer, aside) :where(h5)) {
-    font-size: var(--text-display);
-    font-weight: var(--text-display--weight);
-    line-height: var(--text-display--leading);
-    letter-spacing: var(--text-display--tracking);
-  }
-
-  & :where(h6):not(& :is(header, section, footer, aside) :where(h6)) {
-    font-size: var(--text-lead);
-    font-weight: var(--text-lead--weight);
-    line-height: var(--text-lead--leading);
-    letter-spacing: var(--text-lead--tracking);
-  }
-
-  & :where(p) {
-    --fg: var(--color-display-fg);
-
-    color: var(--fg);
-  }
-
-  &:is(a, button, [role="button"]) {
-    --accent: var(--color-accent);
-
-    text-decoration: none;
-    transition: var(--transition-action);
-
-    &:hover,
-    &:focus,
-    &:active,
-    &:focus-visible {
-      --bg: color-mix(in oklab, var(--accent) 2%, transparent);
-      --shadow: var(--shadow-3);
-
-      text-decoration: none;
-      border-color: var(--accent);
+      & > footer {
+        position: sticky;
+        bottom: calc(-1 * var(--spacing-surface));
+        margin: calc(-1 * var(--spacing-surface));
+        padding: var(--spacing-surface);
+        background-color: var(--color-bg-2);
+      }
     }
 
-    &:focus,
-    &:active {
-      --shadow: var(--shadow-2);
-    }
-
-    &:focus-visible {
-      box-shadow: none;
-      outline-style: solid;
-      outline-width: var(--outline-width);
-      outline-color: color-mix(in oklab, var(--accent) 60%, transparent);
-      outline-offset: var(--outline-offset);
-    }
-  }
-
-  [data-display="list"] & {
-    flex-flow: row nowrap;
-    align-items: center;
-    justify-content: space-between;
-
-    &[data-message] {
-      --border-style: dashed;
-
-      min-height: calc(9rem - var(--space));
-      justify-content: center;
-    }
-
-    & hgroup {
-      gap: var(--space-tag-4);
-    }
-
+    /* Action Card Variant */
     &:is(a, button, [role="button"]) {
-      & [data-icon] {
-        opacity: 0;
-        transform: translateX(-0.35em);
-        pointer-events: none;
-        transition:
-          opacity var(--transition),
-          transform var(--transition);
+      text-decoration: none;
+      transition: var(--transition-action);
+
+      &:hover,
+      &:focus,
+      &:active,
+      &:focus-visible {
+        border-color: var(--color-accent);
+        background-color: color-mix(in oklab, var(--color-accent) 2%, transparent);
+        box-shadow: var(--shadow-3);
+        text-decoration: none;
       }
 
-      &:is(:hover, :focus, :active, :focus-visible) [data-icon] {
-        opacity: 1;
-        transform: translateX(0);
-        pointer-events: auto;
+      &:focus,
+      &:active {
+        box-shadow: var(--shadow-2);
+      }
+
+      &:focus-visible {
+        box-shadow: none;
+        outline-style: solid;
+        outline-width: var(--border-width-1);
+        outline-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
+        outline-offset: var(--border-width-2);
+      }
+    }
+  }
+}
+
+/* Card Patterns */
+@layer patterns {
+  [data-card],
+  [data-surface="card"],
+  .card {
+    /* Card List Pattern (card as [or part of] an item in list) */
+    [data-list],
+    [data-block="list"],
+    .list & {
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: space-between;
+
+      /* Card List Pattern Slots */
+      &:has(hgroup) {
+        gap: var(--spacing-8-16);
+      }
+
+      /* Card List Pattern Variants */
+      &:is([data-message], [data-variant="message"], .message) {
+        min-height: calc(var(--spacing-60-120) - var(--spacing-surface));
+        border-style: dashed;
+        justify-content: center;
+      }
+
+      /* Card List Pattern Modifiers */
+      &:is(a, button, [role="button"]) {
+        &:has(i, svg, [data-icon], [data-media="icon"], [class*="icon-"], .icon) {
+          opacity: 0;
+          pointer-events: none;
+          transform: translateX(-0.35em);
+          transition: var(--transition-action), var(--transition-transform);
+
+          :is(:hover, :focus, :active, :focus-visible) & {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+          }
+        }
       }
     }
   }

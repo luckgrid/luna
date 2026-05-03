@@ -29,23 +29,35 @@
 
   /* Colors */
   --color-*: initial;
+  /* Light Colors */
+  --color-light: oklch(100% 0 0); /* White */
+  --color-light-1: oklch(92% 0 0); /* Light Gray 1 */
+  --color-light-2: oklch(84% 0 0); /* Light Gray 2 */
+  --color-light-3: oklch(76% 0 0); /* Light Gray 3 */
+  --color-light-4: oklch(68% 0 0); /* Light Gray 4 */
+  --color-light-5: oklch(60% 0 0); /* Light Gray 5 */
+  /* Dark Colors */
+  --color-dark: oklch(0% 0 0); /* Black */
+  --color-dark-1: oklch(16% 0 0); /* Dark Gray 1 */
+  --color-dark-2: oklch(24% 0 0); /* Dark Gray 2 */
+  --color-dark-3: oklch(32% 0 0); /* Dark Gray 3 */
+  --color-dark-4: oklch(40% 0 0); /* Dark Gray 4 */
+  --color-dark-5: oklch(52% 0 0); /* Dark Gray 5 */
   /* Background Colors */
-  --color-bg: light-dark(oklch(100% 0 0), oklch(0% 0 0)); /* Canvas */
-  --color-bg-1: light-dark(oklch(92% 0 0), oklch(16% 0 0)); /* Base */
-  --color-bg-2: light-dark(oklch(84% 0 0), oklch(24% 0 0)); /* Surface */
-  --color-bg-3: light-dark(oklch(76% 0 0), oklch(32% 0 0)); /* Muted */
-  --color-bg-4: light-dark(oklch(68% 0 0), oklch(40% 0 0)); /* Stroke */
-  --color-bg-5: light-dark(oklch(60% 0 0), oklch(52% 0 0)); /* Neutral */
+  --color-bg: light-dark(var(--color-light), var(--color-dark)); /* Canvas */
+  --color-bg-1: light-dark(var(--color-light-1), var(--color-dark-1)); /* Base */
+  --color-bg-2: light-dark(var(--color-light-2), var(--color-dark-2)); /* Surface */
+  --color-bg-3: light-dark(var(--color-light-3), var(--color-dark-3)); /* Muted */
+  --color-bg-4: light-dark(var(--color-light-4), var(--color-dark-4)); /* Stroke */
+  --color-bg-5: light-dark(var(--color-light-5), var(--color-dark-5)); /* Neutral */
   /* Foreground Colors */
-  --color-fg: light-dark(oklch(0% 0 0), oklch(100% 0 0)); /* Canvas */
-  --color-fg-1: light-dark(oklch(16% 0 0), oklch(92% 0 0)); /* Base */
-  --color-fg-2: light-dark(oklch(24% 0 0), oklch(84% 0 0)); /* Surface */
-  --color-fg-3: light-dark(oklch(32% 0 0), oklch(76% 0 0)); /* Muted */
-  --color-fg-4: light-dark(oklch(40% 0 0), oklch(68% 0 0)); /* Stroke */
-  --color-fg-5: light-dark(oklch(52% 0 0), oklch(60% 0 0)); /* Neutral */
+  --color-fg: light-dark(var(--color-dark), var(--color-light)); /* Canvas */
+  --color-fg-1: light-dark(var(--color-dark-1), var(--color-light-1)); /* Base */
+  --color-fg-2: light-dark(var(--color-dark-2), var(--color-light-2)); /* Surface */
+  --color-fg-3: light-dark(var(--color-dark-3), var(--color-light-3)); /* Muted */
+  --color-fg-4: light-dark(var(--color-dark-4), var(--color-light-4)); /* Stroke */
+  --color-fg-5: light-dark(var(--color-dark-5), var(--color-light-5)); /* Neutral */
   /* Semantic Colors */
-  --color-light: oklch(100% 0 0);
-  --color-dark: oklch(0% 0 0);
   --color-hilite: light-dark(oklch(88% 0.2 258), oklch(26% 0.2 258));
   --color-accent: light-dark(oklch(58% 0.2 258), oklch(68% 0.2 258));
   --color-alert: light-dark(oklch(58% 0.2 28), oklch(68% 0.2 28));
@@ -278,6 +290,10 @@
   /* Animations */
   --animation-dash: dash 1.5s var(--ease-in-out) infinite;
   --animation-dropshadow: dropshadow 0.5s linear both;
+  --animation-fade-in-top: fade-in-top 0.2s var(--ease-in-out) forwards;
+  --animation-fade-in-bottom: fade-in-bottom 0.2s var(--ease-in-out) forwards;
+  --animation-fade-in-left: fade-in-left 0.2s var(--ease-in-out) forwards;
+  --animation-fade-in-right: fade-in-right 0.2s var(--ease-in-out) forwards;
   --animation-slider: slider 1s linear infinite;
 
   /* Animation Keyframes */
@@ -308,6 +324,54 @@
     }
   }
 
+  @keyframes fade-in-top {
+    from {
+      opacity: 0;
+      transform: translate(0, -100%);
+    }
+
+    to {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-bottom {
+    from {
+      opacity: 0;
+      transform: translate(0, 100%);
+    }
+
+    to {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-left {
+    from {
+      opacity: 0;
+      transform: translate(-100%, 0);
+    }
+
+    to {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-right {
+    from {
+      opacity: 0;
+      transform: translate(100%, 0);
+    }
+
+    to {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+  }
+
   @keyframes slider {
     0% {
       background-position: 200% 0;
@@ -320,6 +384,7 @@
 }
 
 :where(:root, :host) {
+  /* Theme Tokens (default theme variables) */
   --background-color: var(--color-bg-1);
   --color: var(--color-fg-1);
   --font-family: var(--font-sans);
@@ -328,4 +393,12 @@
   --line-height: var(--text-base--line-height);
   --letter-spacing: var(--text-base--letter-spacing);
   --underline-offset: var(--spacing-3-5);
+
+  /* SVG Icon Tokens (mask icons use opaque fills; stroke icons use currentColor for tint) */
+  --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='black' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
+  --icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9%2016.17L4.83%2012l-1.42%201.41L9%2019%2021%207l-1.41-1.41z'/%3E%3C/svg%3E");
+  --icon-minus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect fill='white' x='5' y='11' width='14' height='2' rx='1'/%3E%3C/svg%3E");
+  --icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
+  --icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='3.5' width='11' height='10' rx='1.5'/%3E%3Cpath d='M5 2.5v2M11 2.5v2M2.5 6.5h11'/%3E%3C/svg%3E");
+  --icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='5.5'/%3E%3Cpath d='M8 5v3l2 1.5'/%3E%3C/svg%3E");
 }

@@ -51,10 +51,11 @@ The `apps/api` stack centers on **FastAPI**, **Pydantic**, and **Pydantic AI** f
 Run commands from the repository root unless an app README says otherwise.
 
 ```sh
-proto install    # pinned tools from .prototools (proto, moon, bun, python, go)
-bun install      # workspace dependencies
+bun run install  # proto + Bun workspaces + Go modules (web:install) + Python venv (api:build / uv sync)
 bun run dev      # all application-layer dev tasks (see moon query / app READMEs for subsets)
 ```
+
+The `install` script runs `proto install`, then `bun install --ignore-scripts` (the flag avoids re-entering this root lifecycle when `bun install` invokes it), then `moon run web:install api:build` so Go and Python stacks match what `web:build` / `api:dev` expect without waiting for a first dev run. To install only JS workspaces, run `bun install` alone.
 
 For a full compile of every application project first, run **`bun run build`**. Default ports are documented in each app README and can be overridden via [`.env.local`](.env.local).
 
@@ -66,7 +67,7 @@ For a full compile of every application project first, run **`bun run build`**. 
 - **`packages/ui/`** — shared Solid UI · [README](packages/ui/README.md)
 - **`packages/ds/`** — design system / Tailwind · [README](packages/ds/README.md)
 
-Moon wires install, templates, styles, build, and dev tasks per project; **`web:dev`** depends on an initial **`web:build`**, and **`api:dev`** depends on **`api:build`** (`uv sync`) so first-time dev pulls toolchains and dependencies. For step-by-step task graphs (templ, Tailwind CLI, `go run`, Uvicorn, Vite), follow each workspace README above.
+Moon wires install, templates, styles, build, and dev tasks per project; **`web:dev`** depends on an initial **`web:build`**, and **`api:dev`** depends on **`api:build`** (`uv sync`) so first-time dev pulls toolchains and dependencies. Root **`bun run install`** runs **`web:install`** and **`api:build`** up front so Go modules and the API venv are ready before **`bun run dev`**. For step-by-step task graphs (templ, Tailwind CLI, `go run`, Uvicorn, Vite), follow each workspace README above.
 
 ## Commands
 
@@ -75,6 +76,7 @@ Moon wires install, templates, styles, build, and dev tasks per project; **`web:
 These scripts target the **application layer** (all `apps/*` projects), matching what you use day to day from the repo root:
 
 ```sh
+bun run install     # proto + Bun workspaces + web:install + api:build (see Quick Start)
 bun run dev         # moon run :dev --query "projectLayer=application"
 bun run build       # moon run :build --query "projectLayer=application"
 bun run start       # moon run :start --query "projectLayer=application"
@@ -148,7 +150,7 @@ bun run update           # bump pins and dependencies repo-wide; then review and
 
 **Per stack (manual add / remove)** — use these when you are changing one project, not refreshing everything:
 
-- **Toolchain (proto)** — edit [`.prototools`](.prototools), then `proto install` (or `proto pin <tool> <version>`). Removing a tool line drops it from proto’s install set for this repo.
+- **Toolchain (proto)** — edit [`.prototools`](.prototools), then `proto install` or `bun run install` (or `proto pin <tool> <version>`). Removing a tool line drops it from proto’s install set for this repo.
 - **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
 - **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
 - **Go (`apps/web`)** — `cd apps/web` then `go get example.com/module@v1.2.3` (or `@latest`); drop a direct dependency with `go get example.com/module@none` and run `go mod tidy`. The **templ** CLI stays aligned with the library via `go get -tool github.com/a-h/templ/cmd/templ@<version>` when you bump templ intentionally.

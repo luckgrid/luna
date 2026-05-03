@@ -5,7 +5,7 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 ## Core Rules
 
 - Bun-first monorepo: prefer Bun commands over npm/pnpm/yarn.
-- Toolchain versions are pinned in `.prototools`; install with `proto install`.
+- Toolchain versions are pinned in `.prototools`; bootstrap with `bun run install` (or `proto install` alone).
 - Run commands from the repository root unless an app/package README says otherwise.
 - Keep app-specific scripts in each app's `package.json`; shared orchestration goes through moon/root scripts.
 

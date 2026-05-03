@@ -1,43 +1,93 @@
 /* Hero */
-[data-hero] {
-  --space: var(--space-container);
-  --gap: var(--space);
-  --padding: var(--space);
+@layer base, slots, variants, modifiers, patterns;
 
-  position: relative;
-  padding: var(--padding);
-  gap: var(--gap);
-  text-align: center;
-  font-family: var(--font-sans);
-
-  & hgroup {
-    flex: 1;
-    max-width: none;
-    margin-inline: auto;
+/* Hero Base */
+@layer base {
+  [data-hero],
+  [data-block="hero"],
+  .hero {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    position: relative;
+    padding: var(--spacing-container);
+    gap: var(--spacing-container);
+    text-align: center;
+    font-family: var(--font-sans);
   }
+}
 
-  & [data-logo] {
-    --logo-size: var(--size-logo-2);
+/* Hero Slots */
+@layer slots {
+  [data-hero],
+  [data-block="hero"],
+  .hero {
+    --font-size: var(--text-xl);
+    --font-weight: var(--text-xl--font-weight);
+    --letter-spacing: var(--text-xl--letter-spacing);
+    --line-height: var(--text-xl--line-height);
+
+    &:has(hgroup) {
+      flex: 1;
+      max-width: none;
+      margin-inline: auto;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &:has(h1, h2) {
+      --font-size: var(--text-8xl);
+      --font-weight: var(--text-8xl--font-weight);
+      --letter-spacing: var(--text-8xl--letter-spacing);
+      --line-height: var(--text-8xl--line-height);
+    }
+
+    &:has(h3, h4) {
+      --font-size: var(--text-6xl);
+      --font-weight: var(--text-6xl--font-weight);
+      --letter-spacing: var(--text-6xl--letter-spacing);
+      --line-height: var(--text-6xl--line-height);
+    }
+
+    &:has(h5, h6) {
+      --font-size: var(--text-4xl);
+      --font-weight: var(--text-4xl--font-weight);
+      --letter-spacing: var(--text-4xl--letter-spacing);
+      --line-height: var(--text-4xl--line-height);
+    }
+
+    &:has(small) {
+      font-size: var(--text-base);
+      font-weight: var(--text-base--font-weight);
+      line-height: var(--text-base--line-height);
+      letter-spacing: var(--text-base--letter-spacing);
+    }
   }
+}
 
-  & :where(h1, h2) {
-    font-size: var(--text-hero);
-    font-weight: var(--text-hero--weight);
-    letter-spacing: var(--text-hero--tracking);
-    line-height: var(--text-hero--leading);
-  }
+/* Hero Modifiers */
+@layer modifiers {
+  [data-hero],
+  [data-block="hero"],
+  .hero {
+    /* Hero Flex Box */
+    &:has([data-flex], [data-box="flex"], .flex-box) {
+      gap: var(--spacing-16-32);
+    }
 
-  & p {
-    color: var(--color-fg);
-    font-size: var(--text-display);
-    letter-spacing: var(--text-hero--tracking);
-  }
+    /* Hero Logo */
+    &:has([data-logo], [data-media="logo"], .logo) {
+      --size: var(--spacing-64-128);
+    }
 
-  & [data-flex] {
-    --gap: var(--space-wrap-1);
+    /* Centered Hero */
+    &:is([data-modifier="centered"], .centered) {
+      align-items: center;
+      justify-content: center;
 
-    justify-content: center;
+      &:has([data-flex], [data-box="flex"], .flex-box) {
+        justify-content: center;
+      }
+    }
   }
 }

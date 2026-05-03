@@ -8,6 +8,7 @@
   ],
   "type": "module",
   "scripts": {
+    "install": "proto install && bun install --ignore-scripts && moon run web:install api:build",
     "build": "moon run :build --query \"projectLayer=application\"",
     "dev": "moon run :dev --query \"projectLayer=application\"",
     "start": "moon run :start --query \"projectLayer=application\"",

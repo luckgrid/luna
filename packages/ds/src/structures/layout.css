@@ -21,7 +21,7 @@
 
   /* Main Layout Base */
   main {
-    flex: 1 1 auto;
+    flex: 1;
   }
 }
 
@@ -29,55 +29,37 @@
 @layer slots {
   /* Body Layout Slots */
   body {
-    & > :where(header, footer, aside, section) {
+    & > :is(header, footer, aside, section) {
       gap: var(--spacing-container);
       padding-inline: var(--spacing-container);
     }
 
-    & > :where(header, footer, section) {
+    & > :is(header, footer, section) {
       padding-block: var(--spacing-layout);
     }
 
-    & > :where(header, footer) {
+    & > :is(header, footer) {
       justify-content: center;
     }
 
     /* Body Layout Header */
     & > header {
-      min-block-size: var(--spacing-header);
+      min-block-size: var(--spacing-toolbar);
       padding-block: var(--spacing-panel);
 
       & > nav {
         justify-content: space-between;
       }
-
-      /* Sticky header will gain a shadow after scrolling past 1px. */
-      &:where(.sticky, [data-sticky]) {
-        @supports (animation-timeline: scroll(root block)) {
-          animation: var(--animation-dropshadow);
-          animation-timeline: scroll(root block);
-          animation-range: 0 1px;
-
-          @media (prefers-reduced-motion: reduce) {
-            animation: none;
-            box-shadow: var(--shadow-1);
-          }
-        }
-
-        @supports not (animation-timeline: scroll(root block)) {
-          box-shadow: var(--shadow-1);
-        }
-      }
     }
 
     /* Body Layout Section */
     & > section {
-      & > :where(header, footer, aside) {
+      & > :is(header, footer, aside) {
         padding: 0;
       }
 
-      & > :where(header, footer) {
-        & :where(p, small) {
+      & > :is(header, footer) {
+        &:has(p, small) {
           color: var(--color-fg-3);
           font-size: var(--text-lg);
           font-weight: var(--text-lg--font-weight);
@@ -86,7 +68,7 @@
         }
       }
 
-      & > :is([data-display], .display) {
+      & > :is([data-surface], .surface) {
         --space: var(--spacing-20-40);
       }
     }
@@ -102,29 +84,11 @@
       align-items: center;
       text-align: center;
 
-      & :is(a, button, [role="button"], [role="link"]) {
+      &:has(a, button, [role="button"], [role="link"]) {
         font-size: var(--text-sm);
         font-weight: var(--text-sm--font-weight);
         line-height: var(--text-sm--line-height);
         letter-spacing: var(--text-sm--letter-spacing);
-      }
-
-      & :is([data-logo], .logo) {
-        z-index: -1;
-        position: relative;
-        width: 100%;
-        flex: 1 1 100%;
-        inline-size: var(--logo-size);
-        max-inline-size: none;
-        aspect-ratio: 1;
-        block-size: auto;
-        flex-shrink: 0;
-        -webkit-mask-position: bottom center;
-        mask-position: bottom center;
-
-        &:is(a):is(:hover, :focus, :active, :focus-visible) {
-          color: var(--color-accent);
-        }
       }
 
       @container (min-width: 30rem) {
@@ -134,19 +98,111 @@
         align-items: flex-end;
         min-height: var(--min-height);
 
-        & :is([data-logo], .logo) {
-          position: absolute;
-          inset-block-end: 0;
-          inset-inline-start: 50%;
-          translate: -50% 0;
-          max-width: 50svw;
-        }
-
         & > nav {
           order: 999;
           justify-content: flex-end;
         }
       }
+    }
+  }
+
+  /* Main Layout Slots */
+  main {
+    & > :is(header, footer, section, aside, article) {
+      padding-block: var(--spacing-layout);
+      padding-inline: var(--spacing-container);
+    }
+
+    /* If main only has one section between a header and footer, the section will fill the full viewport height. */
+    & > :is(header:first-child + section:has(+ footer:last-child)) {
+      flex: 1;
+    }
+
+    /* Main Layout Header */
+    & > header {
+      padding-bottom: 0;
+    }
+
+    /* Main Layout Footer */
+    & > footer {
+      padding-top: 0;
+    }
+  }
+}
+
+/* Layout Variants */
+@layer variants {
+  /* Body Layout Variants */
+  body {
+    /* Sticky header will gain a shadow after scrolling past 1px. */
+    & > header:is([data-sticky], [data-modifier="sticky"], .sticky) {
+      @supports (animation-timeline: scroll(root block)) {
+        animation: var(--animation-dropshadow);
+        animation-timeline: scroll(root block);
+        animation-range: 0 1px;
+
+        @media (prefers-reduced-motion: reduce) {
+          animation: none;
+          box-shadow: var(--shadow-1);
+        }
+      }
+
+      @supports not (animation-timeline: scroll(root block)) {
+        box-shadow: var(--shadow-1);
+      }
+    }
+  }
+}
+
+/* Layout Patterns */
+@layer patterns {
+  /* Catalog Layout Pattern */
+  [data-layout="catalog"] {
+    @supports (timeline-scope: --scroll-over-target) {
+      timeline-scope: --scroll-over-target;
+
+      &:has([data-scroll-trigger]) {
+        animation: fade-in linear both;
+        animation-range: exit-crossing 0% exit-crossing 100%;
+        animation-timeline: --scroll-over-target;
+
+        &:focus-visible {
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          animation: none;
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
+        }
+      }
+    }
+
+    @supports not (timeline-scope: --scroll-over-target) {
+      &:has([data-scroll-trigger]) {
+        opacity: 1;
+        pointer-events: auto;
+        visibility: visible;
+      }
+    }
+
+    /** 
+     * Top-edge sentinel: ::after must not sit after the target (that tracked the target bottom).
+     * [data-scroll-target]::before is the scroll trigger; absolute top aligns the timeline with the target top.
+     */
+    &:has([data-scroll-target])::after {
+      content: "";
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline: 0;
+      block-size: 1px;
+      pointer-events: none;
+      view-timeline-axis: block;
+      view-timeline-inset: var(--scroll-offset) 0 0 0;
+      view-timeline-name: --scroll-over-target;
     }
   }
 }

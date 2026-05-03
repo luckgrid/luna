@@ -16,7 +16,7 @@
   }
 
   progress {
-    --background-color: var(--color-surface);
+    --background-color: var(--color-bg-2);
     --color: var(--color-accent);
 
     display: inline-block;
