@@ -1,5 +1,4 @@
 /* Hero */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Hero Base */
 @layer base {

@@ -1,5 +1,4 @@
 /* Link */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Link Base */
 @layer base {

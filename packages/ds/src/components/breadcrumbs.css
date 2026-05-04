@@ -1,5 +1,4 @@
 /* Breadcrumbs */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Breadcrumbs Base */
 @layer base {

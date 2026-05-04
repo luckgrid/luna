@@ -1,0 +1,85 @@
+/* Select */
+
+/* Select Base */
+@layer base {
+  select {
+    --space: var(--space, var(--spacing-8-16));
+
+    display: inline-flex;
+    gap: var(--space);
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: var(--space);
+    box-shadow: var(--shadow-2);
+    border: var(--border-width-2) solid var(--color-bg-5);
+    background-color: var(--background-color, var(--color-light));
+    color: var(--color, var(--color-dark));
+    font-size: var(--text-base);
+    font-weight: var(--text-base--font-weight);
+    line-height: var(--text-base--line-height);
+    letter-spacing: var(--text-base--letter-spacing);
+    text-transform: none;
+    transition: var(--transition-action);
+
+    &:not([multiple], [size]) {
+      padding-right: calc(var(--space) + 1.5rem);
+      padding-left: var(--space);
+      padding-inline-start: var(--space);
+      padding-inline-end: calc(var(--space) + 1.5rem);
+      background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(-45deg, transparent 50%, currentColor 50%);
+      background-position:
+        right 0.9rem center,
+        right 0.65rem center;
+      background-size: 1em 1em;
+      background-repeat: no-repeat;
+
+      &:dir(rtl) {
+        background-position:
+          left 0.65rem center,
+          left 0.9rem center;
+      }
+    }
+
+    &:is(:hover, :focus, :active, :focus-visible) {
+      box-shadow: var(--shadow-1);
+      border-color: var(--color-accent);
+    }
+
+    &:focus-visible {
+      box-shadow: none;
+      outline: var(--outline-width-2) solid var(--color-accent);
+      outline-offset: var(--outline-offset-2);
+    }
+
+    &::placeholder {
+      color: var(--color-light-5);
+    }
+
+    &::-ms-expand {
+      border: 0;
+      background-color: transparent;
+    }
+  }
+}
+
+/* Select Variants */
+@layer variants {
+  /* Invalid Select */
+  select:has(:user-invalid, [aria-invalid="true"], [data-invalid], .invalid) {
+    border-color: var(--color-alert);
+    color: var(--color-alert);
+  }
+
+  /* Multiple Option Checked */
+  select[multiple] option:checked {
+    background: color-mix(
+      in oklab,
+      var(--color-accent) 20%,
+      var(--background-color, var(--color-light))
+    );
+    color: var(--color, var(--color-dark));
+  }
+}

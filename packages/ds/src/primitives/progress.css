@@ -1,5 +1,4 @@
 /* Progress */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Progress Base */
 @layer base {

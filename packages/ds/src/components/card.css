@@ -1,5 +1,4 @@
 /* Card */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Card Base */
 @layer base {
@@ -38,7 +37,7 @@
   [data-card],
   [data-surface="card"],
   .card {
-    /* Form Card Variant */
+    /* Card form variant */
     &:is(form) {
       gap: var(--spacing-16-32);
       justify-content: stretch;
@@ -52,7 +51,7 @@
       }
     }
 
-    /* Action Card Variant */
+    /* Card action variant */
     &:is(a, button, [role="button"]) {
       text-decoration: none;
       transition: var(--transition-action);
@@ -88,7 +87,7 @@
   [data-card],
   [data-surface="card"],
   .card {
-    /* Card List Pattern (card as [or part of] an item in list) */
+    /* Card list pattern */
     [data-list],
     [data-block="list"],
     .list & {
@@ -96,19 +95,12 @@
       align-items: center;
       justify-content: space-between;
 
-      /* Card List Pattern Slots */
+      /* Card list pattern slots */
       &:has(hgroup) {
         gap: var(--spacing-8-16);
       }
 
-      /* Card List Pattern Variants */
-      &:is([data-message], [data-variant="message"], .message) {
-        min-height: calc(var(--spacing-60-120) - var(--spacing-surface));
-        border-style: dashed;
-        justify-content: center;
-      }
-
-      /* Card List Pattern Modifiers */
+      /* Card list pattern icon reveal */
       &:is(a, button, [role="button"]) {
         &:has(i, svg, [data-icon], [data-media="icon"], [class*="icon-"], .icon) {
           opacity: 0;

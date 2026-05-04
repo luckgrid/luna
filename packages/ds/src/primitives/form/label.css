@@ -1,0 +1,45 @@
+/* Label */
+
+/* Label Base */
+@layer base {
+  label,
+  legend {
+    --space: var(--space, var(--spacing-8-16));
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space);
+    color: currentColor;
+    font-size: var(--text-md);
+    font-weight: var(--text-md--font-weight);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
+    white-space: normal;
+  }
+}
+
+/* Label Slots */
+@layer slots {
+  label:has([type="checkbox"], [type="radio"]) {
+    cursor: pointer;
+    width: fit-content;
+    flex-direction: row;
+  }
+
+  input:is([type="checkbox"], [type="radio"]) ~ label {
+    cursor: pointer;
+    display: inline-flex;
+  }
+}
+
+/* Label Variants */
+@layer variants {
+  :is(label, legend):has([data-required], .required) {
+    color: var(--color-alert);
+
+    &:is(sup) {
+      inset-inline-start: calc(var(--gap, var(--spacing-8-16)) * -0.8);
+      inset-block-start: calc(var(--spacing-1-3) * -1);
+    }
+  }
+}

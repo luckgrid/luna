@@ -1,5 +1,4 @@
 /* Nav */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Nav Base */
 @layer base {

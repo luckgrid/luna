@@ -1,0 +1,7 @@
+/* Form barrel: optional `@import`s for unused controls in app builds. */
+@import "./form/base.css";
+@import "./form/label.css";
+@import "./form/input.css";
+@import "./form/select.css";
+@import "./form/output.css";
+@import "./form/field.css";

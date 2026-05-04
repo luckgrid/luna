@@ -1,3 +1,6 @@
+@layer components.base, components.slots, components.variants, components.modifiers,
+  components.patterns;
+
 @import "./components/breadcrumbs.css";
 @import "./components/card.css";
 @import "./components/hero.css";

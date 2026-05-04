@@ -1,0 +1,18 @@
+{
+  "name": "@luna/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Bun-native `luna` CLI: dependency tooling today; design-system / UI commands later.",
+  "bin": {
+    "luna": "./src/main.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "bun build ./src/main.ts --compile --outfile ./dist/luna",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.13",
+    "typescript": "^6"
+  }
+}

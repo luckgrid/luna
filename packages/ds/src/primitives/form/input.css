@@ -1,59 +1,9 @@
-/* Form */
-@layer base, slots, variants, modifiers, patterns;
+/* Input */
 
-/* Form Base */
+/* Input Base */
 @layer base {
-  /* Resets */
-  ::-webkit-inner-spin-button,
-  ::-webkit-outer-spin-button {
-    height: auto;
-  }
-
-  ::-moz-focus-inner {
-    padding: 0;
-    border-style: none;
-  }
-
-  :-moz-focusring {
-    outline: none;
-  }
-
-  :-moz-ui-invalid {
-    box-shadow: none;
-  }
-
-  ::-ms-expand {
-    display: none;
-  }
-
-  form {
-    --background-color: var(--color-light);
-    --color: var(--color-dark);
-
-    display: grid;
-    gap: var(--spacing-16-32) var(--spacing-8-16);
-  }
-
-  /* Labels */
-  label,
-  legend {
-    --space: var(--space, var(--spacing-8-16));
-
-    display: flex;
-    flex-direction: column;
-    gap: var(--space);
-    color: currentColor;
-    font-size: var(--text-md);
-    font-weight: var(--text-md--font-weight);
-    line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
-    white-space: normal;
-  }
-
-  /* Inputs */
   input,
   optgroup,
-  select,
   textarea {
     --space: var(--space, var(--spacing-8-16));
 
@@ -89,7 +39,7 @@
     }
   }
 
-  /* Checkbox/Radio Inputs */
+  /* Checkbox / Radio Inputs */
   input:is([type="checkbox"], [type="radio"]) {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -150,13 +100,6 @@
     }
   }
 
-  /* Search Input */
-  input:is([type="search"]) {
-    appearance: textfield;
-    -webkit-appearance: textfield;
-    padding-inline-start: calc(var(--space) * 2 + 1.25em);
-  }
-
   /* File Input */
   input:is([type="file"]) {
     margin-left: calc(var(--outline-width-1) * -1);
@@ -167,7 +110,7 @@
     background: none;
   }
 
-  /* Datetime Inputs */
+  /* Datetime Input */
   input:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"]) {
     padding-inline-end: calc(1rem + var(--spacing-6-12));
     background-image: var(--icon-calendar);
@@ -178,10 +121,12 @@
     &:is([type="time"]) {
       background-image: var(--icon-clock);
     }
-  }
 
-  @-moz-document url-prefix() {
-    input:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"]) {
+    &:dir(rtl) {
+      text-align: right;
+    }
+
+    @-moz-document url-prefix() {
       padding-inline-end: var(--spacing-6-12) !important;
       background-image: none !important;
     }
@@ -197,113 +142,22 @@
     background-color: var(--color-bg-5);
   }
 
-  /* Select Input */
-  select {
-    text-transform: none;
-
-    &::-ms-expand {
-      border: 0;
-      background-color: transparent;
-    }
-
-    &:not([multiple], [size]) {
-      padding-right: calc(var(--space) + 1.5rem);
-      padding-left: var(--space);
-      padding-inline-start: var(--space);
-      padding-inline-end: calc(var(--space) + 1.5rem);
-      background-image:
-        linear-gradient(45deg, transparent 50%, currentColor 50%),
-        linear-gradient(-45deg, transparent 50%, currentColor 50%);
-      background-position:
-        right 0.9rem center,
-        right 0.65rem center;
-      background-size: 1em 1em;
-      background-repeat: no-repeat;
-
-      &:dir(rtl) {
-        background-position:
-          left 0.65rem center,
-          left 0.9rem center;
-      }
-    }
-  }
-
-  /* Outputs */
-  output {
-    display: block;
-    color: currentColor;
-    font-size: var(--text-md);
-    font-weight: var(--text-md--font-weight);
-    line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
-  }
-
-  /* Fields */
-  fieldset,
-  [data-field],
-  .field {
-    --space: var(--space, var(--spacing-8-16));
-
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space);
-    margin: 0;
-    padding: 0;
-    border: 0;
+  /* Search Input */
+  input:is([type="search"]) {
+    appearance: textfield;
+    -webkit-appearance: textfield;
+    padding-inline-start: calc(var(--space) * 2 + 1.25em);
   }
 }
 
-/* Form Slots */
+/* Input Slots */
 @layer slots {
-  /* Label with Checkbox/Radio Input */
-  label:has([type="checkbox"], [type="radio"]) {
-    cursor: pointer;
-    width: fit-content;
-    flex-direction: row;
-  }
-
-  /* Checkbox/Radio Input Label (sibling) */
-  input:is([type="checkbox"], [type="radio"]) ~ label {
-    cursor: pointer;
-    display: inline-flex;
-  }
-
-  /* Search Input (webkit chrome) */
-  input:is([type="search"]) {
-    &::-webkit-search-decoration,
-    &::-webkit-search-results-decoration,
-    &::-webkit-search-results-button,
-    &::-webkit-search-cancel-button {
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    &::-webkit-search-cancel-button {
-      opacity: 0.6;
-      width: 1.25em;
-      height: 1.25em;
-      background-color: currentColor;
-      -webkit-mask-image: var(--icon-close);
-      -webkit-mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-position: center;
-      mask-image: var(--icon-close);
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      mask-position: center;
-      cursor: pointer;
-      transition: opacity 150ms ease;
-
-      &:is(:hover, :focus, :active, :focus-visible) {
-        opacity: 0.8;
-      }
-    }
-  }
-
   /* Color Input (native swatch chrome) */
   input:is([type="color"]) {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+
     &::-moz-focus-inner,
     &::-webkit-color-swatch-wrapper {
       padding: 0;
@@ -316,7 +170,7 @@
     }
   }
 
-  /* Datetime input (calendar picker chrome) */
+  /* Datetime Input (calendar picker chrome) */
   input:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"]) {
     &::-webkit-calendar-picker-indicator {
       width: 1rem;
@@ -326,9 +180,25 @@
     }
   }
 
-  [dir="rtl"]
-    input:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"]) {
-    text-align: right;
+  /* File Input (file selector button) */
+  input:is([type="file"])::file-selector-button {
+    margin-inline-end: calc(var(--spacing-8-16) / 2);
+    padding: var(--spacing-4-6) var(--spacing-6-12);
+
+    &:is(:hover, :active, :focus) {
+      background-color: color-mix(
+        in oklab,
+        var(--color-accent) 14%,
+        var(--background-color, var(--color-light))
+      );
+    }
+
+    &:focus {
+      box-shadow:
+        var(--shadow-1),
+        0 0 0 var(--outline-width-1) var(--color-bg),
+        0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-accent) 60%, transparent);
+    }
   }
 
   /* Range Input (track & thumb) */
@@ -385,48 +255,43 @@
     }
   }
 
-  /* File Input (file selector button) */
-  input:is([type="file"])::file-selector-button {
-    margin-inline-end: calc(var(--spacing-8-16) / 2);
-    padding: var(--spacing-4-6) var(--spacing-6-12);
-
-    &:is(:hover, :active, :focus) {
-      background-color: color-mix(
-        in oklab,
-        var(--color-accent) 14%,
-        var(--background-color, var(--color-light))
-      );
+  /* Search Input (WebKit chrome) */
+  input:is([type="search"]) {
+    &::-webkit-search-decoration,
+    &::-webkit-search-results-decoration,
+    &::-webkit-search-results-button,
+    &::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+      appearance: none;
     }
 
-    &:focus {
-      box-shadow:
-        var(--shadow-1),
-        0 0 0 var(--outline-width-1) var(--color-bg),
-        0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-accent) 60%, transparent);
-    }
-  }
+    &::-webkit-search-cancel-button {
+      opacity: 0.6;
+      width: 1.25em;
+      height: 1.25em;
+      background-color: currentColor;
+      -webkit-mask-image: var(--icon-close);
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-image: var(--icon-close);
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      cursor: pointer;
+      transition: opacity 150ms ease;
 
-  /* Fields */
-  :is(fieldset, [data-field], .field):has(label, legend) {
-    flex-direction: row;
-    gap: var(--space);
+      &:is(:hover, :focus, :active, :focus-visible) {
+        opacity: 0.8;
+      }
+    }
   }
 }
 
-/* Form Variants */
+/* Input Variants */
 @layer variants {
-  /* Labels */
-  :is(label, legend):has([data-required], .required) {
-    color: var(--color-alert);
-
-    &:is(sup) {
-      inset-inline-start: calc(var(--gap, var(--spacing-8-16)) * -0.8);
-      inset-block-start: calc(var(--spacing-1-3) * -1);
-    }
-  }
-
-  /* Inputs */
-  :is(input, optgroup, select, textarea):has(
+  /* Invalid Inputs */
+  :is(input, optgroup, textarea):has(
     :user-invalid,
     [aria-invalid="true"],
     [data-invalid],
@@ -436,7 +301,7 @@
     color: var(--color-alert);
   }
 
-  /* Checkbox Switch Input */
+  /* Switch Input (checkbox variant) */
   input:is([type="checkbox"])[role="switch"] {
     --switch-background-color: color-mix(
       in oklab,
@@ -501,25 +366,5 @@
       opacity: 0.6;
       cursor: not-allowed;
     }
-  }
-
-  /* Select Input (multiple option checked state) */
-  select[multiple] option:checked {
-    background: color-mix(
-      in oklab,
-      var(--color-accent) 20%,
-      var(--background-color, var(--color-light))
-    );
-    color: var(--color, var(--color-dark));
-  }
-
-  /* Outputs */
-  output:is(:empty, [data-empty], .empty) {
-    display: none;
-  }
-
-  output:is([role="alert"], [data-alert], .alert) {
-    border-color: var(--color-alert);
-    color: var(--color-alert);
   }
 }

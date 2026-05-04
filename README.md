@@ -61,11 +61,12 @@ For a full compile of every application project first, run **`bun run build`**. 
 
 ## Workspaces
 
+- **`apps/api/`** — FastAPI + Pydantic AI · [README](apps/api/README.md)
 - **`apps/app/`** — SolidStart (SSR, Vite, Nitro) · [README](apps/app/README.md)
 - **`apps/web/`** — Go + templ SSG · [README](apps/web/README.md)
-- **`apps/api/`** — FastAPI + Pydantic AI · [README](apps/api/README.md)
-- **`packages/ui/`** — shared Solid UI · [README](packages/ui/README.md)
+- **`packages/cli/`** — internal `luna` CLI (Bun entry; `deps …` today, `ds …` reserved for design-system / UI tooling) · [README](packages/cli/README.md)
 - **`packages/ds/`** — design system / Tailwind · [README](packages/ds/README.md)
+- **`packages/ui/`** — shared Solid UI · [README](packages/ui/README.md)
 
 Moon wires install, templates, styles, build, and dev tasks per project; **`web:dev`** depends on an initial **`web:build`**, and **`api:dev`** depends on **`api:build`** (`uv sync`) so first-time dev pulls toolchains and dependencies. Root **`bun run install`** runs **`web:install`** and **`api:build`** up front so Go modules and the API venv are ready before **`bun run dev`**. For step-by-step task graphs (templ, Tailwind CLI, `go run`, Uvicorn, Vite), follow each workspace README above.
 
@@ -138,14 +139,16 @@ moon run ui:typecheck
 
 ## Dependency maintenance
 
-Repo-wide **outdated checks** and **upgrades** are scripted so every toolchain stays in sync:
+Repo-wide **outdated checks** and **upgrades** go through the **`luna` CLI** so every toolchain stays in sync:
 
-[`scripts/outdated.sh`](scripts/outdated.sh) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules. [`scripts/update.sh`](scripts/update.sh) applies updates across those tiers (proto → Bun → uv → Go). After `bun run update`, review diffs and run `bun run check` before committing.
+The internal CLI [`@luna/cli`](packages/cli) (`luna`) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules (`luna outdated`). Python and Go targets are **all Moon projects** with `language: python` / `language: go` (plus a filesystem fallback and optional `UV_PROJECT_ROOT` / `GO_MODULE_ROOT` for extra dirs). `luna outdated` **always** exits **1** if any tier or project has upgrades (CI-friendly). `luna update` refreshes each discovered project. After `bun run update`, review diffs and run `bun run check` before committing.
 
 ```sh
-bun run outdated:check   # print reports only (exit 0)
-bun run outdated         # strict: exit 1 if anything is outdated (CI-friendly)
-bun run update           # bump pins and dependencies repo-wide; then review and run bun run check
+luna outdated      # same as below; report + summary; exit 1 if anything is outdated
+luna update        # same as below; bump pins and dependencies repo-wide; then review and run bun run check
+
+bun run outdated   # wraps `luna outdated`
+bun run update     # wraps `luna update`; then review and run bun run check
 ```
 
 **Per stack (manual add / remove)** — use these when you are changing one project, not refreshing everything:

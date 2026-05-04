@@ -1,10 +1,11 @@
 /* Tooltip */
-@layer base, slots, variants, modifiers, patterns;
 
 /*
-  Motion: theme `fade-in-{top|bottom|left|right}` end at transform: translate(0, 0).
-  Resting placement uses the `translate` property so the slide runs on `transform` only.
-*/
+ * Tooltip motion: theme `fade-in-{top|bottom|left|right}` end at transform: translate(0, 0).
+ * Resting placement uses `translate` so the slide runs on `transform` only.
+ */
+
+/* Tooltip Base */
 @layer base {
   [data-tooltip],
   .tooltip {
@@ -84,7 +85,7 @@
 @layer variants {
   [data-tooltip],
   .tooltip {
-    /* Reset anchor edge before side-specific borders (skip default top) */
+    /* Tooltip placement reset (before side-specific borders) */
     &:is(
       [data-placement="top"],
       .tooltip-top,

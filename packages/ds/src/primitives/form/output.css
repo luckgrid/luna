@@ -1,0 +1,26 @@
+/* Output */
+
+/* Output Base */
+@layer base {
+  output {
+    display: block;
+    color: currentColor;
+    font-size: var(--text-md);
+    font-weight: var(--text-md--font-weight);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
+  }
+}
+
+/* Output Variants */
+@layer variants {
+  output:is(:empty, [data-empty], .empty) {
+    display: none;
+  }
+
+  /* Alert Output */
+  output:is([role="alert"], [data-alert], .alert) {
+    border-color: var(--color-alert);
+    color: var(--color-alert);
+  }
+}

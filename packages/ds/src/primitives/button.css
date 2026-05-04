@@ -1,5 +1,4 @@
 /* Button */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Button Base */
 @layer base {
@@ -90,7 +89,7 @@
   [type="reset"],
   [type="button"],
   [role="button"] {
-    /* Reset Variants */
+    /* Button reset variants */
     &:is(
       [data-variant="icon"],
       [data-variant="text"],
@@ -122,7 +121,7 @@
       }
     }
 
-    /* Hollow Variant */
+    /* Button hollow variant */
     &:is([data-variant="hollow"], .hollow) {
       box-shadow: none;
       border: var(--spacing-2-4) dashed var(--color-accent);
@@ -137,7 +136,7 @@
       }
     }
 
-    /* Ghost Variant */
+    /* Button ghost variant */
     &:is([data-variant="ghost"], .ghost) {
       padding: var(--spacing-4-8) var(--spacing-16-32);
       box-shadow: none;
@@ -160,7 +159,7 @@
       }
     }
 
-    /* Icon Variant */
+    /* Button icon variant */
     &:is([data-variant="icon"], .icon) {
       --size: var(--spacing-24-32);
 
@@ -169,7 +168,7 @@
       line-height: 1;
     }
 
-    /* Text Variant */
+    /* Button text variant */
     &:is([data-variant="text"], .text) {
       text-decoration: none;
       text-underline-offset: var(--spacing-2-4);
@@ -183,7 +182,7 @@
       }
     }
 
-    /* Wrapper Variant */
+    /* Button wrapper variant */
     &:is([data-variant="wrapper"], .wrapper) {
       &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
         color: currentColor;

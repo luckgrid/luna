@@ -1,0 +1,27 @@
+/* Field */
+
+/* Field Base */
+@layer base {
+  fieldset,
+  [data-field],
+  .field {
+    --space: var(--space, var(--spacing-8-16));
+
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+}
+
+/* Field Slots */
+@layer slots {
+  :is(fieldset, [data-field], .field):has(label, legend) {
+    flex-direction: row;
+    gap: var(--space);
+  }
+}

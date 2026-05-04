@@ -1,5 +1,4 @@
 /* Layout */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Layout Base */
 @layer base {
@@ -189,9 +188,9 @@
       }
     }
 
-    /** 
-     * Top-edge sentinel: ::after must not sit after the target (that tracked the target bottom).
-     * [data-scroll-target]::before is the scroll trigger; absolute top aligns the timeline with the target top.
+    /*
+     * Layout catalog scroll sentinel: ::after top edge; `[data-scroll-target]::before` is trigger;
+     * absolute top aligns view-timeline with target top.
      */
     &:has([data-scroll-target])::after {
       content: "";

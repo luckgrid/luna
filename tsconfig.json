@@ -9,6 +9,9 @@
       "path": "./apps/app"
     },
     {
+      "path": "./packages/cli"
+    },
+    {
       "path": "./packages/ds"
     },
     {

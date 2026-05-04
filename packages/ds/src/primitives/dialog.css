@@ -1,5 +1,4 @@
 /* Dialog */
-@layer base, slots, variants, modifiers, patterns;
 
 /* Dialog Base */
 @layer base {
@@ -140,7 +139,7 @@
       }
 
       /*
-       * Article preview clones inherit `body` heading breaks (layout.css);
+       * Dialog popover preview: article clones inherit body heading breaks (layout.css);
        * reset so anchor-sized hover cards do not degenerate into single-glyph lines.
        */
       & :where(h1, h2, h3, h4, h5, h6, hgroup, summary, figcaption) {
@@ -183,7 +182,7 @@
         }
       }
 
-      /* Dialog actions footer (sibling of `[data-card]`, not inside it). */
+      /* Dialog popover footer (sibling of card, not inside) */
       & > footer {
         position: relative;
         inline-size: 100%;
@@ -206,7 +205,7 @@
       }
 
       @container (min-width: 64rem) {
-        /* Reset backdrop styles for popover */
+        /* Dialog popover wide backdrop reset */
         &::backdrop {
           background: transparent;
         }
@@ -224,8 +223,8 @@
       }
 
       /*
-       * Hover preview chrome: must use viewport width + interaction media so it matches
-       * `canOpenHoverPreview()` in footnotes.ts (`matchMedia('(min-width: 64rem)')`, not `@container`).
+       * Dialog popover hover preview: viewport + interaction media (match `canOpenHoverPreview()`
+       * in footnotes.ts — `matchMedia('(min-width: 64rem)')`, not `@container`).
        */
       @media (min-width: 64rem) {
         @media (hover: hover) and (pointer: fine) and (any-pointer: fine) and (any-hover: hover) {
@@ -259,9 +258,8 @@
               overflow-wrap: normal;
 
               /*
-               * Anchor the hover card above the trigger; `flip-block` / `flip-inline` try fallbacks
-               * keep it on-screen; `margin-block` gaps the card from the ref on either side. `position-visibility`
-               * avoids viewport overflow (see footnotes.ts `anchor-name`).
+               * Dialog popover hover card: anchor above trigger; `flip-block` / `flip-inline` fallbacks;
+               * `margin-block` gaps from ref; `position-visibility` avoids overflow (footnotes.ts anchor).
                */
               @supports (anchor-name: --fn-preview) {
                 position-anchor: --fn-preview;
