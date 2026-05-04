@@ -8,8 +8,8 @@ import {
   captureBunOutdatedRecursive,
   collectPrereleaseBumps,
   runPrereleaseBumps,
-} from "../toolchains/bun";
-import { goApplyModfileModuleUpdates } from "../toolchains/go";
+  goApplyModfileModuleUpdates,
+} from "../lib/toolchains";
 
 function runOrExit(code: number, step: string): void {
   if (code !== 0) {

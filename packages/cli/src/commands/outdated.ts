@@ -12,16 +12,19 @@ import {
   strictSummaryFailTitle,
 } from "../lib/term";
 import { requireCmd } from "../lib/process";
-import { captureBunOutdatedRecursive, bunWorkspaceOutdatedFromOutput } from "../toolchains/bun";
 import {
+  bunWorkspaceOutdatedFromOutput,
+  captureBunOutdatedRecursive,
   captureGoListUModule,
+  captureUvLockDryRun,
   goEnvGomod,
   goFilterGoOutLinesModfileUpdates,
   goModHasUpgrades,
   goModUListHasTableRows,
-} from "../toolchains/go";
-import { printProtoOutdated, protoHasOutdatedPins } from "../toolchains/proto";
-import { captureUvLockDryRun, uvLockHasUpgradesFromOutput } from "../toolchains/py";
+  printProtoOutdated,
+  protoHasOutdatedPins,
+  uvLockHasUpgradesFromOutput,
+} from "../lib/toolchains";
 
 export type UvProjectSnap = { root: string; dryRunOut: string };
 export type GoProjectSnap = { root: string; gomod: string; fullList: string; table: string };
