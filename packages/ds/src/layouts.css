@@ -1,0 +1,5 @@
+@layer layouts.base, layouts.slots, layouts.variants, layouts.modifiers,
+  layouts.patterns;
+
+@import "./layouts/base.css";
+@import "./layouts/article.css";

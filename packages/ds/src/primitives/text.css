@@ -1,0 +1,35 @@
+/* Text */
+
+/* Text Base */
+@layer base {
+  /* Heading Group */
+  hgroup {
+    --font-family: var(--font-sans);
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-24-48);
+    text-wrap: balance;
+
+    @container (min-width: var(--breakpoint-2xl, 48rem)) {
+      max-width: 80svw;
+    }
+
+    &:has(p, small, span) {
+      color: color-mix(in oklab, currentColor 75%, transparent);
+    }
+
+    &:has(hr) {
+      width: 100%;
+      border-width: var(--border-width-4);
+    }
+
+    &:has(p) {
+      font-size: var(--text-xl);
+      font-weight: var(--text-xl--font-weight);
+      line-height: var(--text-xl--line-height);
+      letter-spacing: var(--text-xl--letter-spacing);
+    }
+  }
+}

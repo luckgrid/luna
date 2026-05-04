@@ -1,10 +1,11 @@
 @layer primitives.base, primitives.slots, primitives.variants, primitives.modifiers,
   primitives.patterns;
 
-@import "./primitives/layout.css";
+@import "./primitives/article.css";
 @import "./primitives/button.css";
 @import "./primitives/dialog.css";
 @import "./primitives/form.css";
 @import "./primitives/link.css";
 @import "./primitives/nav.css";
 @import "./primitives/progress.css";
+@import "./primitives/text.css";

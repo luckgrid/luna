@@ -66,10 +66,6 @@
           letter-spacing: var(--text-lg--letter-spacing);
         }
       }
-
-      & > :is([data-surface], .surface) {
-        --space: var(--spacing-20-40);
-      }
     }
 
     /* Body Layout Footer */
@@ -112,11 +108,6 @@
       padding-inline: var(--spacing-container);
     }
 
-    /* If main only has one section between a header and footer, the section will fill the full viewport height. */
-    & > :is(header:first-child + section:has(+ footer:last-child)) {
-      flex: 1;
-    }
-
     /* Main Layout Header */
     & > header {
       padding-bottom: 0;
@@ -134,7 +125,8 @@
   /* Body Layout Variants */
   body {
     /* Sticky header will gain a shadow after scrolling past 1px. */
-    & > header:is([data-sticky], [data-modifier="sticky"], .sticky) {
+    /* TODO: make this into a utility that can be applied to any layout element. */
+    & > header:is([data-sticky], .sticky) {
       @supports (animation-timeline: scroll(root block)) {
         animation: var(--animation-dropshadow);
         animation-timeline: scroll(root block);
@@ -156,6 +148,7 @@
 /* Layout Patterns */
 @layer patterns {
   /* Catalog Layout Pattern */
+  /* TODO: make this into a utility that can be applied to any layout pattern. */
   [data-layout="catalog"] {
     @supports (timeline-scope: --scroll-over-target) {
       timeline-scope: --scroll-over-target;
