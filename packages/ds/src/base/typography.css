@@ -1,4 +1,17 @@
 /* Typography */
+address,
+blockquote,
+dl,
+ol,
+p,
+pre,
+table,
+ul {
+  color: var(--color, currentColor);
+  font-weight: var(--font-weight, var(--font-weight-normal));
+  font-style: normal;
+}
+
 b,
 strong {
   font-weight: var(--font-weight-bold);
@@ -25,19 +38,6 @@ sup {
   &:not(sub) {
     top: calc(var(--underline-offset) * -4);
   }
-}
-
-address,
-blockquote,
-dl,
-ol,
-p,
-pre,
-table,
-ul {
-  color: var(--color, currentColor);
-  font-weight: var(--font-weight, var(--font-weight-normal));
-  font-style: normal;
 }
 
 ins {
@@ -114,17 +114,11 @@ h6 {
   --letter-spacing: var(--text-lg--letter-spacing);
 }
 
-hgroup > *:not(:first-child):last-child {
-  color: var(--color-fg-3);
-  font-weight: var(--font-weight-medium);
-  font-size: var(--text-base);
-}
-
 /* Mark */
 mark {
   padding-block: var(--spacing-6-12);
   padding-inline: var(--spacing-8-16);
-  background-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+  background-color: var(--color-hilite);
   color: var(--color-fg);
   vertical-align: baseline;
 }
@@ -143,11 +137,11 @@ blockquote {
   font-family: var(--font-serif);
   font-style: italic;
 
-  & :where(cite) {
+  &:has(cite) {
     font-style: normal;
   }
 
-  & :where(footer) {
+  &:has(footer) {
     color: var(--color-fg-4);
   }
 }

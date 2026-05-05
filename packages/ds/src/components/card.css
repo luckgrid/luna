@@ -101,7 +101,7 @@
       }
 
       &:is(a, button, [role="button"]) {
-        &:has(i, svg, [data-icon], [data-media="icon"], [class*="icon-"], .icon) {
+        &:has(i, svg, [data-icon], [class*="icon-"], .icon) {
           opacity: 0;
           pointer-events: none;
           transform: translateX(-0.35em);

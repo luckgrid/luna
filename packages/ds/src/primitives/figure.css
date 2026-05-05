@@ -1,0 +1,29 @@
+/* Figure */
+
+/* Figure Base */
+@layer base {
+  figure,
+  [role="figure"],
+  [data-figure] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6-12);
+
+    &:has(img, svg) {
+      width: 100%;
+      background-color: var(--color-bg-2);
+    }
+
+    &:has(figcaption) {
+      color: color-mix(in oklab, var(--color-fg-3) 75%, transparent);
+      font-family: var(--font-serif);
+      font-size: var(--text-sm);
+      font-weight: var(--text-sm--font-weight);
+      line-height: var(--text-sm--line-height);
+      letter-spacing: var(--text-sm--letter-spacing);
+      font-style: italic;
+      text-align: center;
+      text-wrap: balance;
+    }
+  }
+}

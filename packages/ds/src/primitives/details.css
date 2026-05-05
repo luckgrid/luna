@@ -1,0 +1,92 @@
+/* Details */
+
+/* Details Base */
+@layer base {
+  details {
+    display: grid;
+    gap: 0;
+    overflow: clip;
+    border-style: dashed;
+    border-width: var(--border-width-2);
+    border-color: var(--color-fg-4);
+    background-color: var(--color-bg-2);
+    color: var(--color-fg);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-6-12);
+    list-style-type: none;
+  }
+}
+
+/* Details Slots */
+@layer slots {
+  details {
+    /* Details Summary / Trigger */
+    &:has(summary, [data-trigger]) {
+      cursor: pointer;
+      justify-content: space-between;
+      padding: var(--spacing-16-32);
+      font-family: var(--font-sans);
+      font-size: var(--text-lg);
+      font-weight: var(--text-lg--font-weight);
+      line-height: var(--text-lg--line-height);
+      letter-spacing: var(--text-lg--letter-spacing);
+      transition: var(--transition-action);
+
+      &:focus-visible {
+        outline: none;
+
+        &::after {
+          background-color: color-mix(in oklab, var(--color-accent) 80%, transparent);
+        }
+      }
+
+      /* Open Details State */
+      [open] & {
+        &::after {
+          transform: rotate(0);
+        }
+      }
+
+      /* Details Marker Resets */
+      &::-webkit-details-marker,
+      &::marker {
+        display: none;
+      }
+
+      &::-moz-list-bullet {
+        list-style-type: none;
+      }
+
+      /* Details Summary / Trigger Chevron */
+      &::after {
+        cursor: default;
+        display: block;
+        flex: 0 0 auto;
+        flex-shrink: 0;
+        width: 1em;
+        height: 1em;
+        transform: rotate(-90deg);
+        background-color: color-mix(in oklab, currentColor 60%, transparent);
+        -webkit-mask-image: var(--icon-chevron);
+        -webkit-mask-position: right center;
+        -webkit-mask-size: 1em auto;
+        -webkit-mask-repeat: no-repeat;
+        mask-image: var(--icon-chevron);
+        mask-position: right center;
+        mask-size: 1em auto;
+        mask-repeat: no-repeat;
+        content: "";
+        transition: var(--transition-transform);
+      }
+    }
+
+    /* Details Content */
+    &:has([data-content]) {
+      padding: 0 var(--spacing-16-32) var(--spacing-16-32);
+    }
+  }
+}

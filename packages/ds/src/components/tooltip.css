@@ -7,6 +7,7 @@
 
 /* Tooltip Base */
 @layer base {
+  [role="tooltip"],
   [data-tooltip],
   .tooltip {
     --space: var(--space, var(--spacing-6-12));
@@ -83,6 +84,7 @@
 
 /* Tooltip Variants */
 @layer variants {
+  [role="tooltip"],
   [data-tooltip],
   .tooltip {
     /* Tooltip placement reset (before side-specific borders) */

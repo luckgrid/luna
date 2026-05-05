@@ -51,6 +51,12 @@
         content: "";
       }
 
+      &:has(img, svg, [data-image], .image) {
+        width: var(--spacing-24-32);
+        height: var(--spacing-24-32);
+        flex-shrink: 0;
+      }
+
       &[aria-current="page"] {
         flex: 1;
         min-width: 0;
@@ -68,12 +74,5 @@
       text-decoration: none;
       outline: none;
     }
-  }
-}
-
-/* Breadcrumbs Modifiers */
-@layer modifiers {
-  :is([data-breadcrumbs], .breadcrumbs):has([data-logo], .logo) {
-    --size: var(--spacing-24-32);
   }
 }

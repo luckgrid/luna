@@ -3,7 +3,9 @@
 
 @import "./primitives/article.css";
 @import "./primitives/button.css";
+@import "./primitives/details.css";
 @import "./primitives/dialog.css";
+@import "./primitives/figure.css";
 @import "./primitives/form.css";
 @import "./primitives/link.css";
 @import "./primitives/nav.css";

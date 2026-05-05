@@ -24,6 +24,11 @@
     --letter-spacing: var(--text-xl--letter-spacing);
     --line-height: var(--text-xl--line-height);
 
+    &:has(img, svg, [data-image], .image) {
+      width: var(--spacing-64-128);
+      height: var(--spacing-64-128);
+    }
+
     &:has(hgroup) {
       flex: 1;
       max-width: none;
@@ -69,11 +74,6 @@
     /* Hero Flex Box */
     &:has([data-flex], .flex-box) {
       gap: var(--spacing-16-32);
-    }
-
-    /* Hero Logo */
-    &:has([data-logo], [data-media="logo"], .logo) {
-      --size: var(--spacing-64-128);
     }
 
     /* Centered Hero */
