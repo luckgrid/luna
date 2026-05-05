@@ -7,7 +7,7 @@
 | Command         | Description                                                                                                                                                                          |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `luna outdated` | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins, Bun workspaces, uv lock, or `go.mod` requires have upgrades (CI-friendly). |
-| `luna update`   | Refresh proto pins, Bun workspaces, uv lock + sync, Go modules (see root `bun run update`).                                                                                          |
+| `luna update`   | Refresh proto pins, Bun workspaces, uv lock + sync, Go modules, then root `bun run setup` (proto + workspaces + `moon run web:install api:build`).                                   |
 
 Root shortcuts: `bun run outdated`, `bun run update`.
 
@@ -25,5 +25,5 @@ From this package: `bun run build` → standalone binary under `dist/` (ignored 
 
 ## Roadmap
 
-- **More top-level commands** — e.g. `clean`, `install`, `add`, `run`, `build`, `dev` (thin wrappers over moon/bun/proto as needed).
+- **More top-level commands** — e.g. `clean`, `setup`, `add`, `run`, `build`, `dev` (thin wrappers over moon/bun/proto as needed).
 - **`--quiet` for `outdated` / `update`** — Less banner noise or machine-readable output; needs a shared verbosity flag through `commands/*`, `lib/term`, `lib/format`, and `toolchains/*`.

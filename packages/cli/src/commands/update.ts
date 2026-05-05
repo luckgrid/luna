@@ -45,8 +45,11 @@ export function runUpdate(): number {
 
   section("Bun — bump workspace deps to latest semver");
   requireCmd("bun");
+  // Skip lifecycle scripts: avoids redundant work during semver bumps (bootstrap is `bun run setup`).
   runOrExit(
-    spawnExit(["bun", "update", "--latest", "--recursive", "--force"], { cwd: repoRoot }),
+    spawnExit(["bun", "update", "--latest", "--recursive", "--force", "--ignore-scripts"], {
+      cwd: repoRoot,
+    }),
     "bun update",
   );
 
@@ -87,6 +90,9 @@ export function runUpdate(): number {
       goApplyModfileModuleUpdates(root);
     }
   }
+
+  section("repo setup — proto + bun workspaces + moon stacks");
+  runOrExit(spawnExit(["bun", "run", "setup"], { cwd: repoRoot }), "bun run setup");
 
   section("done — verify with bun run outdated and bun run check");
   console.log("Update steps finished. Review changes before committing.");

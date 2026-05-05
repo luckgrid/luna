@@ -45,7 +45,7 @@
 /* Dialog Slots */
 @layer slots {
   dialog {
-    & > :is(article, [data-surface], [data-card], .surface, .card) {
+    & > :is(article, [data-surface], .surface, [data-card], .card) {
       --size: var(--spacing-container);
 
       position: relative;
@@ -132,7 +132,7 @@
             pointer-events: none;
           }
 
-          & > :is(article, [data-surface], [data-card], .surface, .card) {
+          & > :is(article, [data-surface], .surface, [data-card], .card) {
             pointer-events: auto;
           }
         }
@@ -148,7 +148,7 @@
         overflow-wrap: normal;
       }
 
-      & > :is(article, [data-surface], [data-card], .surface, .card) {
+      & > :is(article, [data-surface], .surface, [data-card], .card) {
         position: relative;
         display: flex;
         flex: 0 1 auto;
@@ -210,7 +210,7 @@
           background: transparent;
         }
 
-        & > :is(article, [data-surface], [data-card], .surface, .card) {
+        & > :is(article, [data-surface], .surface, [data-card], .card) {
           inline-size: fit-content;
           min-inline-size: min(100%, 20rem);
           max-inline-size: calc(100svw - var(--size) * 2);
@@ -231,13 +231,13 @@
           justify-content: unset;
           align-items: unset;
 
-          & > :is(footer, [data-variant="wrapper"], .wrapper) {
+          & > :is(footer) {
             display: none;
             pointer-events: none;
           }
 
           &[data-preview-mode="hover"] {
-            & > :is(article, [data-surface], [data-card], .surface, .card) {
+            & > :is(article, [data-surface], .surface, [data-card], .card) {
               position: fixed;
               inset: auto auto max(var(--size), 10svh) 50%;
               translate: -50% 0;

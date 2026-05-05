@@ -3,7 +3,6 @@
 /* Card Base */
 @layer base {
   [data-card],
-  [data-surface="card"],
   .card {
     display: flex;
     flex-direction: column;
@@ -24,7 +23,6 @@
 /* Card Slots */
 @layer slots {
   [data-card],
-  [data-surface="card"],
   .card {
     /* Card Typography */
     &:has(p, small) {
@@ -41,7 +39,6 @@
 /* Card Variants */
 @layer variants {
   [data-card],
-  [data-surface="card"],
   .card {
     /* Card Form Variant */
     &:is(form) {
@@ -91,11 +88,9 @@
 /* Card Patterns */
 @layer patterns {
   [data-card],
-  [data-surface="card"],
   .card {
     /* Card List Pattern */
     [data-list],
-    [data-block="list"],
     .list & {
       flex-flow: row nowrap;
       align-items: center;

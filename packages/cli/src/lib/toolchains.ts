@@ -110,7 +110,7 @@ export function collectPrereleaseBumps(stdin: string, repoRoot: string): Prerele
 
 export function runPrereleaseBumps(rows: PrereleaseBumpRow[]): number {
   for (const { pkg, cwd } of rows) {
-    const r = Bun.spawnSync(["bun", "add", `${pkg}@latest`], {
+    const r = Bun.spawnSync(["bun", "add", `${pkg}@latest`, "--ignore-scripts"], {
       cwd,
       stdin: "ignore",
       stdout: "inherit",

@@ -15,7 +15,7 @@
     & > header > nav > button {
       min-inline-size: max-content;
 
-      @container (min-width: var(--breakpoint-md, 48rem)) {
+      @container (min-width: 48rem) {
         display: none;
       }
     }
@@ -30,7 +30,7 @@
       padding: 0;
       background-color: var(--color-bg);
 
-      @container (min-width: var(--breakpoint-md, 48rem)) {
+      @container (min-width: 48rem) {
         display: flex !important;
         overflow: auto;
         position: sticky;
@@ -62,7 +62,7 @@
         gap: var(--spacing-6-12);
         box-shadow: var(--shadow-1);
 
-        @container (min-width: var(--breakpoint-md, 48rem)) {
+        @container (min-width: 48rem) {
           display: none;
         }
 

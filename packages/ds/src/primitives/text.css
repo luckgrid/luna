@@ -12,7 +12,7 @@
     gap: var(--spacing-24-48);
     text-wrap: balance;
 
-    @container (min-width: var(--breakpoint-2xl, 48rem)) {
+    @container (min-width: 48rem) {
       max-width: 80svw;
     }
 

@@ -155,7 +155,7 @@ export function runOutdated(): number {
     if (stUv) strictSummaryBullet("Python / uv lockfile(s)");
     if (stGo) strictSummaryBullet("Go (go.mod requires)");
     console.error("");
-    strictHint("Exit code 1 is intentional (use in CI). To refresh everything: bun run update");
+    strictHint("Exit code 1 is intentional (use in CI). To refresh everything run: luna update");
   }
 
   return failed;

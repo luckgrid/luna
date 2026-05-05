@@ -7,7 +7,7 @@ Usage:
 
 Commands:
   outdated   Report outdated proto, bun, uv, go; exit 1 if any tier has upgrades (CI)
-  update     Apply upgrades (proto → bun → uv → go)
+  update     Apply upgrades (proto → bun → uv → go), then bun run setup
 
 Options:
   -h, --help          Show this help

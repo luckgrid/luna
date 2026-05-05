@@ -5,7 +5,7 @@
   article {
     --grid-cols: 12;
 
-    @container (min-width: var(--breakpoint-3xl, 90rem)) {
+    @container (min-width: 90rem) {
       --grid-cols: 16;
     }
 

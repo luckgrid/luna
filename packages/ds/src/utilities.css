@@ -3,7 +3,6 @@
 @layer utilities {
   /* Sticky Utility */
   [data-sticky],
-  [data-modifier="sticky"],
   .sticky {
     -webkit-backdrop-filter: var(--filter-backdrop);
     backdrop-filter: var(--filter-backdrop);
