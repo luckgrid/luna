@@ -22,7 +22,7 @@
     }
 
     /* Article Typography */
-    &:has(h1, h2, h3, h4, h5, h6) {
+    & :is(h1, h2, h3, h4, h5, h6) {
       display: inline-flex;
       align-items: center;
 
@@ -31,11 +31,7 @@
       }
     }
 
-    &:has(h1, h2, h3, h4, h5, h6, p) > :is(a, small, span) {
-      display: inline;
-    }
-
-    &:has(pre) {
+    & pre {
       border: var(--border-width-2) solid var(--color-fg-4);
     }
   }
@@ -44,7 +40,6 @@
 /* Article Slots */
 @layer slots {
   article {
-    /* Article Layout */
     & > * {
       grid-column: 1 / -1;
     }
@@ -79,8 +74,8 @@
 @layer variants {
   article {
     /* Article Image Media Figure */
-    &:has(figure:not([data-card]), .card) {
-      & > :is(img, svg, [data-image], .image) {
+    & :is(figure, [role="figure"], [data-figure]):not([data-card], .card) {
+      & > :is(img, svg) {
         border: var(--border-width-2) dotted color-mix(in oklab, var(--color-fg-4) 80%, transparent);
       }
     }

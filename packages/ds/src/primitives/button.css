@@ -121,21 +121,6 @@
       }
     }
 
-    /* Hollow Button Variant */
-    &:is([data-button="hollow"], .hollow) {
-      box-shadow: none;
-      border: var(--spacing-2-4) dashed var(--color-accent);
-      background-color: transparent;
-      color: var(--color-accent);
-
-      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
-        box-shadow: var(--shadow-1);
-        border-color: var(--color-accent);
-        background-color: var(--color-accent);
-        color: var(--color-bg);
-      }
-    }
-
     /* Ghost Button Variant */
     &:is([data-button="ghost"], .ghost) {
       padding: var(--spacing-4-8) var(--spacing-16-32);
@@ -156,6 +141,21 @@
 
       &:focus-visible {
         outline-style: dotted;
+      }
+    }
+
+    /* Hollow Button Variant */
+    &:is([data-button="hollow"], .hollow) {
+      box-shadow: none;
+      border: var(--spacing-2-4) dashed var(--color-accent);
+      background-color: transparent;
+      color: var(--color-accent);
+
+      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+        box-shadow: var(--shadow-1);
+        border-color: var(--color-accent);
+        background-color: var(--color-accent);
+        color: var(--color-bg);
       }
     }
 
@@ -198,6 +198,7 @@
   [type="reset"],
   [type="button"],
   [role="button"] {
+    /* Fluid Button Modifier */
     &:is([data-fluid], .fluid) {
       width: 100%;
       height: auto;

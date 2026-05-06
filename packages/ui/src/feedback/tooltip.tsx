@@ -12,6 +12,12 @@ export function Tooltip(props: TooltipProps) {
   const [local, rest] = splitProps(props, ["content", "placement"]);
 
   return (
-    <div data-tooltip={local.content} data-placement={local.placement} tabindex={0} {...rest} />
+    <div
+      data-tooltip={local.content}
+      data-placement={local.placement}
+      role="tooltip"
+      tabindex={0}
+      {...rest}
+    />
   );
 }

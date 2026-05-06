@@ -24,5 +24,6 @@ export function withExternalRel(rel?: string): string {
   const values = new Set((rel ?? "").split(/\s+/).filter(Boolean));
   values.add("noopener");
   values.add("noreferrer");
+
   return Array.from(values).join(" ");
 }

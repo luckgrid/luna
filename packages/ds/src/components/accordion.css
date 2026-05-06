@@ -1,0 +1,87 @@
+/* Accordion */
+
+/* Accordion Base */
+@layer base {
+  [data-accordion],
+  .accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8-16);
+    min-width: 0;
+
+    /* Accordion Item */
+    & :is(details, [data-accordion-item], .accordion-item) {
+      border-style: dashed;
+      border-width: var(--border-width-2);
+      border-color: var(--color-bg-4);
+      background-color: var(--color-bg-1);
+      color: var(--color-fg);
+
+      /* Accordion Item Summary / Trigger */
+      & :is(summary, [data-trigger]) {
+        justify-content: space-between;
+        padding: var(--spacing-16-32);
+        font-family: var(--font-sans);
+        font-size: var(--text-lg);
+        font-weight: var(--text-lg--font-weight);
+        line-height: var(--text-lg--line-height);
+        letter-spacing: var(--text-lg--letter-spacing);
+        transition: var(--transition-action);
+
+        &:is(:hover, :focus-visible) {
+          background-color: color-mix(in oklab, var(--color-accent) 5%, transparent);
+
+          &::after {
+            background-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
+          }
+        }
+
+        /* Icon Marker */
+        &::after {
+          cursor: default;
+          display: block;
+          flex: 0 0 auto;
+          flex-shrink: 0;
+          width: 1em;
+          height: 1em;
+          transform: rotate(-90deg);
+          background-color: color-mix(in oklab, currentColor 60%, transparent);
+          -webkit-mask-image: var(--icon-chevron);
+          -webkit-mask-position: right center;
+          -webkit-mask-size: 1em auto;
+          -webkit-mask-repeat: no-repeat;
+          mask-image: var(--icon-chevron);
+          mask-position: right center;
+          mask-size: 1em auto;
+          mask-repeat: no-repeat;
+          content: "";
+          transition: var(--transition-colors), var(--transition-transform);
+        }
+      }
+
+      /* Accordion Item Content / Slot */
+      & :is([data-content], [data-slot]) {
+        padding: 0 var(--spacing-16-32) var(--spacing-16-32);
+      }
+
+      /* Accordion Item Action State */
+      &:has(:hover, :focus-visible) {
+        border-color: color-mix(in oklab, var(--color-accent) 60%, var(--color-bg-4));
+      }
+
+      /* Open Accordion Item State */
+      &:is([open], [data-open]) {
+        /* Summary / Trigger Icon Marker */
+        & :is(summary, [data-trigger]) {
+          &:is(:hover, :focus-visible) {
+            background-color: transparent;
+          }
+
+          &::after {
+            transform: rotate(0);
+          }
+        }
+      }
+    }
+  }
+}

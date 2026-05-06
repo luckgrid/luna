@@ -9,12 +9,14 @@
     flex-direction: column;
     gap: var(--spacing-6-12);
 
-    &:has(img, svg) {
+    /* Figure Media */
+    & :is(img, svg, canvas, video) {
       width: 100%;
       background-color: var(--color-bg-2);
     }
 
-    &:has(figcaption) {
+    /* Figure Caption */
+    & :is(figcaption, [data-caption]) {
       color: color-mix(in oklab, var(--color-fg-3) 75%, transparent);
       font-family: var(--font-serif);
       font-size: var(--text-sm);

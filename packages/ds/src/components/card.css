@@ -17,20 +17,14 @@
     background-color: var(--color-bg-2);
     color: var(--color-fg);
     font-family: var(--font-sans);
-  }
-}
 
-/* Card Slots */
-@layer slots {
-  [data-card],
-  .card {
     /* Card Typography */
-    &:has(p, small) {
+    & :is(p, small) {
       color: var(--color-fg-3);
     }
 
     /* Card Layout */
-    &:has(header, footer, aside, section) {
+    & :is(header, footer, aside, section) {
       gap: var(--spacing-surface);
     }
   }
@@ -96,12 +90,12 @@
       align-items: center;
       justify-content: space-between;
 
-      &:has(hgroup) {
+      & hgroup {
         gap: var(--spacing-8-16);
       }
 
       &:is(a, button, [role="button"]) {
-        &:has(i, svg, [data-icon], [class*="icon-"], .icon) {
+        & :is(i, svg, [data-icon]) {
           opacity: 0;
           pointer-events: none;
           transform: translateX(-0.35em);

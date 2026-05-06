@@ -14,7 +14,8 @@
     border-spacing: 0;
     text-indent: 0;
 
-    &:has(th, td) {
+    /* Table Data */
+    & :is(th, td) {
       padding: var(--spacing-6-12) var(--spacing-8-16);
       border-style: dashed;
       border-color: var(--color-fg-4);
@@ -37,13 +38,21 @@
 /* Table Slots */
 @layer slots {
   table {
-    &:has(tbody > tr, thead, tfoot) {
+    /* Table Layout */
+    & :is(thead, tfoot) {
       border-style: solid;
       border-color: var(--color-fg-4);
+
+      & :is(th, td) {
+        font-family: var(--font-sans);
+        font-weight: var(--font-weight-bold);
+      }
     }
 
-    &:has(tbody > tr) {
+    /* Table Body Rows */
+    & tbody > tr {
       border-style: dashed;
+      border-color: var(--color-fg-4);
       border-bottom-width: var(--border-width-1);
 
       &:last-child {
@@ -51,16 +60,13 @@
       }
     }
 
-    &:has(thead, tfoot):has(th, td) {
-      font-family: var(--font-sans);
-      font-weight: var(--font-weight-bold);
-    }
-
-    &:has(thead) {
+    /* Table Header */
+    & thead {
       border-bottom-width: var(--border-width-3);
     }
 
-    &:has(tfoot) {
+    /* Table Footer */
+    & tfoot {
       border-top-width: var(--border-width-3);
     }
   }
@@ -68,8 +74,10 @@
 
 /* Table Modifiers */
 @layer modifiers {
+  /* Striped Table Modifier */
   table:is([data-striped], .striped) {
-    &:has(tbody > tr:nth-child(odd)):has(th, td) {
+    /* Striped Table Body Rows */
+    & :is(tbody > tr:nth-child(odd)) :is(th, td) {
       background-color: var(--color-bg-2);
     }
   }

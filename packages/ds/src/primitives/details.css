@@ -5,53 +5,22 @@
   details {
     display: grid;
     gap: 0;
-    overflow: clip;
-    border-style: dashed;
-    border-width: var(--border-width-2);
-    border-color: var(--color-fg-4);
-    background-color: var(--color-bg-2);
-    color: var(--color-fg);
-  }
 
-  summary {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-6-12);
-    list-style-type: none;
-  }
-}
-
-/* Details Slots */
-@layer slots {
-  details {
     /* Details Summary / Trigger */
-    &:has(summary, [data-trigger]) {
+    & :is(summary, [data-trigger]) {
       cursor: pointer;
-      justify-content: space-between;
-      padding: var(--spacing-16-32);
-      font-family: var(--font-sans);
-      font-size: var(--text-lg);
-      font-weight: var(--text-lg--font-weight);
-      line-height: var(--text-lg--line-height);
-      letter-spacing: var(--text-lg--letter-spacing);
-      transition: var(--transition-action);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-4-6);
+      list-style-type: none;
 
       &:focus-visible {
-        outline: none;
-
-        &::after {
-          background-color: color-mix(in oklab, var(--color-accent) 80%, transparent);
-        }
+        outline: var(--outline-width-2) solid
+          color-mix(in oklab, var(--color-accent) 60%, transparent);
+        outline-offset: var(--outline-offset-3);
       }
 
-      /* Open Details State */
-      [open] & {
-        &::after {
-          transform: rotate(0);
-        }
-      }
-
-      /* Details Marker Resets */
+      /* Reset Marker */
       &::-webkit-details-marker,
       &::marker {
         display: none;
@@ -60,33 +29,26 @@
       &::-moz-list-bullet {
         list-style-type: none;
       }
-
-      /* Details Summary / Trigger Chevron */
-      &::after {
-        cursor: default;
-        display: block;
-        flex: 0 0 auto;
-        flex-shrink: 0;
-        width: 1em;
-        height: 1em;
-        transform: rotate(-90deg);
-        background-color: color-mix(in oklab, currentColor 60%, transparent);
-        -webkit-mask-image: var(--icon-chevron);
-        -webkit-mask-position: right center;
-        -webkit-mask-size: 1em auto;
-        -webkit-mask-repeat: no-repeat;
-        mask-image: var(--icon-chevron);
-        mask-position: right center;
-        mask-size: 1em auto;
-        mask-repeat: no-repeat;
-        content: "";
-        transition: var(--transition-transform);
-      }
     }
 
-    /* Details Content */
-    &:has([data-content]) {
-      padding: 0 var(--spacing-16-32) var(--spacing-16-32);
+    /* Content / slot region */
+    & :is([data-content], [data-slot]) {
+      min-width: 0;
+    }
+
+    /* Open Details State */
+    &:is([open], [data-open]) {
+      &:has(:focus-visible) {
+        outline: var(--outline-width-2) solid
+          color-mix(in oklab, var(--color-accent) 60%, transparent);
+        outline-offset: var(--outline-offset-1);
+      }
+
+      & :is(summary, [data-trigger]) {
+        &:focus-visible {
+          outline: none;
+        }
+      }
     }
   }
 }

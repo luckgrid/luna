@@ -137,11 +137,11 @@ blockquote {
   font-family: var(--font-serif);
   font-style: italic;
 
-  &:has(cite) {
+  & cite {
     font-style: normal;
   }
 
-  &:has(footer) {
+  & footer {
     color: var(--color-fg-4);
   }
 }

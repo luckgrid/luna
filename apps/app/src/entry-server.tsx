@@ -12,7 +12,9 @@ const handler: ReturnType<typeof createHandler> = createHandler(() => (
           {assets}
         </head>
         <body>
-          <div id="app">{children}</div>
+          <div id="app" data-body>
+            {children}
+          </div>
           {scripts}
         </body>
       </html>

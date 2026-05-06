@@ -24,12 +24,33 @@
     --letter-spacing: var(--text-xl--letter-spacing);
     --line-height: var(--text-xl--line-height);
 
-    &:has(img, svg, [data-image], .image) {
+    & :is(img, svg, figure, [role="figure"], [data-figure]) {
       width: var(--spacing-64-128);
       height: var(--spacing-64-128);
     }
 
-    &:has(hgroup) {
+    & :is(h1, h2) {
+      --font-size: var(--text-8xl);
+      --font-weight: var(--text-8xl--font-weight);
+      --letter-spacing: var(--text-8xl--letter-spacing);
+      --line-height: var(--text-8xl--line-height);
+    }
+
+    & :is(h3, h4) {
+      --font-size: var(--text-6xl);
+      --font-weight: var(--text-6xl--font-weight);
+      --letter-spacing: var(--text-6xl--letter-spacing);
+      --line-height: var(--text-6xl--line-height);
+    }
+
+    & :is(h5, h6) {
+      --font-size: var(--text-4xl);
+      --font-weight: var(--text-4xl--font-weight);
+      --letter-spacing: var(--text-4xl--letter-spacing);
+      --line-height: var(--text-4xl--line-height);
+    }
+
+    & hgroup {
       flex: 1;
       max-width: none;
       margin-inline: auto;
@@ -37,53 +58,11 @@
       justify-content: center;
     }
 
-    &:has(h1, h2) {
-      --font-size: var(--text-8xl);
-      --font-weight: var(--text-8xl--font-weight);
-      --letter-spacing: var(--text-8xl--letter-spacing);
-      --line-height: var(--text-8xl--line-height);
-    }
-
-    &:has(h3, h4) {
-      --font-size: var(--text-6xl);
-      --font-weight: var(--text-6xl--font-weight);
-      --letter-spacing: var(--text-6xl--letter-spacing);
-      --line-height: var(--text-6xl--line-height);
-    }
-
-    &:has(h5, h6) {
-      --font-size: var(--text-4xl);
-      --font-weight: var(--text-4xl--font-weight);
-      --letter-spacing: var(--text-4xl--letter-spacing);
-      --line-height: var(--text-4xl--line-height);
-    }
-
-    &:has(small) {
+    & small {
       font-size: var(--text-base);
       font-weight: var(--text-base--font-weight);
       line-height: var(--text-base--line-height);
       letter-spacing: var(--text-base--letter-spacing);
-    }
-  }
-}
-
-/* Hero Modifiers */
-@layer modifiers {
-  [data-hero],
-  .hero {
-    /* Hero Flex Box */
-    &:has([data-flex], .flex-box) {
-      gap: var(--spacing-16-32);
-    }
-
-    /* Centered Hero */
-    &:is([data-centered], .centered) {
-      align-items: center;
-      justify-content: center;
-
-      &:has([data-flex], [data-box="flex"], .flex-box) {
-        justify-content: center;
-      }
     }
   }
 }

@@ -4,6 +4,7 @@
 @layer base {
   input,
   optgroup,
+  select,
   textarea {
     --space: var(--space, var(--spacing-8-16));
 
@@ -36,6 +37,12 @@
       box-shadow: none;
       outline: var(--outline-width-2) solid var(--color-accent);
       outline-offset: var(--outline-offset-2);
+    }
+
+    /* Invalid Input */
+    &:is(:user-invalid, [aria-invalid="true"], [data-invalid]) {
+      border-color: var(--color-alert);
+      color: var(--color-alert);
     }
   }
 
@@ -74,17 +81,17 @@
   }
 
   /* Checkbox Input */
-  input:is([type="checkbox"]) {
-    border-radius: var(--radius-2);
-
-    &:is(:checked, :checked:active, :checked:focus):not([role="switch"])::after {
+  input:is([type="checkbox"]):not([role="switch"]) {
+    &:is(:checked, :checked:active, :checked:focus, :indeterminate)::after {
       opacity: 1;
+    }
+
+    &:is(:checked, :checked:active, :checked:focus)::after {
       -webkit-mask-image: var(--icon-check);
       mask-image: var(--icon-check);
     }
 
-    &:indeterminate:not([role="switch"])::after {
-      opacity: 1;
+    &:indeterminate::after {
       -webkit-mask-image: var(--icon-minus);
       mask-image: var(--icon-minus);
     }
@@ -147,6 +154,34 @@
     appearance: textfield;
     -webkit-appearance: textfield;
     padding-inline-start: calc(var(--space) * 2 + 1.25em);
+  }
+
+  /* Select */
+  select {
+    text-transform: none;
+
+    &:not([multiple], [size]) {
+      padding-inline-end: calc(var(--space) + 1.5rem);
+      background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(-45deg, transparent 50%, currentColor 50%);
+      background-position:
+        right 0.9rem center,
+        right 0.65rem center;
+      background-size: 1em 1em;
+      background-repeat: no-repeat;
+
+      &:dir(rtl) {
+        background-position:
+          left 0.65rem center,
+          left 0.9rem center;
+      }
+    }
+
+    &::-ms-expand {
+      border: 0;
+      background-color: transparent;
+    }
   }
 }
 
@@ -286,21 +321,20 @@
       }
     }
   }
+
+  /* Select Input (multiple option checked) */
+  select[multiple] option:checked {
+    background: color-mix(
+      in oklab,
+      var(--color-accent) 20%,
+      var(--background-color, var(--color-light))
+    );
+    color: var(--color, var(--color-dark));
+  }
 }
 
 /* Input Variants */
 @layer variants {
-  /* Invalid Inputs */
-  :is(input, optgroup, textarea):has(
-    :user-invalid,
-    [aria-invalid="true"],
-    [data-invalid],
-    .invalid
-  ) {
-    border-color: var(--color-alert);
-    color: var(--color-alert);
-  }
-
   /* Switch Input (checkbox variant) */
   input:is([type="checkbox"])[role="switch"] {
     --switch-background-color: color-mix(
@@ -356,10 +390,10 @@
     &:checked {
       border-color: var(--color-accent);
       background-color: var(--color-accent);
-    }
 
-    &:checked::before {
-      margin-inline-start: calc(2.25em - 1.25em);
+      &::before {
+        margin-inline-start: calc(2.25em - 1.25em);
+      }
     }
 
     &:is(:disabled, [disabled]) {

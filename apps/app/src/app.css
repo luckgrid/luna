@@ -3,12 +3,7 @@
 @source "./**/*.{tsx,ts}";
 @source "../../../packages/ui/src/**/*.{tsx,ts}";
 
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100svh;
-}
-
+/* TODO: create AI component styles in design system */
 /* Chat styles */
 .chat-container {
   display: flex;

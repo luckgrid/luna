@@ -27,7 +27,7 @@ export function Accordion(props: AccordionProps) {
   const [local, rest] = splitProps(props, ["items", "children"]);
 
   return (
-    <div role="group" {...rest}>
+    <div data-accordion {...rest}>
       <For each={local.items ?? []}>
         {(item) => (
           <AccordionItem open={item.open}>
@@ -44,13 +44,13 @@ export function Accordion(props: AccordionProps) {
 }
 
 export function AccordionItem(props: AccordionItemProps) {
-  return <details data-slot="accordion-item" {...props} />;
+  return <details {...props} />;
 }
 
 export function AccordionTrigger(props: AccordionTriggerProps) {
-  return <summary data-slot="accordion-trigger" {...props} />;
+  return <summary data-trigger {...props} />;
 }
 
 export function AccordionContent(props: AccordionContentProps) {
-  return <div data-content data-slot="accordion-content" {...props} />;
+  return <div data-content {...props} />;
 }

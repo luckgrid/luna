@@ -3,62 +3,124 @@
 /* Layout Base */
 @layer base {
   body,
+  [data-body],
   header,
+  [data-header],
   main,
+  [data-main],
   footer,
+  [data-footer],
   aside,
-  section {
+  [data-aside],
+  section,
+  [data-section] {
     display: flex;
     flex-direction: column;
   }
 
   /* Body Layout Base */
-  body {
+  body,
+  [data-body] {
     container-type: inline-size;
     min-height: 100svh;
+
+    &
+      :is(
+        header,
+        [data-header],
+        footer,
+        [data-footer],
+        aside,
+        [data-aside],
+        section,
+        [data-section]
+      ) {
+      gap: var(--spacing-container);
+    }
+
+    & > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
+      padding-block: var(--spacing-layout);
+      padding-inline: var(--spacing-container);
+    }
+
+    & > :is(header, [data-header], footer, [data-footer]) {
+      justify-content: center;
+    }
+
+    /* Body Layout Header */
+    & > :is(header, [data-header]) {
+      min-block-size: var(--spacing-toolbar);
+      padding-block: var(--spacing-panel);
+    }
+
+    /* Body Layout Footer */
+    & > :is(footer, [data-footer]) {
+      --min-height: calc(var(--logo-size, var(--spacing-256-512)) + var(--spacing-panel));
+
+      padding-bottom: var(--spacing-container);
+      isolation: isolate;
+      overflow: hidden;
+      align-items: center;
+      text-align: center;
+
+      @container (min-width: 30rem) {
+        position: relative;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: flex-end;
+        min-height: var(--min-height);
+      }
+    }
   }
 
   /* Main Layout Base */
-  main {
+  main,
+  [data-main] {
     flex: 1;
+
+    &
+      > :is(
+        header,
+        [data-header],
+        footer,
+        [data-footer],
+        section,
+        [data-section],
+        aside,
+        [data-aside],
+        article,
+        [data-article]
+      ) {
+      gap: var(--spacing-container);
+    }
+
+    & > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
+      padding-block: var(--spacing-layout);
+      padding-inline: var(--spacing-container);
+    }
   }
 }
 
 /* Layout Slots */
 @layer slots {
   /* Body Layout Slots */
-  body {
-    & > :is(header, footer, aside, section) {
-      gap: var(--spacing-container);
-      padding-inline: var(--spacing-container);
-    }
-
-    & > :is(header, footer, section) {
-      padding-block: var(--spacing-layout);
-    }
-
-    & > :is(header, footer) {
-      justify-content: center;
-    }
-
+  body,
+  [data-body] {
     /* Body Layout Header */
-    & > header {
-      min-block-size: var(--spacing-toolbar);
-      padding-block: var(--spacing-panel);
-
-      & > nav {
+    & > :is(header, [data-header]) {
+      /* Header Navigation */
+      & > :is(nav, [role="navigation"]) {
         justify-content: space-between;
       }
     }
 
     /* Body Layout Section */
-    & > section {
-      & > :is(header, footer, aside) {
+    & > :is(section, [data-section]) {
+      /* Section Header / Footer */
+      & > :is(header, [data-header], footer, [data-footer]) {
         padding: 0;
-      }
 
-      & > :is(header, footer) {
-        &:has(p, small) {
+        & :is(p, small) {
           color: var(--color-fg-3);
           font-size: var(--text-lg);
           font-weight: var(--text-lg--font-weight);
@@ -69,17 +131,9 @@
     }
 
     /* Body Layout Footer */
-    & > footer {
-      --logo-size: var(--spacing-256-512);
-      --min-height: calc(var(--logo-size) + var(--spacing-panel));
-
-      padding-bottom: var(--spacing-container);
-      isolation: isolate;
-      overflow: hidden;
-      align-items: center;
-      text-align: center;
-
-      &:has(a, button, [role="button"], [role="link"]) {
+    & > :is(footer, [data-footer]) {
+      /* Footer Actions */
+      & :is(a, button, [role="button"], [role="link"]) {
         font-size: var(--text-sm);
         font-weight: var(--text-sm--font-weight);
         line-height: var(--text-sm--line-height);
@@ -87,46 +141,24 @@
       }
 
       @container (min-width: 30rem) {
-        position: relative;
-        flex-flow: row wrap;
-        justify-content: space-between;
-        align-items: flex-end;
-        min-height: var(--min-height);
-
-        & > nav {
+        /* Footer Navigation */
+        & > :is(nav, [role="navigation"]) {
           order: 999;
           justify-content: flex-end;
         }
       }
     }
   }
-
-  /* Main Layout Slots */
-  main {
-    & > :is(header, footer, section, aside, article) {
-      padding-block: var(--spacing-layout);
-      padding-inline: var(--spacing-container);
-    }
-
-    /* Main Layout Header */
-    & > header {
-      padding-bottom: 0;
-    }
-
-    /* Main Layout Footer */
-    & > footer {
-      padding-top: 0;
-    }
-  }
 }
 
-/* Layout Variants */
-@layer variants {
-  /* Body Layout Variants */
-  body {
+/* Layout Modifiers */
+@layer modifiers {
+  /* Body Layout Modifiers */
+  body,
+  [data-body] {
     /* Sticky header will gain a shadow after scrolling past 1px. */
     /* TODO: make this into a utility that can be applied to any layout element. */
-    & > header:is([data-sticky], .sticky) {
+    & > :is(header, [data-header]):is([data-sticky], .sticky) {
       @supports (animation-timeline: scroll(root block)) {
         animation: var(--animation-dropshadow);
         animation-timeline: scroll(root block);
@@ -153,7 +185,7 @@
     @supports (timeline-scope: --scroll-over-target) {
       timeline-scope: --scroll-over-target;
 
-      &:has([data-scroll-trigger]) {
+      & [data-scroll-trigger] {
         animation: fade-in linear both;
         animation-range: exit-crossing 0% exit-crossing 100%;
         animation-timeline: --scroll-over-target;
@@ -174,7 +206,7 @@
     }
 
     @supports not (timeline-scope: --scroll-over-target) {
-      &:has([data-scroll-trigger]) {
+      & [data-scroll-trigger] {
         opacity: 1;
         pointer-events: auto;
         visibility: visible;
@@ -185,7 +217,7 @@
      * Layout catalog scroll sentinel: ::after top edge; `[data-scroll-target]::before` is trigger;
      * absolute top aligns view-timeline with target top.
      */
-    &:has([data-scroll-target])::after {
+    & [data-scroll-target]::after {
       content: "";
       position: absolute;
       inset-block-start: 0;
@@ -193,7 +225,7 @@
       block-size: 1px;
       pointer-events: none;
       view-timeline-axis: block;
-      view-timeline-inset: var(--scroll-offset) 0 0 0;
+      view-timeline-inset: var(--spacing-toolbar) 0 0 0;
       view-timeline-name: --scroll-over-target;
     }
   }
