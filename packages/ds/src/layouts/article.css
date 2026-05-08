@@ -1,66 +1,67 @@
-/* Article Layout */
+/* Article Layout — layouts.base, @scope per MDN (:scope for roots, nested scopes).
+ * See :scope within @scope:
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@scope
+ *
+ * Scope root [data-layout="article"] is the long-form <body>. Inner scope is main > article (prose shell + scroll targets).
+ * Use `to (figure)` donut scopes only for edge layouts (e.g. figures beside prose), not here. */
 
-/* Article Layout Base */
-@layer base {
-  /* Article Layout Main */
-  [data-layout="article"] :is(main, [data-main]) {
-    gap: var(--spacing-24-48);
-
-    /* Article Layout Main Aside */
-    & :is(aside, [data-aside]) {
-      padding: 0;
-      background-color: var(--color-bg);
-
-      @container (min-width: 48rem) {
-        display: flex;
-        overflow: auto;
-        position: sticky;
-        top: var(--spacing-toolbar);
-        inline-size: min(24rem, 100vi);
-        max-block-size: calc(100svh - var(--spacing-toolbar) - var(--spacing-container) * 2);
-        z-index: auto;
-        block-size: auto;
-        padding-block: var(--spacing-surface);
-        padding-inline: var(--spacing-container);
-        border: none;
-        background-color: transparent;
-        box-shadow: none;
-        transform: none;
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-        transition: none;
-      }
-    }
-
-    /* Article Layout Main Article */
-    & :is(article, [data-article]) {
-      min-inline-size: 0;
-    }
-  }
-}
-
-/* Article Layout Slots */
-@layer slots {
-  [data-layout="article"] {
-    /* Article Layout Header Navigation Button */
-    & > :is(header, [data-header]) > :is(nav, [role="navigation"]) > :is(button, [role="button"]) {
-      min-inline-size: max-content;
-
-      @container (min-width: 48rem) {
-        display: none;
-      }
-    }
-
-    /* Article Layout Main Header Heading Group */
-    & :is(main, [data-main]) > :is(header, [data-header]) hgroup {
+@scope ([data-layout="article"]) {
+  /* Article Layout Base */
+  @layer base {
+    /* Article Layout Resets (reset max-width of header hgroup) */
+    :scope :is(main, [data-main], article, [data-article]) > :is(header, [data-header]) hgroup {
       max-width: none;
     }
 
-    /* Article Layout Main Aside Slots */
-    & :is(main, [data-main]) > :is(aside, [data-aside]) {
-      /* Main Aside Header */
-      & > :is(header, [data-header]) {
+    /* Article Layout Header */
+    :scope > :is(header, [data-header]) {
+      /* Header Navigation Button */
+      & > :is(nav, [role="navigation"]) > :is(button, [role="button"]) {
+        min-inline-size: max-content;
+
+        @container (min-width: 48rem) {
+          display: none;
+        }
+      }
+    }
+
+    /* Article Layout Main */
+    :scope :is(main, [data-main]) {
+      gap: var(--spacing-24-48);
+    }
+
+    /* Main Aside (main > aside: scoped subtree) */
+    @scope (:is(main, [data-main]) > :is(aside, [data-aside])) {
+      :scope {
+        padding: 0;
+        background-color: var(--color-bg);
+      }
+
+      @container (min-width: 48rem) {
+        :scope {
+          display: flex;
+          overflow: auto;
+          position: sticky;
+          top: var(--spacing-toolbar);
+          inline-size: min(24rem, 100vi);
+          max-block-size: calc(100svh - var(--spacing-toolbar) - var(--spacing-container) * 2);
+          z-index: auto;
+          block-size: auto;
+          padding-block: var(--spacing-surface);
+          padding-inline: var(--spacing-container);
+          border: none;
+          background-color: transparent;
+          box-shadow: none;
+          transform: none;
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+          transition: none;
+        }
+      }
+
+      /* Aside Header */
+      :scope > :is(header, [data-header]) {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -75,6 +76,7 @@
           display: none;
         }
 
+        /* Aside Header Headings */
         & :is(h1, h2, h3, h4, h5, h6) {
           font-size: var(--text-xs);
           font-weight: var(--font-weight-medium);
@@ -85,18 +87,41 @@
       }
     }
 
-    /* Article Layout Main Article Slots */
-    & :is(main, [data-main]) :is(article, [data-article]) {
-      /* Footnote references share the larger footnote scroll offset */
-      & :is([data-footnote-ref], .footnote-ref) {
+    /* Main Article (main > article: shell on :scope; footnote / details scroll-margin for in-flow prose). */
+    @scope (:is(main, [data-main]) :is(article, [data-article])) {
+      :scope {
+        min-inline-size: 0;
+        padding-inline: var(--spacing-container);
+      }
+
+      /* Article Details (faqs, collapsibles, accordions, etc.) */
+      details[id] {
+        scroll-margin-top: var(--spacing-toolbar);
+      }
+    }
+
+    /* Article Post Pattern */
+    &[data-pattern="post"] {
+      /* Post Main Article */
+      @scope (:is(main, [data-main]) :is(article, [data-article])) {
+        /* Article Header (add breathing room around article header) */
+        :scope > :is(header, [data-header]) {
+          padding-block-start: var(--spacing-24-48);
+          padding-block-end: var(--spacing-12-24);
+        }
+      }
+    }
+  }
+
+  /* Article Layout Components */
+  @layer components {
+    /* Main Article */
+    @scope (:is(main, [data-main]) :is(article, [data-article])) {
+      /* Article Footnote Reference Components */
+      :is([data-footnote-ref], .footnote-ref) {
         scroll-margin-top: calc(
           var(--spacing-toolbar) + var(--spacing-8-16) + var(--border-width-2)
         );
-      }
-
-      /* Detail anchors scroll to the top of the <details> element */
-      & details[id] {
-        scroll-margin-top: var(--spacing-toolbar);
       }
     }
   }

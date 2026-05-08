@@ -10,7 +10,12 @@ import (
 // adds an optional date + tag list, and yields `{ children... }` for
 // the rendered Markdown body.
 templ Post(p lib.Post) {
-	@Base(p.Title, p.Description) {
+	@Base(BaseProps{
+		Layout:      "article",
+		Pattern:     "post",
+		Title:       p.Title,
+		Description: p.Description,
+	}) {
 		<article>
 			@components.PageHeader(p.Eyebrow(), p.Title, p.Description)
 			if !p.Date.IsZero() {

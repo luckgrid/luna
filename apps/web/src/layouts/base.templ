@@ -6,20 +6,29 @@ import "github.com/luckgrid/luna/apps/web/src/components"
 // their content as `{ children... }`. This is the only layout that emits
 // `<html>`/`<head>`/`<body>`; the per-page chrome (eyebrow, title, list
 // sections, etc.) is composed from `src/components/page.templ`.
-templ Base(title, description string) {
+// Pass layout as "article" for long-form pages so `[data-layout="article"]`
+// layout rules apply; omit Layout (zero value) for listing and home pages.
+templ Base(p BaseProps) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>{ title }</title>
-			if description != "" {
-				<meta name="description" content={ description }/>
+			<title>{ p.Title }</title>
+			if p.Description != "" {
+				<meta name="description" content={ p.Description }/>
 			}
 			<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 			<link rel="stylesheet" href="/styles.css"/>
 		</head>
-		<body>
+		<body
+			if p.Layout != "" {
+				data-layout={ p.Layout }
+			}
+			if p.Pattern != "" {
+				data-pattern={ p.Pattern }
+			}
+		>
 			@components.LayoutHeader()
 			<main>
 				{ children... }

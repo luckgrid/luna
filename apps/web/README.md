@@ -57,6 +57,8 @@ apps/web/
         index.templ             /posts/  (catalog index, grouped by category)
         post.templ              /posts/<slug>/ (per-post detail)
     styles.css                  Entry CSS — imports @luna/ds + @source declarations
+  scripts/
+    dev.sh                      Moon `web:dev`: Tailwind --watch + templ --watch + serve
   public/                       Static assets copied verbatim into dist/
   dist/                         Generated output (gitignored)
 ```
@@ -150,12 +152,13 @@ From the repo root:
 
 ```sh
 moon run web:build       # templ generate → tailwindcss CLI → SSG → dist/
-moon run web:dev         # watch templ + serve dist/ on $WEB_PORT (default 3000)
+moon run web:dev         # Tailwind watch + templ watch; serve dist/ on $WEB_PORT (default 3000)
 ```
 
 `bun run dev` from the repo root boots `web`, `app`, and `api` together;
-`web:dev` depends on `web:build`, so moon runs modules, templ, Tailwind, and a
-full SSG pass before the watch server starts.
+`web:dev` depends on `web:build`, then runs **Tailwind CLI** (`--watch`) and
+**`templ generate --watch`** together so `src/styles.css` and `dist/styles.css` stay
+in sync while you edit templates or local CSS.
 
 ## Deployment
 

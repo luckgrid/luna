@@ -10,7 +10,11 @@ import (
 // It exists to demonstrate the "templ-only pages + markdown content"
 // convention: pages define layout/structure, content lives in src/content/.
 templ Legal(p lib.Post) {
-	@layouts.Base(p.Title, p.Description) {
+	@layouts.Base(layouts.BaseProps{
+		Layout:      "article",
+		Title:       p.Title,
+		Description: p.Description,
+	}) {
 		@components.PageHeader(p.Eyebrow(), p.Title, p.Description)
 		<article>
 			@templ.Raw(p.HTML)

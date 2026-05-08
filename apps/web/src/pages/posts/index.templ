@@ -11,7 +11,10 @@ import (
 // a new category in a Markdown file is enough to surface a new section
 // here.
 templ Page(posts []lib.Post) {
-	@layouts.Base("Posts", "Articles, announcements, and guides.") {
+	@layouts.Base(layouts.BaseProps{
+		Description: "Articles, announcements, and guides.",
+		Title:       "Posts",
+	}) {
 		@components.PageHeader("", "Posts", "Articles, announcements, and guides.")
 		{{ grouped := lib.GroupByCategory(posts) }}
 		{{ categories := lib.Categories(posts) }}

@@ -65,16 +65,8 @@ tasks:
       - "dist"
 
   dev:
-    command: "go"
-    args:
-      - "tool"
-      - "templ"
-      - "generate"
-      - "--watch"
-      - "--open-browser=false"
-      - "--proxy=http://localhost:${WEB_PORT:-3000}"
-      - "--cmd"
-      - "go run . --serve --port ${WEB_PORT:-3000}"
+    command: sh
+    args: ["./scripts/dev.sh"]
     deps:
       - "build"
     options:

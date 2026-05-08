@@ -1,33 +1,18 @@
-/* Layout */
+/* Layout Base — layouts.base (scoped root + nested layers)
+ * Scope root is the long-form <body> (or `[data-body]`).
+ */
 
-/* Layout Base */
-@layer base {
-  body,
-  [data-body],
-  header,
-  [data-header],
-  main,
-  [data-main],
-  footer,
-  [data-footer],
-  aside,
-  [data-aside],
-  section,
-  [data-section] {
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Body Layout Base */
-  body,
-  [data-body] {
-    container-type: inline-size;
-    min-height: 100svh;
-
-    &
+@scope (:is(body, [data-body])) {
+  /* Layout Base */
+  @layer base {
+    /* Layout Resets */
+    :scope,
+    :scope
       :is(
         header,
         [data-header],
+        main,
+        [data-main],
         footer,
         [data-footer],
         aside,
@@ -35,87 +20,101 @@
         section,
         [data-section]
       ) {
-      gap: var(--spacing-container);
+      display: flex;
+      flex-direction: column;
     }
 
-    & > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
-      padding-block: var(--spacing-layout);
-      padding-inline: var(--spacing-container);
-    }
+    /* Body Layout Base */
+    :scope {
+      display: flex;
+      flex-direction: column;
+      container-type: inline-size;
+      min-height: 100svh;
 
-    & > :is(header, [data-header], footer, [data-footer]) {
-      justify-content: center;
-    }
-
-    /* Body Layout Header */
-    & > :is(header, [data-header]) {
-      min-block-size: var(--spacing-toolbar);
-      padding-block: var(--spacing-panel);
-    }
-
-    /* Body Layout Footer */
-    & > :is(footer, [data-footer]) {
-      --min-height: calc(var(--logo-size, var(--spacing-256-512)) + var(--spacing-panel));
-
-      padding-bottom: var(--spacing-container);
-      isolation: isolate;
-      overflow: hidden;
-      align-items: center;
-      text-align: center;
-
-      @container (min-width: 30rem) {
-        position: relative;
-        flex-flow: row wrap;
-        justify-content: space-between;
-        align-items: flex-end;
-        min-height: var(--min-height);
+      &
+        :is(
+          header,
+          [data-header],
+          footer,
+          [data-footer],
+          aside,
+          [data-aside],
+          section,
+          [data-section]
+        ) {
+        gap: var(--spacing-container);
       }
-    }
-  }
 
-  /* Main Layout Base */
-  main,
-  [data-main] {
-    flex: 1;
+      & > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
+        padding-block: var(--spacing-layout);
+        padding-inline: var(--spacing-container);
+      }
 
-    &
-      > :is(
-        header,
-        [data-header],
-        footer,
-        [data-footer],
-        section,
-        [data-section],
-        aside,
-        [data-aside],
-        article,
-        [data-article]
-      ) {
-      gap: var(--spacing-container);
-    }
+      & > :is(header, [data-header], footer, [data-footer]) {
+        min-block-size: var(--spacing-toolbar);
+        padding-block: var(--spacing-panel);
+        justify-content: center;
+      }
 
-    & > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
-      padding-block: var(--spacing-layout);
-      padding-inline: var(--spacing-container);
-    }
-  }
-}
+      /* Body Layout Header */
+      & > :is(header, [data-header]) {
+        /* Header Navigation */
+        & > :is(nav, [role="navigation"]) {
+          justify-content: space-between;
+        }
 
-/* Layout Slots */
-@layer slots {
-  /* Body Layout Slots */
-  body,
-  [data-body] {
-    /* Body Layout Header */
-    & > :is(header, [data-header]) {
-      /* Header Navigation */
-      & > :is(nav, [role="navigation"]) {
-        justify-content: space-between;
+        /* Sticky header: shadow after scrolling past 1px.
+         * TODO: prefer a Tailwind utility when extraction is convenient. */
+        &:is([data-sticky], .sticky) {
+          @supports (animation-timeline: scroll(root block)) {
+            animation: var(--animation-dropshadow);
+            animation-timeline: scroll(root block);
+            animation-range: 0 1px;
+
+            @media (prefers-reduced-motion: reduce) {
+              animation: none;
+              box-shadow: var(--shadow-1);
+            }
+          }
+
+          @supports not (animation-timeline: scroll(root block)) {
+            box-shadow: var(--shadow-1);
+          }
+        }
+      }
+
+      /* Body Layout Footer */
+      & > :is(footer, [data-footer]) {
+        isolation: isolate;
+        align-items: center;
+        text-align: center;
+
+        @container (min-width: 30rem) {
+          flex-flow: row wrap;
+          align-items: flex-end;
+          justify-content: space-between;
+        }
+
+        /* Footer Actions */
+        & :is(a, button, [role="button"], [role="link"]) {
+          font-size: var(--text-sm);
+          font-weight: var(--text-sm--font-weight);
+          line-height: var(--text-sm--line-height);
+          letter-spacing: var(--text-sm--letter-spacing);
+        }
+
+        @container (min-width: 30rem) {
+          /* Footer Navigation */
+          & > :is(nav, [role="navigation"]) {
+            order: 999;
+            justify-content: flex-end;
+          }
+        }
       }
     }
 
     /* Body Layout Section */
-    & > :is(section, [data-section]) {
+    :scope > :is(section, [data-section]) {
       /* Section Header / Footer */
       & > :is(header, [data-header], footer, [data-footer]) {
         padding: 0;
@@ -130,103 +129,86 @@
       }
     }
 
-    /* Body Layout Footer */
-    & > :is(footer, [data-footer]) {
-      /* Footer Actions */
-      & :is(a, button, [role="button"], [role="link"]) {
-        font-size: var(--text-sm);
-        font-weight: var(--text-sm--font-weight);
-        line-height: var(--text-sm--line-height);
-        letter-spacing: var(--text-sm--letter-spacing);
+    /* Main Layout Base (scoped subtree) */
+    @scope (:is(main, [data-main])) {
+      :scope {
+        flex: 1;
       }
 
-      @container (min-width: 30rem) {
-        /* Footer Navigation */
-        & > :is(nav, [role="navigation"]) {
-          order: 999;
-          justify-content: flex-end;
-        }
-      }
-    }
-  }
-}
-
-/* Layout Modifiers */
-@layer modifiers {
-  /* Body Layout Modifiers */
-  body,
-  [data-body] {
-    /* Sticky header will gain a shadow after scrolling past 1px. */
-    /* TODO: make this into a utility that can be applied to any layout element. */
-    & > :is(header, [data-header]):is([data-sticky], .sticky) {
-      @supports (animation-timeline: scroll(root block)) {
-        animation: var(--animation-dropshadow);
-        animation-timeline: scroll(root block);
-        animation-range: 0 1px;
-
-        @media (prefers-reduced-motion: reduce) {
-          animation: none;
-          box-shadow: var(--shadow-1);
-        }
+      :scope
+        > :is(
+          header,
+          [data-header],
+          footer,
+          [data-footer],
+          section,
+          [data-section],
+          aside,
+          [data-aside],
+          article,
+          [data-article]
+        ) {
+        gap: var(--spacing-container);
       }
 
-      @supports not (animation-timeline: scroll(root block)) {
-        box-shadow: var(--shadow-1);
+      :scope > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
+        padding-block: var(--spacing-layout);
+        padding-inline: var(--spacing-container);
       }
     }
   }
-}
 
-/* Layout Patterns */
-@layer patterns {
-  /* Catalog Layout Pattern */
-  /* TODO: make this into a utility that can be applied to any layout pattern. */
-  [data-layout="catalog"] {
-    @supports (timeline-scope: --scroll-over-target) {
-      timeline-scope: --scroll-over-target;
+  /* Layout Patterns */
+  @layer patterns {
+    /* Catalog Layout Pattern */
+    /* TODO: make this into a utility that can be applied to any layout pattern. */
+    &[data-layout="catalog"] {
+      @supports (timeline-scope: --scroll-over-target) {
+        timeline-scope: --scroll-over-target;
 
-      & [data-scroll-trigger] {
-        animation: fade-in linear both;
-        animation-range: exit-crossing 0% exit-crossing 100%;
-        animation-timeline: --scroll-over-target;
+        & [data-scroll-trigger] {
+          animation: fade-in linear both;
+          animation-range: exit-crossing 0% exit-crossing 100%;
+          animation-timeline: --scroll-over-target;
 
-        &:focus-visible {
-          opacity: 1;
-          pointer-events: auto;
-          visibility: visible;
+          &:focus-visible {
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            animation: none;
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+          }
         }
+      }
 
-        @media (prefers-reduced-motion: reduce) {
-          animation: none;
+      @supports not (timeline-scope: --scroll-over-target) {
+        & [data-scroll-trigger] {
           opacity: 1;
           pointer-events: auto;
           visibility: visible;
         }
       }
-    }
 
-    @supports not (timeline-scope: --scroll-over-target) {
-      & [data-scroll-trigger] {
-        opacity: 1;
-        pointer-events: auto;
-        visibility: visible;
+      /*
+       * Layout catalog scroll sentinel: ::after top edge; `[data-scroll-target]::before` is trigger;
+       * absolute top aligns view-timeline with target top.
+       */
+      & [data-scroll-target]::after {
+        content: "";
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: 0;
+        block-size: 1px;
+        pointer-events: none;
+        view-timeline-axis: block;
+        view-timeline-inset: var(--spacing-toolbar) 0 0 0;
+        view-timeline-name: --scroll-over-target;
       }
-    }
-
-    /*
-     * Layout catalog scroll sentinel: ::after top edge; `[data-scroll-target]::before` is trigger;
-     * absolute top aligns view-timeline with target top.
-     */
-    & [data-scroll-target]::after {
-      content: "";
-      position: absolute;
-      inset-block-start: 0;
-      inset-inline: 0;
-      block-size: 1px;
-      pointer-events: none;
-      view-timeline-axis: block;
-      view-timeline-inset: var(--spacing-toolbar) 0 0 0;
-      view-timeline-name: --scroll-over-target;
     }
   }
 }
