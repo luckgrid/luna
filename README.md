@@ -1,6 +1,6 @@
 # Luna
 
-Luna is a polyglot monorepo starter built around **moonrepo** for the task graph, **proto** and [`.prototools`](.prototools) for pinned runtimes (Bun, Go, Python, moon), and **Bun workspaces** for JavaScript and TypeScript packages. The template layers three application stacks on that foundation: a **SolidStart** interactive app with SSR and streaming, a **Bun + Vite** static site generator for HTML and Markdown, and a **FastAPI** service with Pydantic and Pydantic AI. Shared libraries live under `packages/*`. Use each app or package README for ports, env files, and moon task details.
+Luna is a polyglot monorepo starter built around **moonrepo** for the task graph, **proto** and [`.prototools`](.prototools) for pinned runtimes (Bun, Python, moon), and **Bun workspaces** for JavaScript and TypeScript packages. The template layers three application stacks on that foundation: a **SolidStart** interactive app with SSR and streaming, a **Bun + Vite** static site generator for HTML and Markdown, and a **FastAPI** service with Pydantic and Pydantic AI. Shared libraries live under `packages/*`. Use each app or package README for ports, env files, and moon task details.
 
 ## Tech Stacks
 
@@ -144,7 +144,7 @@ moon run ui:typecheck
 
 Repo-wide **outdated checks** and **upgrades** go through the **`luna` CLI** so every toolchain stays in sync:
 
-The internal CLI [`@luna/cli`](packages/cli) (`luna`) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules (`luna outdated`). Python and Go targets are **all Moon projects** with `language: python` / `language: go` (plus a filesystem fallback and optional `UV_PROJECT_ROOT` / `GO_MODULE_ROOT` for extra dirs). `luna outdated` **always** exits **1** if any tier or project has upgrades (CI-friendly). `luna update` refreshes each discovered project. After `bun run update`, review diffs and run `bun run check` before committing.
+The internal CLI [`@luna/cli`](packages/cli) (`luna`) reports outdated **proto pins**, **Bun workspace** packages, and **Python / uv** lockfile upgrades (dry-run) (`luna outdated`). Python targets are **Moon projects** with `language: python` (plus a filesystem fallback and optional `UV_PROJECT_ROOT` for an extra dir). `luna outdated` **always** exits **1** if any tier or project has upgrades (CI-friendly). `luna update` refreshes each discovered project. After `bun run update`, review diffs and run `bun run check` before committing.
 
 ```sh
 luna outdated      # same as below; report + summary; exit 1 if anything is outdated
@@ -159,7 +159,6 @@ bun run update     # wraps `luna update`; then review and run bun run check
 - **Toolchain (proto)** — edit [`.prototools`](.prototools), then `proto install` or `bun run setup` (or `proto pin <tool> <version>`). Removing a tool line drops it from proto’s install set for this repo.
 - **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
 - **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
-- **Go** — if you add a Go project, manage modules with `go get ...` and `go mod tidy`.
 
 ## Troubleshooting
 

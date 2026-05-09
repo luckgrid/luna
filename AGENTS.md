@@ -18,13 +18,13 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 - Setup flow: [`README.md` (Quick Start)](README.md#quick-start)
 - Config file map: [`README.md` (Configuration map)](README.md#configuration-map)
 - `outdated` / `update` (CLI) and manual add-remove per stack: [`README.md` (Dependency maintenance)](README.md#dependency-maintenance)
-- Ports, stuck processes, shell `go` alias: [`README.md` (Troubleshooting)](README.md#troubleshooting)
+- Ports and stuck processes: [`README.md` (Troubleshooting)](README.md#troubleshooting)
 
 ## Key Paths
 
 - Toolchain pins: [`.prototools`](.prototools)
 - Root scripts/workspaces: [`package.json`](package.json)
-- Repo-wide outdated / update: [`packages/cli`](packages/cli) — `luna outdated` / `luna update` (router in `packages/cli/src/main.ts`; Python/Go roots from Moon + `lib/repo.ts`)
+- Repo-wide outdated / update: [`packages/cli`](packages/cli) — `luna outdated` / `luna update` (router in `packages/cli/src/main.ts`; Python roots from Moon + `lib/repo.ts`)
 - Moon workspace/toolchains/tasks: [`.moon/`](.moon/)
 - TypeScript project references: [`tsconfig.json`](tsconfig.json), [`tsconfig.options.json`](tsconfig.options.json)
 - OXC config: [`.oxlintrc.json`](.oxlintrc.json), [`.oxfmtrc.json`](.oxfmtrc.json)

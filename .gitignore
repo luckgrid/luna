@@ -13,9 +13,6 @@ build/
 dist/
 app.config.timestamp_*.js
 
-# templ generated files
-*_templ.go
-
 # environment
 .env.keys
 .env*.local

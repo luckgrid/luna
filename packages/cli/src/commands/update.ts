@@ -1,14 +1,18 @@
 import { fileURLToPath } from "node:url";
-import { formatProjectDirLabel, listGoModuleRoots, listUvProjectRoots } from "../lib/repo";
+import {
+  findRepoRoot,
+  formatProjectDirLabel,
+  listBunWorkspacePackageDirs,
+  listUvProjectRoots,
+  syncRootPackageManagerBun,
+} from "../lib/repo";
 import { requireCmd, spawnExit } from "../lib/process";
-import { findRepoRoot, syncRootPackageManagerBun } from "../lib/repo";
 import { section } from "../lib/term";
 import {
   bunWorkspaceOutdatedFromOutput,
   captureBunOutdatedRecursive,
   collectPrereleaseBumps,
   runPrereleaseBumps,
-  goApplyModfileModuleUpdates,
 } from "../lib/toolchains";
 
 function runOrExit(code: number, step: string): void {
@@ -45,13 +49,16 @@ export function runUpdate(): number {
 
   section("Bun — bump workspace deps to latest semver");
   requireCmd("bun");
+  const bunUpdateLatest = ["bun", "update", "--latest", "--force", "--ignore-scripts"] as const;
   // Skip lifecycle scripts: avoids redundant work during semver bumps (bootstrap is `bun run setup`).
   runOrExit(
-    spawnExit(["bun", "update", "--latest", "--recursive", "--force", "--ignore-scripts"], {
-      cwd: repoRoot,
-    }),
-    "bun update",
+    spawnExit([...bunUpdateLatest, "--recursive"], { cwd: repoRoot }),
+    "bun update (repo root)",
   );
+  for (const dir of listBunWorkspacePackageDirs(repoRoot)) {
+    const label = formatProjectDirLabel(repoRoot, dir);
+    runOrExit(spawnExit([...bunUpdateLatest], { cwd: dir }), `bun update (${label})`);
+  }
 
   const bunOutPost = captureBunOutdatedRecursive(repoRoot);
   if (bunWorkspaceOutdatedFromOutput(bunOutPost)) {
@@ -74,20 +81,6 @@ export function runUpdate(): number {
         `uv lock --upgrade (${label})`,
       );
       runOrExit(spawnExit(["uv", "sync"], { cwd: root }), `uv sync (${label})`);
-    }
-  }
-
-  const goRoots = listGoModuleRoots(repoRoot);
-  if (goRoots.length === 0) {
-    section(
-      "Go — no modules discovered (add moon.yml + language: go + go.mod, or set GO_MODULE_ROOT)",
-    );
-  } else {
-    requireCmd("go");
-    for (const root of goRoots) {
-      const label = formatProjectDirLabel(repoRoot, root);
-      section(`Go — ${label} (module upgrades + tidy)`);
-      goApplyModfileModuleUpdates(root);
     }
   }
 

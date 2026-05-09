@@ -1,7 +1,6 @@
 import { join } from "node:path";
 import { printOutdatedTable } from "../lib/format";
-import { formatProjectDirLabel, listGoModuleRoots, listUvProjectRoots } from "../lib/repo";
-import { findRepoRoot } from "../lib/repo";
+import { findRepoRoot, formatProjectDirLabel, listUvProjectRoots } from "../lib/repo";
 import {
   section,
   strictAllPassed,
@@ -15,24 +14,17 @@ import { requireCmd } from "../lib/process";
 import {
   bunWorkspaceOutdatedFromOutput,
   captureBunOutdatedRecursive,
-  captureGoListUModule,
   captureUvLockDryRun,
-  goEnvGomod,
-  goFilterGoOutLinesModfileUpdates,
-  goModHasUpgrades,
-  goModUListHasTableRows,
   printProtoOutdated,
   protoHasOutdatedPins,
   uvLockHasUpgradesFromOutput,
 } from "../lib/toolchains";
 
 export type UvProjectSnap = { root: string; dryRunOut: string };
-export type GoProjectSnap = { root: string; gomod: string; fullList: string; table: string };
 
 export type OutdatedSnapshot = {
   bunOut: string;
   uvProjects: UvProjectSnap[];
-  goProjects: GoProjectSnap[];
 };
 
 export function gatherOutdatedSnapshot(repoRoot: string): OutdatedSnapshot {
@@ -43,22 +35,13 @@ export function gatherOutdatedSnapshot(repoRoot: string): OutdatedSnapshot {
     dryRunOut: captureUvLockDryRun(root),
   }));
 
-  const goProjects: GoProjectSnap[] = [];
-  for (const root of listGoModuleRoots(repoRoot)) {
-    const gomod = goEnvGomod(root);
-    if (!gomod) continue;
-    const fullList = captureGoListUModule(root);
-    const table = goFilterGoOutLinesModfileUpdates(gomod, fullList);
-    goProjects.push({ root, gomod, fullList, table });
-  }
-
-  return { bunOut, uvProjects, goProjects };
+  return { bunOut, uvProjects };
 }
 
 /** Human report: only tiers with something to say print a section. */
 export function printOutdatedReport(repoRoot: string, snap: OutdatedSnapshot): void {
   if (protoHasOutdatedPins()) {
-    section("proto (.prototools — moon, bun, python, go, proto)");
+    section("proto (.prototools — moon, bun, python, proto)");
     printProtoOutdated();
   }
 
@@ -76,13 +59,6 @@ export function printOutdatedReport(repoRoot: string, snap: OutdatedSnapshot): v
       pyprojectPath: join(p.root, "pyproject.toml"),
     });
   }
-
-  for (const p of snap.goProjects) {
-    if (!goModUListHasTableRows(p.gomod, p.fullList)) continue;
-    const label = formatProjectDirLabel(repoRoot, p.root);
-    section(`Go (${label} — go.mod / go.sum; […] = newer from go list -u)`);
-    printOutdatedTable("go", p.table, { repoRoot, goModPath: p.gomod });
-  }
 }
 
 /** Report all tiers, then enforce CI-style exit (1 if any tier has upgrades). */
@@ -91,7 +67,6 @@ export function runOutdated(): number {
   requireCmd("proto");
   requireCmd("bun");
   requireCmd("uv");
-  requireCmd("go");
 
   const snap = gatherOutdatedSnapshot(repoRoot);
   printOutdatedReport(repoRoot, snap);
@@ -101,7 +76,6 @@ export function runOutdated(): number {
   let stProto = 0;
   let stBun = 0;
   let stUv = 0;
-  let stGo = 0;
 
   if (protoHasOutdatedPins()) {
     strictNeed("proto — outdated tool pin(s) (.prototools)");
@@ -132,19 +106,6 @@ export function runOutdated(): number {
     strictOk(`Python / uv — OK (${snap.uvProjects.length} project(s))`);
   }
 
-  const goBad = snap.goProjects.filter((p) => goModHasUpgrades(p.root));
-  if (goBad.length > 0) {
-    strictNeed(
-      `Go — go.mod require(s) newer in: ${goBad.map((p) => formatProjectDirLabel(repoRoot, p.root)).join(", ")}`,
-    );
-    stGo = 1;
-    failed = 1;
-  } else if (snap.goProjects.length === 0) {
-    strictOk("Go — OK (no Go modules discovered)");
-  } else {
-    strictOk(`Go — OK (${snap.goProjects.length} module(s))`);
-  }
-
   if (failed === 0) {
     strictAllPassed("All checks passed (nothing reported as outdated).");
   } else {
@@ -153,7 +114,6 @@ export function runOutdated(): number {
     if (stProto) strictSummaryBullet("proto (.prototools)");
     if (stBun) strictSummaryBullet("Bun workspaces");
     if (stUv) strictSummaryBullet("Python / uv lockfile(s)");
-    if (stGo) strictSummaryBullet("Go (go.mod requires)");
     console.error("");
     strictHint("Exit code 1 is intentional (use in CI). To refresh everything run: luna update");
   }

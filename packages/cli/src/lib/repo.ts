@@ -133,6 +133,25 @@ export function listGoModuleRoots(repoRoot: string): string[] {
   return uniqSorted(roots);
 }
 
+/**
+ * `apps/*` and `packages/*` dirs that contain `package.json`. Root `bun update --recursive` does not
+ * rewrite semver ranges in these nested workspace manifests (Bun 1.3.x); `luna update` runs
+ * `bun update --latest` per directory so each package.json stays in sync with the lockfile.
+ */
+export function listBunWorkspacePackageDirs(repoRoot: string): string[] {
+  const dirs: string[] = [];
+  for (const top of ["apps", "packages"] as const) {
+    const base = join(repoRoot, top);
+    if (!existsSync(base)) continue;
+    for (const ent of readdirSync(base, { withFileTypes: true })) {
+      if (!ent.isDirectory()) continue;
+      const dir = join(base, ent.name);
+      if (existsSync(join(dir, "package.json"))) dirs.push(resolve(dir));
+    }
+  }
+  return uniqSorted(dirs);
+}
+
 export function formatProjectDirLabel(repoRoot: string, dir: string): string {
   try {
     const r = relative(repoRoot, resolve(dir)).replace(/\\/g, "/");

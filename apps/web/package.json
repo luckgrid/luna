@@ -17,6 +17,6 @@
   "devDependencies": {
     "@types/handlebars": "^4.1.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.0"
+    "vite": "^8.0.11"
   }
 }

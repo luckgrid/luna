@@ -5,15 +5,15 @@ import { pathToFileURL } from "node:url";
 
 const HEADERS = ["Dependency", "Current", "Newest", "Latest", "Config"] as const;
 
-export type OutdatedTableKind = "bun" | "uv" | "go";
+export type OutdatedTableKind = "bun" | "uv";
 
-function versionMaxForTable(table: OutdatedTableKind): number {
+function versionMaxForTable(): number {
   const raw = process.env.OUTDATED_VERSION_MAX;
   if (raw !== undefined && raw !== "") {
     const n = Number.parseInt(raw, 10);
     if (Number.isFinite(n) && n >= 10) return n;
   }
-  return table === "go" ? 18 : 30;
+  return 30;
 }
 
 function shortenMiddle(s: string, maxLen: number): string {
@@ -91,16 +91,15 @@ function formatConfigCell(plainLabel: string, colWidth: number, href: string | n
 
 type TableModel = { display: string[][]; configHrefs: (string | null)[] };
 
-function buildTableModel(rows: string[][], table: OutdatedTableKind, repoRoot: string): TableModel {
-  const vmax = versionMaxForTable(table);
-  const goDepMax = 34;
+function buildTableModel(
+  rows: string[][],
+  _table: OutdatedTableKind,
+  repoRoot: string,
+): TableModel {
+  const vmax = versionMaxForTable();
   const configHrefs: (string | null)[] = [];
   const display = rows.map((r) => {
     const c = [...r];
-    const dep = c[0] ?? "";
-    if (table === "go" && dep.length > goDepMax && !dep.startsWith("(")) {
-      c[0] = shortenMiddle(dep, goDepMax);
-    }
     for (let i = 1; i <= 3; i++) {
       const v = c[i];
       if (v) c[i] = shortenVersionCell(v, vmax);
@@ -230,29 +229,12 @@ function parseUvDryRun(text: string, pyproject: string): string[][] {
   return rows;
 }
 
-const goListUpdateRe = /^(\S+)\s+(v\S+)\s+\[([^\]]+)\]/;
-
-function parseGoList(text: string, goModPath: string): string[][] {
-  const rows: string[][] = [];
-  for (const line of text.split("\n")) {
-    const t = line.trim();
-    if (!t || t.startsWith("go:")) continue;
-    const m = goListUpdateRe.exec(t);
-    if (!m) continue;
-    const path = m[1];
-    const current = m[2];
-    const avail = m[3].trim();
-    rows.push([path, current, avail, avail, goModPath]);
-  }
-  return rows;
-}
-
 export function printOutdatedTable(
   kind: OutdatedTableKind,
   stdin: string,
-  ctx: { repoRoot: string; pyprojectPath?: string; goModPath?: string },
+  ctx: { repoRoot: string; pyprojectPath?: string },
 ): void {
-  const { repoRoot, pyprojectPath, goModPath } = ctx;
+  const { repoRoot, pyprojectPath } = ctx;
   if (kind === "bun") {
     const rows = parseBunOutdated(stdin, repoRoot);
     if (rows.length === 0) {
@@ -264,7 +246,7 @@ export function printOutdatedTable(
     } else {
       renderBox(rows, "bun", repoRoot);
     }
-  } else if (kind === "uv") {
+  } else {
     const py = pyprojectPath ?? join(repoRoot, "pyproject.toml");
     const rows = parseUvDryRun(stdin, py);
     if (rows.length === 0) {
@@ -275,18 +257,6 @@ export function printOutdatedTable(
       );
     } else {
       renderBox(rows, "uv", repoRoot);
-    }
-  } else {
-    const gm = goModPath ?? join(repoRoot, "go.mod");
-    const rows = parseGoList(stdin, gm);
-    if (rows.length === 0) {
-      renderBox(
-        [["(no module lines with a newer [version] from go list -u -m all)", "—", "—", "—", gm]],
-        "go",
-        repoRoot,
-      );
-    } else {
-      renderBox(rows, "go", repoRoot);
     }
   }
 }
