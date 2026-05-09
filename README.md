@@ -1,6 +1,6 @@
 # Luna
 
-Luna is a polyglot monorepo starter built around **moonrepo** for the task graph, **proto** and [`.prototools`](.prototools) for pinned runtimes (Bun, Go, Python, moon), and **Bun workspaces** for JavaScript and TypeScript packages. The template layers three application stacks on that foundation: a **SolidStart** interactive app with SSR and streaming, a **Go + templ** static site generator for server-rendered HTML and Markdown, and a **FastAPI** service with Pydantic and Pydantic AI. Shared libraries live under `packages/*`. Use each app or package README for ports, env files, and moon task details.
+Luna is a polyglot monorepo starter built around **moonrepo** for the task graph, **proto** and [`.prototools`](.prototools) for pinned runtimes (Bun, Go, Python, moon), and **Bun workspaces** for JavaScript and TypeScript packages. The template layers three application stacks on that foundation: a **SolidStart** interactive app with SSR and streaming, a **Bun + Vite** static site generator for HTML and Markdown, and a **FastAPI** service with Pydantic and Pydantic AI. Shared libraries live under `packages/*`. Use each app or package README for ports, env files, and moon task details.
 
 ## Tech Stacks
 
@@ -21,13 +21,9 @@ SolidStart on **Vite** and **Nitro** is the stack for SPA-style apps that need *
 - 🔥 [Nitro](https://nitro.build/) ([guide](https://nitro.build/guide)) — server runtime used by SolidStart
 - 🎨 [Tailwind CSS v4](https://tailwindcss.com/) ([documentation](https://tailwindcss.com/docs)) — utility CSS used by `@luna/ds` (consumed from the interactive app and the static site pipeline)
 
-### Static site generator stack (Go and templ)
+### Static site generator stack (Bun and Vite)
 
-The `apps/web` stack is a **server-side static site generator**: Go drives **templ** templates and **goldmark** Markdown into HTML on the server, with a classic SSG output layout. It fits marketing and content sites first, but you can add **signal-style** or fragment-driven interactivity (for example [Datastar](https://data-star.dev/) or similar) **without** a client-side router or heavy SPA shell when you outgrow pure static pages.
-
-- 🐹 [Go](https://go.dev/) ([documentation](https://go.dev/doc/)) — runtime for the generator; version pinned in [`.prototools`](.prototools)
-- 📄 [templ](https://templ.guide/) — compile-time HTML components; the CLI is a [Go 1.24+ tool dependency](https://templ.guide/quick-start/installation#go-install-as-tool) in [`apps/web/go.mod`](apps/web/go.mod) (`go tool templ` in moon tasks — no separate global install)
-- 📝 [goldmark](https://github.com/yuin/goldmark) — Markdown rendering (including frontmatter-related extensions as wired in the app)
+The `apps/web` stack is a **file-based static site generator**: a small **Bun** / TypeScript build writes HTML into `dist/`, using **[`Bun.markdown`](https://bun.com/docs/runtime/markdown)** for Markdown bodies (after YAML frontmatter) and string templates for layout. **Vite** compiles the Tailwind entry that imports [`@luna/ds`](packages/ds/README.md) into minified **`dist/styles.css`**—same design system as `apps/app`, without routing Markdown through Vite. Dev runs **`vite build --watch`** plus an SSG watcher so `packages/ds` and `src/content/` edits rebuild without restarting the process. For **signal-style** HTML-driven UI you can add [Datastar](https://data-star.dev/) later (optional script hook in the shell template) without a SPA shell.
 
 ### API service stack (FastAPI and Pydantic)
 
@@ -51,11 +47,11 @@ The `apps/api` stack centers on **FastAPI**, **Pydantic**, and **Pydantic AI** f
 Run commands from the repository root unless an app README says otherwise.
 
 ```sh
-bun run setup    # proto + Bun workspaces + Go modules (web:install) + Python venv (api:build / uv sync)
+bun run setup    # proto + Bun workspaces + Python venv (api:build / uv sync)
 bun run dev      # all application-layer dev tasks (see moon query / app READMEs for subsets)
 ```
 
-The **`setup`** script (not named `install`) runs `proto install`, then `bun install --ignore-scripts`, then `moon run web:install api:build`. A root script named **`install` is a Bun/npm lifecycle hook**: any `bun install` that runs lifecycle scripts (including Moon’s dependency sync or `bunx`) could recurse into Moon and **hang `dev` / `build`**. Use **`bun run setup`** for full-stack bootstrap; use plain **`bun install`** when you only need workspace `node_modules`. [`.moon/toolchains.yml`](.moon/toolchains.yml) disables **`javascript.installDependencies`** (Moon skips redundant `bun install` before each task) and sets **`bun.installArgs: ["--ignore-scripts"]`** as a safeguard.
+The **`setup`** script (not named `install`) runs `proto install`, then `bun install --ignore-scripts`, then `moon run api:build`. A root script named **`install` is a Bun/npm lifecycle hook**: any `bun install` that runs lifecycle scripts (including Moon’s dependency sync or `bunx`) could recurse into Moon and **hang `dev` / `build`**. Use **`bun run setup`** for full-stack bootstrap; use plain **`bun install`** when you only need workspace `node_modules`. [`.moon/toolchains.yml`](.moon/toolchains.yml) disables **`javascript.installDependencies`** (Moon skips redundant `bun install` before each task) and sets **`bun.installArgs: ["--ignore-scripts"]`** as a safeguard.
 
 For a full compile of every application project first, run **`bun run build`**. Default ports are documented in each app README and can be overridden via [`.env.local`](.env.local).
 
@@ -63,12 +59,19 @@ For a full compile of every application project first, run **`bun run build`**. 
 
 - **`apps/api/`** — FastAPI + Pydantic AI · [README](apps/api/README.md)
 - **`apps/app/`** — SolidStart (SSR, Vite, Nitro) · [README](apps/app/README.md)
-- **`apps/web/`** — Go + templ SSG · [README](apps/web/README.md)
+- **`apps/web/`** — Bun SSG + Vite (`@luna/ds`) · [README](apps/web/README.md)
 - **`packages/cli/`** — internal `luna` CLI (Bun entry; `deps …` today, `ds …` reserved for design-system / UI tooling) · [README](packages/cli/README.md)
 - **`packages/ds/`** — design system / Tailwind · [README](packages/ds/README.md)
+  - **Entrypoints**: `packages/ds/src/tailwind.css` (main import), `packages/ds/src/components.css`, `packages/ds/src/layouts.css`, `packages/ds/src/primitives.css`
+  - **Modules**: `packages/ds/src/{components,layouts,primitives}/*.css` (authored as modular CSS)
+  - **Patterns**: scoped root + nested layers (`@scope` + `@layer base|variants|patterns`); see [DS README](packages/ds/README.md#scoped-layers-pattern-all-modules)
 - **`packages/ui/`** — shared Solid UI · [README](packages/ui/README.md)
 
-Moon wires install, templates, styles, build, and dev tasks per project; **`web:dev`** depends on an initial **`web:build`**, and **`api:dev`** depends on **`api:build`** (`uv sync`) so first-time dev pulls toolchains and dependencies. Root **`bun run setup`** runs **`web:install`** and **`api:build`** up front so Go modules and the API venv are ready before **`bun run dev`**. For step-by-step task graphs (templ, Tailwind CLI, `go run`, Uvicorn, Vite), follow each workspace README above.
+### Design system CSS (DS)
+
+When updating `packages/ds`, follow the **scoped root + nested layers** CSS module pattern (`@scope` + `@layer base|variants|patterns`). The DS README is the source of truth: [DS CSS patterns](packages/ds/README.md#scoped-layers-pattern-all-modules).
+
+Moon wires build and dev tasks per project; **`api:dev`** depends on **`api:build`** (`uv sync`) so first-time dev pulls the API venv. Root **`bun run setup`** runs **`api:build`** after installs so the Python workspace is ready before **`bun run dev`**. For step-by-step task graphs (`bun run build`, Uvicorn, SolidStart), follow each workspace README above.
 
 ## Commands
 
@@ -77,7 +80,7 @@ Moon wires install, templates, styles, build, and dev tasks per project; **`web:
 These scripts target the **application layer** (all `apps/*` projects), matching what you use day to day from the repo root:
 
 ```sh
-bun run setup       # proto + Bun workspaces + web:install + api:build (see Quick Start)
+bun run setup       # proto + Bun workspaces + api:build (see Quick Start)
 bun run dev         # moon run :dev --query "projectLayer=application"
 bun run build       # moon run :build --query "projectLayer=application"
 bun run start       # moon run :start --query "projectLayer=application"
@@ -90,11 +93,11 @@ bun run clean       # moon clean --all (+ root clean steps — see package.json)
 bun run lint
 bun run format:check
 bun run typecheck
-bun run check       # lint + format:check + typecheck (includes api/web moon tasks)
+bun run check       # lint + format:check + typecheck (includes api moon tasks where applicable)
 
 bun run lint:fix
 bun run format
-bun run fix         # lint:fix + format (includes api/web moon tasks)
+bun run fix         # lint:fix + format (includes api moon tasks where applicable)
 ```
 
 ### Moon: single apps, subsets, and packages
@@ -130,7 +133,7 @@ moon run ui:typecheck
 - Shared TS app tasks: [`.moon/tasks/ts-app.yml`](.moon/tasks/ts-app.yml) (`language: typescript`, `layer: application`, `stack: frontend`)
 - Shared TS lib tasks: [`.moon/tasks/ts-lib.yml`](.moon/tasks/ts-lib.yml) (`language: typescript`, `layer: library`)
 - Shared Python API tasks: [`.moon/tasks/py-api.yml`](.moon/tasks/py-api.yml) (`language: python`, `stack: backend`)
-- Shared Go web tasks: [`.moon/tasks/go-web.yml`](.moon/tasks/go-web.yml) (`language: go`, `stack: frontend`)
+
 - Root moon config: [`moon.yml`](moon.yml)
 - TypeScript project graph: [`tsconfig.json`](tsconfig.json)
 - Shared TypeScript options: [`tsconfig.options.json`](tsconfig.options.json)
@@ -156,7 +159,7 @@ bun run update     # wraps `luna update`; then review and run bun run check
 - **Toolchain (proto)** — edit [`.prototools`](.prototools), then `proto install` or `bun run setup` (or `proto pin <tool> <version>`). Removing a tool line drops it from proto’s install set for this repo.
 - **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
 - **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
-- **Go (`apps/web`)** — `cd apps/web` then `go get example.com/module@v1.2.3` (or `@latest`); drop a direct dependency with `go get example.com/module@none` and run `go mod tidy`. The **templ** CLI stays aligned with the library via `go get -tool github.com/a-h/templ/cmd/templ@<version>` when you bump templ intentionally.
+- **Go** — if you add a Go project, manage modules with `go get ...` and `go mod tidy`.
 
 ## Troubleshooting
 

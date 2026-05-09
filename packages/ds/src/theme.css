@@ -384,6 +384,8 @@
 }
 
 :where(:root, :host) {
+  color-scheme: light dark;
+
   /* Theme Tokens (default theme variables) */
   --background-color: var(--color-bg-1);
   --color: var(--color-fg-1);

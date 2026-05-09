@@ -1,7 +1,10 @@
-language: go
+language: typescript
 layer: application
 stack: frontend
 
+tags:
+  - static-site
+
 project:
   name: web
-  description: Luna marketing/static site (Go + templ + goldmark).
+  description: Luna marketing/static site (Bun SSG + Vite + @luna/ds).

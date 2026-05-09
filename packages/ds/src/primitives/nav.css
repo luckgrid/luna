@@ -1,23 +1,18 @@
 /* Nav */
 
-/* Nav Base */
-@layer base {
-  nav,
-  [role="navigation"] {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-tap);
-  }
-}
-
-/* Nav Slots */
-@layer slots {
-  nav,
-  [role="navigation"] {
-    & > :is(div, ul, ol) {
+@scope (:is(nav, [role="navigation"])) {
+  /* Nav Base */
+  @layer base {
+    :scope {
       display: flex;
       align-items: center;
       gap: var(--spacing-tap);
+
+      & > :is(div, ul, ol) {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-tap);
+      }
     }
   }
 }

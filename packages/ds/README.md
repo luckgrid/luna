@@ -39,6 +39,20 @@ CSS modules in `src/{layouts,primitives,components}/*.css` follow a **scoped roo
 - **Prefer `:scope` for root styling**: inside a scope, use `:scope { … }` (or `:scope > …`) to make it obvious you’re styling the scope root; use nested selectors for descendants.
 - **Follow semantic render order**: keep blocks ordered the way elements appear (header → main → aside → article) so related styles remain contiguous and discoverable.
 
+### Complex modules (components with deep subtrees)
+
+When a component module starts to accumulate nested selectors, treat the module like a mini layout: add **named nested scopes** for the “subtrees that matter” and keep state close to the block it modifies.
+
+- **Use nested scopes to “enter” a complex subtree**: wrap the subtree in `@scope (...) { … }`, then style the subtree root via `:scope { … }`.
+  - **Example**: Accordion items: `@scope (:scope :is(details, …)) { :scope { … } }`
+  - **Example**: Breadcrumb items: `@scope (:scope > :is(li, a, …)) { :scope { … } }`
+- **Keep modifier/state rules adjacent to the base styles they modify** (same subtree, same layer) instead of collecting them at the bottom.
+  - **Example**: put `:scope:has(:hover, :focus-visible)` near the item shell, not far away.
+  - **Example**: if “open” behavior is mostly about the trigger, keep it in the trigger scope using parent selectors like `:is([open], [data-open]) &`.
+- **Don’t create a nested scope for simple one-off descendants**: if a rule is a single selector with 1–2 declarations, keep it inline (e.g. `:scope :is([data-content], [data-slot]) { … }`).
+- **Prefer nested selectors inside `:scope { … }` for cohesion**: place `&:is(...)` and `&::before/after` alongside the declarations they relate to, so the reader can scan one block.
+- **Placement/variant “clusters” can be their own nested scopes**: for components like tooltip, group placement variants as multiple `@scope (:scope:is(...)) { … }` blocks inside `@layer variants`.
+
 ## Scripts and moon tasks
 
 `@luna/ds` is intentionally source-only and currently exposes only typecheck:

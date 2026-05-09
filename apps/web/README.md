@@ -1,170 +1,73 @@
 # `web`
 
-Luna static marketing/content site, built with **Go + [templ](https://templ.guide/)**
-and Markdown content via [goldmark](https://github.com/yuin/goldmark).
+Luna static marketing/content site: **Markdown** in `src/content/`, **HTML** in `src/templates/`, filled at build with **[Handlebars](https://handlebarsjs.com/guide/)**. TypeScript under **`src/lib/`** parses content, runs **`Bun.markdown`**, prepares view data, and renders templates — no embedded page markup. **`src/main.ts`** is the CLI entry. Styles: **Vite** + [`@luna/ds`](../../packages/ds/README.md).
 
-The interactive/SSR app lives at [`apps/app`](../app/README.md).
+**DX:** Edit copy in `src/content/`, structure in `src/templates/`, site logic in `src/lib/` and `src/main.ts`.
 
-## What this app demonstrates
+Production build is **`bun run build`** (`scripts/build.ts`: static HTML then **Vite** for CSS).
 
-- `src/content/` is the **Markdown content source** (pages + catalog items).
-- `src/pages/` is the **templ-only page layer** (layout/structure).
+## Content and layouts
 
-Together they act like a tiny file router (mirroring `apps/app`):
+| Role           | Markdown file                                                | HTML layout partial               | Output                             |
+| -------------- | ------------------------------------------------------------ | --------------------------------- | ---------------------------------- |
+| Home / landing | [`src/content/index.md`](src/content/index.md)               | `layouts/default.html` + partials | `/index.html`                      |
+| Catalog index  | [`src/content/posts/_index.md`](src/content/posts/_index.md) | `layouts/catalog.html`            | `/posts/index.html`                |
+| Article        | `src/content/posts/*.md` or `src/content/<page>.md`          | `layouts/article.html`            | `/posts/<slug>/` or `/<page>.html` |
 
-- `src/pages/index.templ` → `/` (home page)
-- `src/content/<name>.md` → `/<name>.html` (single page from Markdown,
-  rendered through a dedicated template registered in `main.go`)
-- `src/pages/<catalog>/index.templ` + `src/pages/<catalog>/post.templ`
-  and `src/content/<catalog>/*.md` → catalog (`/<catalog>/` index +
-  `/<catalog>/<slug>/` per post)
+Optional frontmatter: **`layout`**, **`latest_posts_title`** (home). Reserved: **`index.md`** (home), **`posts/_index.md`** (catalog).
 
-The same `lib.ParseFile` / `lib.ParseDir` pipeline parses Markdown for
-both top-level pages and catalog posts; only the templ component used to
-render the HTML differs.
-
-> Note: `apps/app` (SolidStart) uses the bracketed file-system router
-> convention (`[id].tsx`). Go rejects square brackets in source
-> filenames, so this app uses plain `index.templ` / `post.templ` — the
-> dynamic-template intent is conveyed by colocation with the Markdown
-> files instead.
-
-## Layout
+## Layout (`src/` + `src/lib/`)
 
 ```text
-apps/web/
-  main.go                       Single entry + SSG runner (Build/Serve)
-  src/
-    components/                 Reusable templ chrome
-      layout.templ              LayoutHeader, LayoutFooter
-      page.templ                PageHeader, ListSection
-    layouts/                    Two layouts that compose the components
-      base.templ                @Base(title, description) — html shell
-      post.templ                @Post(p) — article header + tags + body slot
-    lib/                        SSG building blocks (no templ deps)
-      post.go                   Post type, ParseFile, ParseDir, taxonomy helpers
-      page.go                   WritePage
-      fs.go                     CopyTree, ServeDir
-    content/                    Markdown content (source of truth)
-      legal.md                  → /legal.html
-      posts/
-        <slug>.md               → /posts/<slug>/
-        ...                     (add more posts here)
-    pages/                      Templ-only page modules (mirrors apps/app/src/routes)
-      index.templ               /
-      legal.templ               /legal.html renderer (registered in main.go)
-      posts/                    Catalog module
-        index.templ             /posts/  (catalog index, grouped by category)
-        post.templ              /posts/<slug>/ (per-post detail)
-    styles.css                  Entry CSS — imports @luna/ds + @source declarations
-  scripts/
-    dev.sh                      Moon `web:dev`: Tailwind --watch + templ --watch + serve
-  public/                       Static assets copied verbatim into dist/
-  dist/                         Generated output (gitignored)
+src/main.ts             CLI entry (import.meta.main), orchestrates build
+scripts/build.ts        Runs main.ts then vite build
+src/lib/
+  types.ts              Post model + Handlebars view models + template handles
+  utils.ts              Dates, errno, writePage, copyTree, synthetic pages
+  content/
+    utils.ts            postURL, outputPath, caption, contentDir
+    parse.ts            markdownToHtml, gray-matter, parseDir, taxonomy
+  templates/
+    render.ts           Load HTML from src/templates, compose pages
+    context.ts          View builders from Post + utils dates
 ```
 
-This structure follows the [templ project structure
-guide](https://templ.guide/project-structure/project-structure) (the
-`counter` example), adapted for static-site generation with explicit
-layout composition and a thin file-router under `pages/`.
-
-## How layouts compose
-
-Two layouts, both composing components from `src/components/`:
-
-- **`layouts.Base(title, description)`** — emits `<html>`/`<head>`/
-  `<body>` with `LayoutHeader` and `LayoutFooter`. Yields `{ children... }`
-  inside `<main>`.
-- **`layouts.Post(p)`** — wraps `Base` and adds the article header
-  (`PageHeader` + date + tags). Yields `{ children... }` for the
-  Markdown body.
-
-Anything more elaborate is built in the page template itself by
-composing `Base` with `PageHeader`, `ListSection`, and any custom
-markup. For example, `src/pages/posts/index.templ`:
-
-```go
-templ Page(posts []lib.Post) {
-    @layouts.Base("Posts", "Articles, announcements, and guides.") {
-        @components.PageHeader("", "Posts", "Articles, announcements, and guides.")
-        {{ grouped := lib.GroupByCategory(posts) }}
-        {{ categories := lib.Categories(posts) }}
-        for _, cat := range categories {
-            @components.ListSection(cat, grouped[cat])
-        }
-    }
-}
-```
-
-## Adding content
-
-### A single Markdown page
-
-1. Create `src/content/<name>.md` with frontmatter (`title`,
-   `description`, optional `category`, `date`, `tags`).
-2. (Optional) Create `src/pages/<name>.templ` for a dedicated renderer
-   and register it in `main.go` via `Site.Pages`.
-3. Rebuild — it routes to `/<name>.html` using either the dedicated
-   template.
-
-### A catalog post
-
-1. Drop `src/content/posts/<slug>.md` (the filename is the slug). Set
-   `category:` in frontmatter to group it on the index page; the
-   category never appears in the URL.
-2. Rebuild — it routes to `/posts/<slug>/`.
-
-### A new catalog
-
-1. Create `src/pages/<catalog>/index.templ` (Page func — index renderer)
-   and `src/pages/<catalog>/post.templ` (Post func — detail renderer)
-   in a new Go package.
-2. Drop Markdown files at `src/content/<catalog>/<slug>.md`.
-3. Register in [`main.go`](main.go):
-
-   ```go
-   site.Catalogs = append(site.Catalogs, Catalog{
-       Name:   "<catalog>",
-       Index:  <catalog>.Page,
-       Detail: <catalog>.Post,
-   })
-   ```
+- **`content/`** — Markdown files → typed posts and HTML bodies.
+- **`templates/`** — Handlebars loaders paired with **`src/templates/`** on disk.
 
 ## Frontmatter
 
-| Key           | Purpose                                               |
-| ------------- | ----------------------------------------------------- |
-| `title`       | Page title (also list label and `<title>`)            |
-| `description` | Meta description / list snippet / lede                |
-| `date`        | YYYY-MM-DD — drives newest-first sort order           |
-| `category`    | Catalog grouping label (not in URL)                   |
-| `tags`        | List of strings — rendered in `layouts.Post`          |
-| `slug`        | Optional override; defaults to filename without `.md` |
+| Key                  | Purpose                              |
+| -------------------- | ------------------------------------ |
+| `title`              | Page title                           |
+| `description`        | Meta / description                   |
+| `date`               | YYYY-MM-DD (post order)              |
+| `category`           | Catalog grouping (not in URL)        |
+| `tags`               | Article tags                         |
+| `slug`               | Optional URL slug                    |
+| `layout`             | `default` \| `catalog` \| `article`  |
+| `latest_posts_title` | Home: featured posts section heading |
+
+## Raw HTML in Markdown
+
+Options live in [`src/lib/content/parse.ts`](src/lib/content/parse.ts) (`markdownToHtml`, see [Bun markdown docs](https://bun.com/docs/runtime/markdown)).
 
 ## Prerequisites
 
-- Toolchains pinned in [`.prototools`](../../.prototools) (Go, Bun, etc.). From the repo root run `bun run setup` or `proto install` so `go` resolves to that toolchain.
-- The [`templ`](https://templ.guide/) CLI is pinned as a [Go tool](https://templ.guide/quick-start/installation#go-install-as-tool) in [`go.mod`](go.mod) (`tool github.com/a-h/templ/cmd/templ`). Moon runs `go tool templ` — no global `go install` step. To regenerate templates manually: `go tool templ generate` from this directory.
+- [`.prototools`](../../.prototools) — `bun run setup` or `proto install`.
 
 ## Build and serve
 
-From the repo root:
-
 ```sh
-moon run web:build       # templ generate → tailwindcss CLI → SSG → dist/
-moon run web:dev         # Tailwind watch + templ watch; serve dist/ on $WEB_PORT (default 3000)
+moon run web:build
+moon run web:dev
 ```
 
-`bun run dev` from the repo root boots `web`, `app`, and `api` together;
-`web:dev` depends on `web:build`, then runs **Tailwind CLI** (`--watch`) and
-**`templ generate --watch`** together so `src/styles.css` and `dist/styles.css` stay
-in sync while you edit templates or local CSS.
+`bun run dev` watches **`src/`** (content, lib, templates, `main.ts`).
 
 ## Deployment
 
-Deployment infrastructure (CDK / Pulumi / etc.) is intentionally not
-included yet — `dist/` is a plain folder of HTML/CSS that any static
-host can serve.
+`dist/` is static HTML/CSS/assets.
 
 ## Environment variables
 

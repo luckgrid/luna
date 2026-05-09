@@ -1,0 +1,15 @@
+<section aria-label="{{title}}">
+	{{#if (or title description)}}
+	<header>
+		<hgroup>
+			{{#if title}}<h2>{{title}}</h2>{{/if}}
+			{{#if description}}<p>{{description}}</p>{{/if}}
+		</hgroup>
+	</header>
+	{{/if}}
+	<ul>
+		{{#each items}}
+			{{> post-card}}
+		{{/each}}
+	</ul>
+</section>

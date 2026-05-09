@@ -1,85 +1,81 @@
-/* Breadcrumbs */
+/* Breadcrumbs — scoped root + nested layers (see packages/ds README). */
 
-/* Breadcrumbs Base */
-@layer base {
-  [data-breadcrumbs],
-  .breadcrumbs {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    gap: var(--spacing-4-6);
-    color: var(--color-fg);
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-medium);
-    letter-spacing: var(--text-sm--letter-spacing);
-    text-transform: uppercase;
-
-    /* Breadcrumb Items */
-    & > :is(a:not([role="button"]), [role="link"], li, span, [data-breadcrumb], .breadcrumb) {
-      display: inline-flex;
-      align-items: center;
-      min-width: 0;
-      gap: var(--spacing-4-6);
+@scope (:is([data-breadcrumbs], .breadcrumbs)) {
+  @layer base {
+    :scope {
+      list-style: none;
       margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
+      gap: var(--spacing-4-6);
+      color: var(--color-fg);
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium);
+      letter-spacing: var(--text-sm--letter-spacing);
+      text-transform: uppercase;
 
-      /* Breadcrumb Item Separators */
-      & + :is(a, [role="link"], li, span, [data-breadcrumb], .breadcrumb)::before {
-        -webkit-mask-image: var(--icon-chevron);
-        -webkit-mask-position: center;
-        -webkit-mask-size: contain;
-        -webkit-mask-repeat: no-repeat;
-        mask-image: var(--icon-chevron);
-        mask-position: center;
-        mask-size: contain;
-        mask-repeat: no-repeat;
-        display: inline-block;
-        width: 1em;
-        height: 1em;
+      /* Breadcrumb Images */
+      & :is(img, svg, figure, [role="figure"], [data-figure]) {
+        width: var(--spacing-24-32);
+        height: var(--spacing-24-32);
         flex-shrink: 0;
-        transform: rotate(-90deg);
-        background-color: currentColor;
-        content: "";
+      }
 
-        &:dir(rtl) {
-          transform: rotate(90deg);
+      /* Breadcrumb Links */
+      & :is(a, [role="link"]) {
+        white-space: nowrap;
+        text-decoration: none;
+        outline: none;
+      }
+
+      /* Active/Current Page Breadcrumb Item Links */
+      & > :not(a, [role="link"])[aria-current="page"] :is(a, [role="link"]) {
+        color: inherit;
+      }
+    }
+
+    /* Breadcrumb Items (scoped subtree) */
+    @scope (:scope > :is(a:not([role="button"]), [role="link"], li, span, [data-breadcrumb], .breadcrumb)) {
+      :scope {
+        display: inline-flex;
+        align-items: center;
+        min-width: 0;
+        gap: var(--spacing-4-6);
+        margin: 0;
+
+        /* Breadcrumb Item Separators */
+        & + :is(a, [role="link"], li, span, [data-breadcrumb], .breadcrumb)::before {
+          -webkit-mask-image: var(--icon-chevron);
+          -webkit-mask-position: center;
+          -webkit-mask-size: contain;
+          -webkit-mask-repeat: no-repeat;
+          mask-image: var(--icon-chevron);
+          mask-position: center;
+          mask-size: contain;
+          mask-repeat: no-repeat;
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          flex-shrink: 0;
+          transform: rotate(-90deg);
+          background-color: currentColor;
+          content: "";
+
+          &:dir(rtl) {
+            transform: rotate(90deg);
+          }
+        }
+
+        /* Active/Current Page Breadcrumb Item */
+        &[aria-current="page"] {
+          flex: 1;
+          color: color-mix(in oklab, var(--color-fg-3) 75%, transparent);
         }
       }
-
-      /* Active/Current Page Breadcrumb Item */
-      &[aria-current="page"] {
-        flex: 1;
-        color: color-mix(in oklab, var(--color-fg-3) 75%, transparent);
-      }
-    }
-  }
-}
-
-/* Breadcrumbs Slots */
-@layer slots {
-  [data-breadcrumbs],
-  .breadcrumbs {
-    /* Active/Current Page Breadcrumb Item Links */
-    & > :not(a, [role="link"])[aria-current="page"] :is(a, [role="link"]) {
-      color: inherit;
-    }
-
-    /* Breadcrumb Images */
-    & :is(img, svg, figure, [role="figure"], [data-figure]) {
-      width: var(--spacing-24-32);
-      height: var(--spacing-24-32);
-      flex-shrink: 0;
-    }
-
-    /* Breadcrumb Links */
-    & :is(a, [role="link"]) {
-      white-space: nowrap;
-      text-decoration: none;
-      outline: none;
     }
   }
 }

@@ -1,31 +1,31 @@
 /* Figure */
 
-/* Figure Base */
-@layer base {
-  figure,
-  [role="figure"],
-  [data-figure] {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-6-12);
+@scope (:is(figure, [role="figure"], [data-figure])) {
+  /* Figure Base */
+  @layer base {
+    :scope {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-6-12);
 
-    /* Figure Media */
-    & :is(img, svg, canvas, video) {
-      width: 100%;
-      background-color: var(--color-bg-2);
-    }
+      /* Figure Media */
+      & :is(img, svg, canvas, video) {
+        width: 100%;
+        background-color: var(--color-bg-2);
+      }
 
-    /* Figure Caption */
-    & :is(figcaption, [data-caption]) {
-      color: color-mix(in oklab, var(--color-fg-3) 75%, transparent);
-      font-family: var(--font-serif);
-      font-size: var(--text-sm);
-      font-weight: var(--text-sm--font-weight);
-      line-height: var(--text-sm--line-height);
-      letter-spacing: var(--text-sm--letter-spacing);
-      font-style: italic;
-      text-align: center;
-      text-wrap: balance;
+      /* Figure Caption */
+      & :is(figcaption, [data-caption]) {
+        color: color-mix(in oklab, var(--color-fg-3) 75%, transparent);
+        font-family: var(--font-serif);
+        font-size: var(--text-sm);
+        font-weight: var(--text-sm--font-weight);
+        line-height: var(--text-sm--line-height);
+        letter-spacing: var(--text-sm--letter-spacing);
+        font-style: italic;
+        text-align: center;
+        text-wrap: balance;
+      }
     }
   }
 }

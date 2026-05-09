@@ -1,50 +1,47 @@
 /* Article */
 
-/* Article Base */
-@layer base {
-  article {
-    --grid-cols: 12;
+@scope (:is(article)) {
+  /* Article Base */
+  @layer base {
+    :scope {
+      --grid-cols: 12;
 
-    @container (min-width: 90rem) {
-      --grid-cols: 16;
-    }
+      @container (min-width: 90rem) {
+        --grid-cols: 16;
+      }
 
-    container-type: inline-size;
-    display: grid;
-    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
-    gap: 0;
-    align-content: start;
-    font-family: var(--font-serif);
-    text-wrap: pretty;
+      container-type: inline-size;
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+      gap: 0;
+      align-content: start;
+      font-family: var(--font-serif);
+      text-wrap: pretty;
 
-    &:dir(rtl) {
-      align-content: end;
-    }
+      &:dir(rtl) {
+        align-content: end;
+      }
 
-    /* Article Typography */
-    & :is(h1, h2, h3, h4, h5, h6) {
-      display: inline-flex;
-      align-items: center;
+      /* Article Typography */
+      & :is(h1, h2, h3, h4, h5, h6) {
+        display: inline-flex;
+        align-items: center;
 
-      &[id] {
-        scroll-margin-top: var(--spacing-toolbar);
+        &[id] {
+          scroll-margin-top: var(--spacing-toolbar);
+        }
+      }
+
+      & pre {
+        border: var(--border-width-2) solid var(--color-fg-4);
+      }
+
+      & > * {
+        grid-column: 1 / -1;
       }
     }
 
-    & pre {
-      border: var(--border-width-2) solid var(--color-fg-4);
-    }
-  }
-}
-
-/* Article Slots */
-@layer slots {
-  article {
-    & > * {
-      grid-column: 1 / -1;
-    }
-
-    & > :is(header, footer, aside, section) {
+    :scope > :is(header, footer, aside, section) {
       --space: var(--spacing-surface);
 
       display: grid;
@@ -56,7 +53,7 @@
       }
     }
 
-    & > section {
+    :scope > section {
       padding-block: var(--space);
 
       &:first-child {
@@ -67,17 +64,9 @@
         padding-block-end: 0;
       }
     }
-  }
-}
 
-/* Article Variants */
-@layer variants {
-  article {
-    /* Article Image Media Figure */
-    & :is(figure, [role="figure"], [data-figure]):not([data-card], .card) {
-      & > :is(img, svg) {
-        border: var(--border-width-2) dotted color-mix(in oklab, var(--color-fg-4) 80%, transparent);
-      }
+    :scope :is(figure, [role="figure"], [data-figure]):not([data-card], .card) > :is(img, svg) {
+      border: var(--border-width-2) dotted color-mix(in oklab, var(--color-fg-4) 80%, transparent);
     }
   }
 }

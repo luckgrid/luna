@@ -1,45 +1,43 @@
-/* Card */
+/* Card — scoped root + nested layers (see packages/ds README). */
 
-/* Card Base */
-@layer base {
-  [data-card],
-  .card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: end;
-    gap: var(--spacing-surface);
-    padding: var(--spacing-surface);
-    box-shadow: var(--shadow-4);
-    border-style: solid;
-    border-width: var(--border-width-2);
-    border-color: var(--color-bg-4);
-    background-color: var(--color-bg-2);
-    color: var(--color-fg);
-    font-family: var(--font-sans);
-
-    /* Card Typography */
-    & :is(p, small) {
-      color: var(--color-fg-3);
-    }
-
-    /* Card Layout */
-    & :is(header, footer, aside, section) {
+@scope (:is([data-card], .card)) {
+  @layer base {
+    :scope {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: end;
       gap: var(--spacing-surface);
+      padding: var(--spacing-surface);
+      box-shadow: var(--shadow-4);
+      border-style: solid;
+      border-width: var(--border-width-2);
+      border-color: var(--color-bg-4);
+      background-color: var(--color-bg-2);
+      color: var(--color-fg);
+      font-family: var(--font-sans);
+
+      /* Card Typography */
+      & :is(p, small) {
+        color: var(--color-fg-3);
+      }
+
+      /* Card Layout */
+      & :is(header, footer, aside, section) {
+        gap: var(--spacing-surface);
+      }
     }
   }
-}
 
-/* Card Variants */
-@layer variants {
-  [data-card],
-  .card {
-    /* Card Form Variant */
-    &:is(form) {
-      gap: var(--spacing-16-32);
-      justify-content: stretch;
+  @layer variants {
+    /* Card Form Variant (scoped subtree) */
+    @scope (:scope:is(form)) {
+      :scope {
+        gap: var(--spacing-16-32);
+        justify-content: stretch;
+      }
 
-      & > footer {
+      :scope > footer {
         position: sticky;
         bottom: calc(-1 * var(--spacing-surface));
         margin: calc(-1 * var(--spacing-surface));
@@ -48,27 +46,25 @@
       }
     }
 
-    /* Card Action Variant */
-    &:is(a, button, [role="button"]) {
-      text-decoration: none;
-      transition: var(--transition-action);
+    /* Card Action Variant (scoped subtree) */
+    @scope (:scope:is(a, button, [role="button"])) {
+      :scope {
+        text-decoration: none;
+        transition: var(--transition-action);
+      }
 
-      &:hover,
-      &:focus,
-      &:active,
-      &:focus-visible {
+      :scope:is(:hover, :focus, :active, :focus-visible) {
         border-color: var(--color-accent);
         background-color: color-mix(in oklab, var(--color-accent) 2%, transparent);
         box-shadow: var(--shadow-3);
         text-decoration: none;
       }
 
-      &:focus,
-      &:active {
+      :scope:is(:focus, :active) {
         box-shadow: var(--shadow-2);
       }
 
-      &:focus-visible {
+      :scope:focus-visible {
         box-shadow: none;
         outline-style: solid;
         outline-width: var(--border-width-1);
@@ -77,25 +73,23 @@
       }
     }
   }
-}
 
-/* Card Patterns */
-@layer patterns {
-  [data-card],
-  .card {
-    /* Card List Pattern */
-    [data-list],
-    .list & {
-      flex-flow: row nowrap;
-      align-items: center;
-      justify-content: space-between;
+  @layer patterns {
+    /* Card List Pattern (scoped subtree) */
+    @scope (:scope :is([data-list])) {
+      :scope {
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: space-between;
 
-      & hgroup {
-        gap: var(--spacing-8-16);
+        & hgroup {
+          gap: var(--spacing-8-16);
+        }
       }
 
-      &:is(a, button, [role="button"]) {
-        & :is(i, svg, [data-icon]) {
+      /* List Pattern Action State (icons) */
+      @scope (:scope:is(a, button, [role="button"])) {
+        :scope :is(i, svg, [data-icon]) {
           opacity: 0;
           pointer-events: none;
           transform: translateX(-0.35em);

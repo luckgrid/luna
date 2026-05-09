@@ -1,404 +1,405 @@
 /* Input */
 
-/* Input Base */
-@layer base {
-  input,
-  optgroup,
-  select,
-  textarea {
-    --space: var(--space, var(--spacing-8-16));
+@scope (:is(input, optgroup, select, textarea)) {
+  /* Input Base */
+  @layer base {
+    :scope {
+      --space: var(--space, var(--spacing-8-16));
 
-    display: inline-flex;
-    gap: var(--space);
-    width: 100%;
-    height: auto;
-    margin: 0;
-    padding: var(--space);
-    box-shadow: var(--shadow-2);
-    border: var(--border-width-2) solid var(--color-bg-5);
-    background-color: var(--background-color, var(--color-light));
-    color: var(--color, var(--color-dark));
-    font-size: var(--text-base);
-    font-weight: var(--text-base--font-weight);
-    line-height: var(--text-base--line-height);
-    letter-spacing: var(--text-base--letter-spacing);
-    transition: var(--transition-action);
-
-    &::placeholder {
-      color: var(--color-light-5);
-    }
-
-    &:is(:hover, :focus, :active, :focus-visible) {
-      box-shadow: var(--shadow-1);
-      border-color: var(--color-accent);
-    }
-
-    &:focus-visible {
-      box-shadow: none;
-      outline: var(--outline-width-2) solid var(--color-accent);
-      outline-offset: var(--outline-offset-2);
-    }
-
-    /* Invalid Input */
-    &:is(:user-invalid, [aria-invalid="true"], [data-invalid]) {
-      border-color: var(--color-alert);
-      color: var(--color-alert);
-    }
-  }
-
-  /* Checkbox / Radio Inputs */
-  input:is([type="checkbox"], [type="radio"]) {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    position: relative;
-    display: inline-grid;
-    place-items: center;
-    padding: 0;
-    width: 1.25em;
-    height: 1.25em;
-    vertical-align: middle;
-    cursor: pointer;
-
-    &::-ms-check {
-      display: none;
-    }
-
-    &::after {
-      -webkit-mask-position: center;
-      -webkit-mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      mask-position: center;
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      opacity: 0;
-      display: block;
-      inline-size: 0.75em;
-      block-size: 0.75em;
-      background-color: var(--color-accent);
-      content: "";
-    }
-  }
-
-  /* Checkbox Input */
-  input:is([type="checkbox"]):not([role="switch"]) {
-    &:is(:checked, :checked:active, :checked:focus, :indeterminate)::after {
-      opacity: 1;
-    }
-
-    &:is(:checked, :checked:active, :checked:focus)::after {
-      -webkit-mask-image: var(--icon-check);
-      mask-image: var(--icon-check);
-    }
-
-    &:indeterminate::after {
-      -webkit-mask-image: var(--icon-minus);
-      mask-image: var(--icon-minus);
-    }
-  }
-
-  /* Radio Input */
-  input:is([type="radio"]) {
-    border-radius: 50%;
-
-    &:is(:checked, :checked:active, :checked:focus) {
-      border-color: var(--color-accent);
-      border-width: 0.35em;
-    }
-  }
-
-  /* File Input */
-  input:is([type="file"]) {
-    margin-left: calc(var(--outline-width-1) * -1);
-    padding: var(--spacing-3-5) 0;
-    padding-left: var(--outline-width-1);
-    border: 0;
-    border-radius: 0;
-    background: none;
-  }
-
-  /* Datetime Input */
-  input:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"]) {
-    padding-inline-end: calc(1rem + var(--spacing-6-12));
-    background-image: var(--icon-calendar);
-    background-position: center right var(--spacing-6-12);
-    background-size: 1rem auto;
-    background-repeat: no-repeat;
-
-    &:is([type="time"]) {
-      background-image: var(--icon-clock);
-    }
-
-    &:dir(rtl) {
-      text-align: right;
-    }
-
-    @-moz-document url-prefix() {
-      padding-inline-end: var(--spacing-6-12) !important;
-      background-image: none !important;
-    }
-  }
-
-  /* Range Input */
-  input:is([type="range"]) {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 100%;
-    height: var(--border-width-4);
-    background: none;
-    background-color: var(--color-bg-5);
-  }
-
-  /* Search Input */
-  input:is([type="search"]) {
-    appearance: textfield;
-    -webkit-appearance: textfield;
-    padding-inline-start: calc(var(--space) * 2 + 1.25em);
-  }
-
-  /* Select */
-  select {
-    text-transform: none;
-
-    &:not([multiple], [size]) {
-      padding-inline-end: calc(var(--space) + 1.5rem);
-      background-image:
-        linear-gradient(45deg, transparent 50%, currentColor 50%),
-        linear-gradient(-45deg, transparent 50%, currentColor 50%);
-      background-position:
-        right 0.9rem center,
-        right 0.65rem center;
-      background-size: 1em 1em;
-      background-repeat: no-repeat;
-
-      &:dir(rtl) {
-        background-position:
-          left 0.65rem center,
-          left 0.9rem center;
-      }
-    }
-
-    &::-ms-expand {
-      border: 0;
-      background-color: transparent;
-    }
-  }
-}
-
-/* Input Slots */
-@layer slots {
-  /* Color Input (native swatch chrome) */
-  input:is([type="color"]) {
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-
-    &::-moz-focus-inner,
-    &::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-
-    &::-moz-color-swatch,
-    &::-webkit-color-swatch {
-      border: 0;
-      border-radius: calc(var(--radius-1) * 0.5);
-    }
-  }
-
-  /* Datetime Input (calendar picker chrome) */
-  input:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"]) {
-    &::-webkit-calendar-picker-indicator {
-      width: 1rem;
-      margin-inline-end: -1rem;
-      margin-inline-start: var(--spacing-6-12);
-      opacity: 0;
-    }
-  }
-
-  /* File Input (file selector button) */
-  input:is([type="file"])::file-selector-button {
-    margin-inline-end: calc(var(--spacing-8-16) / 2);
-    padding: var(--spacing-4-6) var(--spacing-6-12);
-
-    &:is(:hover, :active, :focus) {
-      background-color: color-mix(
-        in oklab,
-        var(--color-accent) 14%,
-        var(--background-color, var(--color-light))
-      );
-    }
-
-    &:focus {
-      box-shadow:
-        var(--shadow-1),
-        0 0 0 var(--outline-width-1) var(--color-bg),
-        0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-accent) 60%, transparent);
-    }
-  }
-
-  /* Range Input (track & thumb) */
-  input:is([type="range"]) {
-    &::-webkit-slider-runnable-track,
-    &::-moz-range-track,
-    &::-ms-track {
+      display: inline-flex;
+      gap: var(--space);
       width: 100%;
-      height: 0.375rem;
-      border-radius: var(--border-width-4);
-      background-color: var(--color-bg-5);
-      transition:
-        background-color 150ms ease,
-        box-shadow 150ms ease;
-    }
+      height: auto;
+      margin: 0;
+      padding: var(--space);
+      box-shadow: var(--shadow-2);
+      border: var(--border-width-2) solid var(--color-bg-5);
+      background-color: var(--background-color, var(--color-light));
+      color: var(--color, var(--color-dark));
+      font-size: var(--text-base);
+      font-weight: var(--text-base--font-weight);
+      line-height: var(--text-base--line-height);
+      letter-spacing: var(--text-base--letter-spacing);
+      transition: var(--transition-action);
 
-    &::-webkit-slider-thumb,
-    &::-moz-range-thumb,
-    &::-ms-thumb {
-      appearance: none;
-      width: 1.25rem;
-      height: 1.25rem;
-      margin-top: -0.4375rem;
-      border: var(--border-width-2) solid var(--color-accent);
-      border-radius: 50%;
-      background-color: var(--color-accent);
-      cursor: pointer;
-      transition:
-        background-color 150ms ease,
-        transform 150ms ease;
-    }
-
-    &:is(:active, :focus-within) {
-      &::-webkit-slider-runnable-track,
-      &::-moz-range-track,
-      &::-ms-track {
-        background-color: color-mix(in oklab, var(--color-bg-5) 88%, var(--color-fg));
+      &::placeholder {
+        color: var(--color-light-5);
       }
-
-      &::-webkit-slider-thumb,
-      &::-moz-range-thumb,
-      &::-ms-thumb {
-        background-color: color-mix(in oklab, var(--color-accent) 88%, var(--color-fg));
-        border-color: color-mix(in oklab, var(--color-accent) 88%, var(--color-fg));
-      }
-    }
-
-    &:active {
-      &::-webkit-slider-thumb,
-      &::-moz-range-thumb,
-      &::-ms-thumb {
-        transform: scale(1.25);
-      }
-    }
-  }
-
-  /* Search Input (WebKit chrome) */
-  input:is([type="search"]) {
-    &::-webkit-search-decoration,
-    &::-webkit-search-results-decoration,
-    &::-webkit-search-results-button,
-    &::-webkit-search-cancel-button {
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    &::-webkit-search-cancel-button {
-      opacity: 0.6;
-      width: 1.25em;
-      height: 1.25em;
-      background-color: currentColor;
-      -webkit-mask-image: var(--icon-close);
-      -webkit-mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-position: center;
-      mask-image: var(--icon-close);
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      mask-position: center;
-      cursor: pointer;
-      transition: opacity 150ms ease;
 
       &:is(:hover, :focus, :active, :focus-visible) {
-        opacity: 0.8;
+        box-shadow: var(--shadow-1);
+        border-color: var(--color-accent);
+      }
+
+      &:focus-visible {
+        box-shadow: none;
+        outline: var(--outline-width-2) solid var(--color-accent);
+        outline-offset: var(--outline-offset-2);
+      }
+
+      /* Invalid Input */
+      &:is(:user-invalid, [aria-invalid="true"], [data-invalid]) {
+        border-color: var(--color-alert);
+        color: var(--color-alert);
       }
     }
-  }
 
-  /* Select Input (multiple option checked) */
-  select[multiple] option:checked {
-    background: color-mix(
-      in oklab,
-      var(--color-accent) 20%,
-      var(--background-color, var(--color-light))
-    );
-    color: var(--color, var(--color-dark));
-  }
-}
+    /* Checkbox / Radio Inputs */
+    :scope:is(input):is([type="checkbox"], [type="radio"]) {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+      width: 1.25em;
+      height: 1.25em;
+      vertical-align: middle;
+      cursor: pointer;
 
-/* Input Variants */
-@layer variants {
-  /* Switch Input (checkbox variant) */
-  input:is([type="checkbox"])[role="switch"] {
-    --switch-background-color: color-mix(
-      in oklab,
-      var(--background-color, var(--color-light)) 76%,
-      var(--color-light-3) 24%
-    );
-    --switch-border-color: color-mix(
-      in oklab,
-      var(--background-color, var(--color-light)) 42%,
-      var(--color-light-4) 58%
-    );
+      &::-ms-check {
+        display: none;
+      }
 
-    width: 2.25em;
-    height: 1.25em;
-    border-width: var(--border-width-1);
-    border-style: solid;
-    border-color: var(--switch-border-color);
-    border-radius: calc(infinity * 1px);
-    background-color: var(--switch-background-color);
-    color: var(--color, var(--color-dark));
-    line-height: 1.25em;
+      &::after {
+        -webkit-mask-position: center;
+        -webkit-mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-position: center;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        opacity: 0;
+        display: block;
+        inline-size: 0.75em;
+        block-size: 0.75em;
+        background-color: var(--color-accent);
+        content: "";
+      }
+    }
 
-    &::before {
-      display: block;
-      aspect-ratio: 1;
-      height: 100%;
+    /* Checkbox Input */
+    :scope:is(input):is([type="checkbox"]):not([role="switch"]) {
+      &:is(:checked, :checked:active, :checked:focus, :indeterminate)::after {
+        opacity: 1;
+      }
+
+      &:is(:checked, :checked:active, :checked:focus)::after {
+        -webkit-mask-image: var(--icon-check);
+        mask-image: var(--icon-check);
+      }
+
+      &:indeterminate::after {
+        -webkit-mask-image: var(--icon-minus);
+        mask-image: var(--icon-minus);
+      }
+    }
+
+    /* Radio Input */
+    :scope:is(input):is([type="radio"]) {
       border-radius: 50%;
-      background-color: var(--background-color, var(--color-light));
-      box-shadow: var(--shadow-1);
-      content: "";
-      transition: margin 0.1s ease-in-out;
+
+      &:is(:checked, :checked:active, :checked:focus) {
+        border-color: var(--color-accent);
+        border-width: 0.35em;
+      }
     }
 
-    &::after {
-      display: none;
+    /* Datetime Input */
+    @scope (
+    :scope:is(input):is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"])
+  ) {
+      :scope {
+        padding-inline-end: calc(1rem + var(--spacing-6-12));
+        background-image: var(--icon-calendar);
+        background-position: center right var(--spacing-6-12);
+        background-size: 1rem auto;
+        background-repeat: no-repeat;
+
+        &:is([type="time"]) {
+          background-image: var(--icon-clock);
+        }
+
+        &:dir(rtl) {
+          text-align: right;
+        }
+
+        @-moz-document url-prefix() {
+          padding-inline-end: var(--spacing-6-12) !important;
+          background-image: none !important;
+        }
+
+        &::-webkit-calendar-picker-indicator {
+          width: 1rem;
+          margin-inline-end: -1rem;
+          margin-inline-start: var(--spacing-6-12);
+          opacity: 0;
+        }
+      }
     }
 
-    &:focus-visible {
-      outline: var(--outline-width-2) solid var(--color-accent);
-      outline-offset: var(--outline-offset-2);
+    /* Range Input */
+    @scope (:scope:is(input):is([type="range"])) {
+      :scope {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        height: var(--border-width-4);
+        background: none;
+        background-color: var(--color-bg-5);
 
-      &:not(:checked) {
-        border-color: color-mix(in oklab, var(--color-accent) 48%, var(--switch-border-color));
-        background-color: color-mix(
+        &::-webkit-slider-runnable-track,
+        &::-moz-range-track,
+        &::-ms-track {
+          width: 100%;
+          height: 0.375rem;
+          border-radius: var(--border-width-4);
+          background-color: var(--color-bg-5);
+          transition:
+            background-color 150ms ease,
+            box-shadow 150ms ease;
+        }
+
+        &::-webkit-slider-thumb,
+        &::-moz-range-thumb,
+        &::-ms-thumb {
+          appearance: none;
+          width: 1.25rem;
+          height: 1.25rem;
+          margin-top: -0.4375rem;
+          border: var(--border-width-2) solid var(--color-accent);
+          border-radius: 50%;
+          background-color: var(--color-accent);
+          cursor: pointer;
+          transition:
+            background-color 150ms ease,
+            transform 150ms ease;
+        }
+
+        &:is(:active, :focus-within) {
+          &::-webkit-slider-runnable-track,
+          &::-moz-range-track,
+          &::-ms-track {
+            background-color: color-mix(in oklab, var(--color-bg-5) 88%, var(--color-fg));
+          }
+
+          &::-webkit-slider-thumb,
+          &::-moz-range-thumb,
+          &::-ms-thumb {
+            background-color: color-mix(in oklab, var(--color-accent) 88%, var(--color-fg));
+            border-color: color-mix(in oklab, var(--color-accent) 88%, var(--color-fg));
+          }
+        }
+
+        &:active {
+          &::-webkit-slider-thumb,
+          &::-moz-range-thumb,
+          &::-ms-thumb {
+            transform: scale(1.25);
+          }
+        }
+      }
+    }
+
+    /* Search Input */
+    @scope (:scope:is(input):is([type="search"])) {
+      :scope {
+        appearance: textfield;
+        -webkit-appearance: textfield;
+        padding-inline-start: calc(var(--space) * 2 + 1.25em);
+
+        &::-webkit-search-decoration,
+        &::-webkit-search-results-decoration,
+        &::-webkit-search-results-button,
+        &::-webkit-search-cancel-button {
+          -webkit-appearance: none;
+          appearance: none;
+        }
+
+        &::-webkit-search-cancel-button {
+          opacity: 0.6;
+          width: 1.25em;
+          height: 1.25em;
+          background-color: currentColor;
+          -webkit-mask-image: var(--icon-close);
+          -webkit-mask-size: contain;
+          -webkit-mask-repeat: no-repeat;
+          -webkit-mask-position: center;
+          mask-image: var(--icon-close);
+          mask-size: contain;
+          mask-repeat: no-repeat;
+          mask-position: center;
+          cursor: pointer;
+          transition: opacity 150ms ease;
+
+          &:is(:hover, :focus, :active, :focus-visible) {
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+
+    /* Select Input */
+    @scope (:scope:is(select)) {
+      :scope {
+        text-transform: none;
+
+        &:not([multiple], [size]) {
+          padding-inline-end: calc(var(--space) + 1.5rem);
+          background-image:
+            linear-gradient(45deg, transparent 50%, currentColor 50%),
+            linear-gradient(-45deg, transparent 50%, currentColor 50%);
+          background-position:
+            right 0.9rem center,
+            right 0.65rem center;
+          background-size: 1em 1em;
+          background-repeat: no-repeat;
+
+          &:dir(rtl) {
+            background-position:
+              left 0.65rem center,
+              left 0.9rem center;
+          }
+        }
+
+        &::-ms-expand {
+          border: 0;
+          background-color: transparent;
+        }
+
+        &[multiple] option:checked {
+          background: color-mix(
+            in oklab,
+            var(--color-accent) 20%,
+            var(--background-color, var(--color-light))
+          );
+          color: var(--color, var(--color-dark));
+        }
+      }
+    }
+
+    /* Color Input */
+    @scope (:scope:is(input):is([type="color"])) {
+      :scope {
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+
+        &::-moz-focus-inner,
+        &::-webkit-color-swatch-wrapper {
+          padding: 0;
+        }
+
+        &::-moz-color-swatch,
+        &::-webkit-color-swatch {
+          border: 0;
+          border-radius: calc(var(--radius-1) * 0.5);
+        }
+      }
+    }
+
+    /* File Input */
+    @scope (:scope:is(input):is([type="file"])) {
+      :scope {
+        margin-left: calc(var(--outline-width-1) * -1);
+        padding: var(--spacing-3-5) 0;
+        padding-left: var(--outline-width-1);
+        border: 0;
+        border-radius: 0;
+        background: none;
+
+        &::file-selector-button {
+          margin-inline-end: calc(var(--spacing-8-16) / 2);
+          padding: var(--spacing-4-6) var(--spacing-6-12);
+
+          &:is(:hover, :active, :focus) {
+            background-color: color-mix(
+              in oklab,
+              var(--color-accent) 14%,
+              var(--background-color, var(--color-light))
+            );
+          }
+
+          &:focus {
+            box-shadow:
+              var(--shadow-1),
+              0 0 0 var(--outline-width-1) var(--color-bg),
+              0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-accent) 60%, transparent);
+          }
+        }
+      }
+    }
+  }
+
+  /* Input Variants */
+  @layer variants {
+    :scope {
+      /* Switch Input (checkbox variant) */
+      &:is(input):is([type="checkbox"])[role="switch"] {
+        --switch-background-color: color-mix(
           in oklab,
-          var(--color-accent) 18%,
-          var(--switch-background-color)
+          var(--background-color, var(--color-light)) 76%,
+          var(--color-light-3) 24%
         );
+        --switch-border-color: color-mix(
+          in oklab,
+          var(--background-color, var(--color-light)) 42%,
+          var(--color-light-4) 58%
+        );
+
+        width: 2.25em;
+        height: 1.25em;
+        border-width: var(--border-width-1);
+        border-style: solid;
+        border-color: var(--switch-border-color);
+        border-radius: calc(infinity * 1px);
+        background-color: var(--switch-background-color);
+        color: var(--color, var(--color-dark));
+        line-height: 1.25em;
+
+        &::before {
+          display: block;
+          aspect-ratio: 1;
+          height: 100%;
+          border-radius: 50%;
+          background-color: var(--background-color, var(--color-light));
+          box-shadow: var(--shadow-1);
+          content: "";
+          transition: margin 0.1s ease-in-out;
+        }
+
+        &::after {
+          display: none;
+        }
+
+        &:focus-visible {
+          outline: var(--outline-width-2) solid var(--color-accent);
+          outline-offset: var(--outline-offset-2);
+
+          &:not(:checked) {
+            border-color: color-mix(in oklab, var(--color-accent) 48%, var(--switch-border-color));
+            background-color: color-mix(
+              in oklab,
+              var(--color-accent) 18%,
+              var(--switch-background-color)
+            );
+          }
+        }
+
+        &:checked {
+          border-color: var(--color-accent);
+          background-color: var(--color-accent);
+
+          &::before {
+            margin-inline-start: calc(2.25em - 1.25em);
+          }
+        }
+
+        &:is(:disabled, [disabled]) {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
       }
-    }
-
-    &:checked {
-      border-color: var(--color-accent);
-      background-color: var(--color-accent);
-
-      &::before {
-        margin-inline-start: calc(2.25em - 1.25em);
-      }
-    }
-
-    &:is(:disabled, [disabled]) {
-      opacity: 0.6;
-      cursor: not-allowed;
     }
   }
 }

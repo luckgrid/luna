@@ -6,8 +6,8 @@ category: legal
 ---
 
 This is a placeholder legal page for the Luna template — a single
-top-level Markdown document at `src/content/legal.md` rendered through a
-templ route template.
+top-level Markdown document at `src/content/legal.md` rendered through the
+routing is driven by `src/main.ts` and frontmatter.
 
 Use it for a privacy policy, terms of service, or any other standalone
 copy. Drop another `.md` file at `src/content/<name>.md` and it will be

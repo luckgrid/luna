@@ -2,6 +2,9 @@ inheritedBy:
   language: typescript
   layer: application
   stack: frontend
+  tags:
+    not:
+      - static-site
 
 fileGroups:
   configs:

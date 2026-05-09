@@ -8,8 +8,8 @@ tags:
 ---
 
 Welcome to the Luna static site template. This page is rendered from
-Markdown via [goldmark](https://github.com/yuin/goldmark) and embedded
-into a [`templ`](https://templ.guide/) page at build time.
+Markdown via [Bun.markdown](https://bun.com/docs/runtime/markdown) and
+composed with Handlebars HTML under `src/templates/` at build time.
 
 ## What this template gives you
 

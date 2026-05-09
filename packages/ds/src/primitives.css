@@ -1,5 +1,4 @@
-@layer primitives.base, primitives.slots, primitives.variants, primitives.modifiers,
-  primitives.patterns;
+@layer primitives.base, primitives.variants;
 
 @import "./primitives/article.css";
 @import "./primitives/button.css";

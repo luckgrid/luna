@@ -1,35 +1,37 @@
 /* Form */
 
-/* Form Base */
-@layer base {
-  /* Form resets */
-  ::-webkit-inner-spin-button,
-  ::-webkit-outer-spin-button {
-    height: auto;
-  }
+@scope (:is(form)) {
+  /* Form Base */
+  @layer base {
+    /* Form resets */
+    ::-webkit-inner-spin-button,
+    ::-webkit-outer-spin-button {
+      height: auto;
+    }
 
-  ::-moz-focus-inner {
-    padding: 0;
-    border-style: none;
-  }
+    ::-moz-focus-inner {
+      padding: 0;
+      border-style: none;
+    }
 
-  :-moz-focusring {
-    outline: none;
-  }
+    :-moz-focusring {
+      outline: none;
+    }
 
-  :-moz-ui-invalid {
-    box-shadow: none;
-  }
+    :-moz-ui-invalid {
+      box-shadow: none;
+    }
 
-  ::-ms-expand {
-    display: none;
-  }
+    ::-ms-expand {
+      display: none;
+    }
 
-  form {
-    --background-color: var(--color-light);
-    --color: var(--color-dark);
+    :scope {
+      --background-color: var(--color-light);
+      --color: var(--color-dark);
 
-    display: grid;
-    gap: var(--spacing-16-32) var(--spacing-8-16);
+      display: grid;
+      gap: var(--spacing-16-32) var(--spacing-8-16);
+    }
   }
 }

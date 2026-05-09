@@ -1,45 +1,46 @@
 /* Label */
 
-/* Label Base */
-@layer base {
-  label,
-  legend {
-    --space: var(--space, var(--spacing-8-16));
+@scope (:is(label, legend)) {
+  /* Label Base */
+  @layer base {
+    :scope {
+      --space: var(--space, var(--spacing-8-16));
 
-    display: flex;
-    flex-direction: column;
-    gap: var(--space);
-    color: currentColor;
-    font-size: var(--text-md);
-    font-weight: var(--text-md--font-weight);
-    line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
-    white-space: normal;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space);
+      color: currentColor;
+      font-size: var(--text-md);
+      font-weight: var(--text-md--font-weight);
+      line-height: var(--text-md--line-height);
+      letter-spacing: var(--text-md--letter-spacing);
+      white-space: normal;
 
-    /* Required Label */
-    &:has([data-required], .required) {
-      display: inline-flex;
-      color: var(--color-alert);
+      /* Required Label */
+      &:has([data-required], .required) {
+        display: inline-flex;
+        color: var(--color-alert);
 
-      & sup {
-        inset-inline-start: calc(var(--gap, var(--spacing-8-16)) * -0.8);
-        inset-block-start: calc(var(--spacing-1-3) * -1);
+        & sup {
+          inset-inline-start: calc(var(--gap, var(--spacing-8-16)) * -0.8);
+          inset-block-start: calc(var(--spacing-1-3) * -1);
+        }
       }
     }
   }
-}
 
-/* Label Variants */
-@layer variants {
-  /* Checkbox / Radio Label Variants */
-  label:has([type="checkbox"], [type="radio"]) {
-    cursor: pointer;
-    width: fit-content;
-    flex-direction: row;
-  }
+  /* Label Variants */
+  @layer variants {
+    /* Checkbox / Radio Label Variants */
+    :scope:has([type="checkbox"], [type="radio"]) {
+      cursor: pointer;
+      width: fit-content;
+      flex-direction: row;
+    }
 
-  input:is([type="checkbox"], [type="radio"]) ~ label {
-    cursor: pointer;
-    display: inline-flex;
+    input:is([type="checkbox"], [type="radio"]) ~ label {
+      cursor: pointer;
+      display: inline-flex;
+    }
   }
 }

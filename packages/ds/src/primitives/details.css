@@ -1,52 +1,54 @@
 /* Details */
 
-/* Details Base */
-@layer base {
-  details {
-    display: grid;
-    gap: 0;
+@scope (:is(details)) {
+  /* Details Base */
+  @layer base {
+    :scope {
+      display: grid;
+      gap: 0;
 
-    /* Details Summary / Trigger */
-    & :is(summary, [data-trigger]) {
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-4-6);
-      list-style-type: none;
-
-      &:focus-visible {
-        outline: var(--outline-width-2) solid
-          color-mix(in oklab, var(--color-accent) 60%, transparent);
-        outline-offset: var(--outline-offset-3);
-      }
-
-      /* Reset Marker */
-      &::-webkit-details-marker,
-      &::marker {
-        display: none;
-      }
-
-      &::-moz-list-bullet {
-        list-style-type: none;
-      }
-    }
-
-    /* Content / slot region */
-    & :is([data-content], [data-slot]) {
-      min-width: 0;
-    }
-
-    /* Open Details State */
-    &:is([open], [data-open]) {
-      &:has(:focus-visible) {
-        outline: var(--outline-width-2) solid
-          color-mix(in oklab, var(--color-accent) 60%, transparent);
-        outline-offset: var(--outline-offset-1);
-      }
-
+      /* Details Summary / Trigger */
       & :is(summary, [data-trigger]) {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-4-6);
+        list-style-type: none;
+
         &:focus-visible {
-          outline: none;
+          outline: var(--outline-width-2) solid
+            color-mix(in oklab, var(--color-accent) 60%, transparent);
+          outline-offset: var(--outline-offset-3);
+        }
+
+        /* Reset Marker */
+        &::-webkit-details-marker,
+        &::marker {
+          display: none;
+        }
+
+        &::-moz-list-bullet {
+          list-style-type: none;
+        }
+      }
+
+      /* Content / slot region */
+      & :is([data-content], [data-slot]) {
+        min-width: 0;
+      }
+
+      /* Open Details State */
+      &:is([open], [data-open]) {
+        &:has(:focus-visible) {
+          outline: var(--outline-width-2) solid
+            color-mix(in oklab, var(--color-accent) 60%, transparent);
+          outline-offset: var(--outline-offset-1);
+        }
+
+        & :is(summary, [data-trigger]) {
+          &:focus-visible {
+            outline: none;
+          }
         }
       }
     }

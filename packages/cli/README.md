@@ -7,7 +7,7 @@
 | Command         | Description                                                                                                                                                                          |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `luna outdated` | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins, Bun workspaces, uv lock, or `go.mod` requires have upgrades (CI-friendly). |
-| `luna update`   | Refresh proto pins, Bun workspaces, uv lock + sync, Go modules, then root `bun run setup` (proto + workspaces + `moon run web:install api:build`).                                   |
+| `luna update`   | Refresh proto pins, Bun workspaces, uv lock + sync, Go modules (if any `language: go` project), then root `bun run setup` (proto + workspaces + `moon run api:build`).               |
 
 Root shortcuts: `bun run outdated`, `bun run update`.
 

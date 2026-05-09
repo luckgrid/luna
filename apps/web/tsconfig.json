@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.options.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "../../.cache/web.tsbuildinfo",
+    "types": ["bun"]
+  },
+  "include": ["src/**/*.ts", "scripts/**/*.ts", "vite.config.ts"]
+}

@@ -1,84 +1,81 @@
 /* Table */
 
-/* Table Base */
-@layer base {
-  table {
-    display: block;
-    width: max-content;
-    min-width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
-    border-collapse: collapse;
-    border-spacing: 0;
-    text-indent: 0;
+@scope (:is(table)) {
+  /* Table Base */
+  @layer base {
+    :scope {
+      display: block;
+      width: max-content;
+      min-width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      border-collapse: collapse;
+      border-spacing: 0;
+      text-indent: 0;
 
-    /* Table Data */
-    & :is(th, td) {
-      padding: var(--spacing-6-12) var(--spacing-8-16);
-      border-style: dashed;
-      border-color: var(--color-fg-4);
-      border-left-width: var(--border-width-1);
-      background-color: var(--color-bg-1);
-      color: var(--color-fg-1);
-      font-size: var(--text-sm);
-      line-height: var(--text-sm--line-height);
-      letter-spacing: var(--text-sm--letter-spacing);
-      font-weight: var(--font-weight-medium);
-      text-align: start;
-
-      &:first-child {
-        border-left: 0;
-      }
-    }
-  }
-}
-
-/* Table Slots */
-@layer slots {
-  table {
-    /* Table Layout */
-    & :is(thead, tfoot) {
-      border-style: solid;
-      border-color: var(--color-fg-4);
-
+      /* Table Data */
       & :is(th, td) {
-        font-family: var(--font-sans);
-        font-weight: var(--font-weight-bold);
+        padding: var(--spacing-6-12) var(--spacing-8-16);
+        border-style: dashed;
+        border-color: var(--color-fg-4);
+        border-left-width: var(--border-width-1);
+        background-color: var(--color-bg-1);
+        color: var(--color-fg-1);
+        font-size: var(--text-sm);
+        line-height: var(--text-sm--line-height);
+        letter-spacing: var(--text-sm--letter-spacing);
+        font-weight: var(--font-weight-medium);
+        text-align: start;
+
+        &:first-child {
+          border-left: 0;
+        }
       }
-    }
 
-    /* Table Body Rows */
-    & tbody > tr {
-      border-style: dashed;
-      border-color: var(--color-fg-4);
-      border-bottom-width: var(--border-width-1);
+      /* Table Layout */
+      & :is(thead, tfoot) {
+        border-style: solid;
+        border-color: var(--color-fg-4);
 
-      &:last-child {
-        border-bottom: 0;
+        & :is(th, td) {
+          font-family: var(--font-sans);
+          font-weight: var(--font-weight-bold);
+        }
       }
-    }
 
-    /* Table Header */
-    & thead {
-      border-bottom-width: var(--border-width-3);
-    }
+      /* Table Body Rows */
+      & tbody > tr {
+        border-style: dashed;
+        border-color: var(--color-fg-4);
+        border-bottom-width: var(--border-width-1);
 
-    /* Table Footer */
-    & tfoot {
-      border-top-width: var(--border-width-3);
+        &:last-child {
+          border-bottom: 0;
+        }
+      }
+
+      /* Table Header */
+      & thead {
+        border-bottom-width: var(--border-width-3);
+      }
+
+      /* Table Footer */
+      & tfoot {
+        border-top-width: var(--border-width-3);
+      }
     }
   }
-}
 
-/* Table Modifiers */
-@layer modifiers {
-  /* Striped Table Modifier */
-  table:is([data-striped], .striped) {
-    /* Striped Table Body Rows */
-    & :is(tbody > tr:nth-child(odd)) :is(th, td) {
-      background-color: var(--color-bg-2);
+  /* Table Variants */
+  @layer variants {
+    /* Striped Table Variant */
+    :scope:is([data-striped], .striped) {
+      /* Striped Table Body Row Data */
+      & :is(tbody > tr:nth-child(odd)) :is(th, td) {
+        background-color: var(--color-bg-2);
+      }
     }
   }
 }

@@ -1,28 +1,24 @@
 /* Field */
 
-/* Field Base */
-@layer base {
-  fieldset,
-  [data-field] {
-    --space: var(--space, var(--spacing-8-16));
+@scope (:is(fieldset, [data-field])) {
+  /* Field Base */
+  @layer base {
+    :scope {
+      --space: var(--space, var(--spacing-8-16));
 
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space);
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-}
-
-/* Field Slots */
-@layer slots {
-  :is(fieldset, [data-field]) {
-    & :is(label, legend) {
-      flex-direction: row;
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
       gap: var(--space);
+      margin: 0;
+      padding: 0;
+      border: 0;
+
+      & :is(label, legend) {
+        flex-direction: row;
+        gap: var(--space);
+      }
     }
   }
 }

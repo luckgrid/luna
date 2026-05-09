@@ -1,0 +1,66 @@
+inheritedBy:
+  tags:
+    - static-site
+
+fileGroups:
+  configs:
+    - "*.config.ts"
+    - "*.json"
+    - ".env*"
+  sources:
+    - "src/**/*"
+    - "scripts/**/*.ts"
+  assets:
+    - "public/**/*"
+    - "**/*.css"
+
+tasks:
+  typecheck:
+    command: bun
+    args:
+      - run
+      - typecheck
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
+  build:
+    command: bun
+    args:
+      - run
+      - build
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+      - "/packages/ds/**/*.css"
+    outputs: []
+    options:
+      mergeOutputs: replace
+
+  dev:
+    command: bun
+    args:
+      - run
+      - dev
+    options:
+      envFile: "/.env.local"
+      persistent: true
+      runInCI: false
+
+  preview:
+    command: bun
+    args:
+      - run
+      - preview
+    deps:
+      - "build"
+    preset: "server"
+
+  clean:
+    command: git
+    args:
+      - "clean"
+      - "-fdx"
+      - "--"
+      - "dist"
+      - "node_modules"

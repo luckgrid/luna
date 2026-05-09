@@ -1,5 +1,4 @@
-@layer components.base, components.slots, components.variants, components.modifiers,
-  components.patterns;
+@layer components.base, components.variants, components.patterns;
 
 @import "./components/accordion.css";
 @import "./components/breadcrumbs.css";

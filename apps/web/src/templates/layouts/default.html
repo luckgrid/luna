@@ -1,0 +1,15 @@
+<main>
+	<header data-hero>
+		<hgroup>
+			<h1>{{title}}</h1>
+			{{#if description}}<p>{{description}}</p>{{/if}}
+		</hgroup>
+		{{#if (or meta.hasDate meta.hasTags)}}
+		<div data-article-meta>{{> article-meta meta}}</div>
+		{{/if}}
+	</header>
+	<article>
+		{{{body}}}
+	</article>
+	{{> posts-featured title=latestTitle description="" items=latestItems}}
+</main>

@@ -1,26 +1,27 @@
 /* Link */
 
-/* Link Base */
-@layer base {
-  a:not([role="button"]),
-  [role="link"] {
-    display: inline-flex;
-    align-items: baseline;
-    color: currentColor;
-    text-decoration: underline;
-    text-decoration-color: currentColor;
-    text-underline-offset: var(--spacing-3-5);
-    transition: var(--transition-link);
+@scope (:is(a:not([role="button"]), [role="link"])) {
+  /* Link Base */
+  @layer base {
+    :scope {
+      display: inline-flex;
+      align-items: baseline;
+      color: currentColor;
+      text-decoration: underline;
+      text-decoration-color: currentColor;
+      text-underline-offset: var(--spacing-3-5);
+      transition: var(--transition-link);
 
-    &:hover,
-    &:focus,
-    &:active {
-      outline: none;
-    }
+      &:hover,
+      &:focus,
+      &:active {
+        outline: none;
+      }
 
-    &:focus-visible {
-      outline: var(--outline-width-2) dashed var(--color-accent);
-      outline-offset: var(--outline-offset-2);
+      &:focus-visible {
+        outline: var(--outline-width-2) dashed var(--color-accent);
+        outline-offset: var(--outline-offset-2);
+      }
     }
   }
 }

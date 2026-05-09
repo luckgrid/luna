@@ -1,0 +1,9 @@
+<li>
+	<a href="{{url}}" data-card>
+		<hgroup>
+			<h3>{{title}}</h3>
+			{{#if hasDate}}<p><time datetime="{{dateYmd}}">{{dateDisplay}}</time></p>{{/if}}
+			{{#if description}}<p>{{description}}</p>{{/if}}
+		</hgroup>
+	</a>
+</li>
