@@ -32,7 +32,7 @@ const vite = Bun.spawn(["bun", "x", "vite", "build", "--watch"], {
   stderr: "inherit",
 });
 
-const port = Number(process.env.WEB_PORT ?? "3000");
+const port = Number(process.env.WEB_PORT ?? "3001");
 console.log(`serving ${path.join(root, "dist")} on http://localhost:${port}`);
 
 function resolveDistPath(pathname: string): string {

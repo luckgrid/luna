@@ -4,14 +4,17 @@
 
 ## Commands
 
-| Command         | Description                                                                                                                                                       |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `luna outdated` | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins, Bun workspaces, or uv lock have upgrades (CI-friendly). |
-| `luna update`   | Refresh proto pins, Bun workspaces, uv lock + sync, then root `bun run setup` (proto + workspaces + `moon run api:build`).                                        |
+| Command               | Description                                                                                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `luna outdated`       | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins, Bun workspaces, or uv lock have upgrades (CI-friendly).                 |
+| `luna update`         | Refresh proto pins **within manifest constraints**, Bun workspaces **within semver ranges** (no major bumps), uv lock + sync, then root `bun run setup`. Safe default for CI/dev. |
+| `luna update --major` | Same as `luna update` but also applies **major-version bumps** (`bun update --latest`, `proto outdated --update --latest`) and runs the prerelease catch-up step.                 |
 
-Root shortcuts: `bun run outdated`, `bun run update`.
+Root shortcuts: `bun run outdated`, `bun run update` (no major). For majors, run `bunx luna update --major` (or add a `update:major` script).
 
 Global flags: `-h` / `--help`, `-v` / `-V` / `--version`.
+
+> **uv note:** `uv lock --upgrade && uv sync` is run in both modes. uv has no native "no major" toggle — major bumps are governed by the version specifiers in each project's `pyproject.toml` (e.g. `>=1.2,<2`). Tighten constraints there if you need to block majors for Python deps.
 
 ## Python projects (scaling)
 

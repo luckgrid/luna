@@ -27,7 +27,7 @@ moon run web:dev
 ```
 
 Runs **`vite build --watch`** for CSS and watches `src/content/`,
-`src/lib/`, and `src/templates/`; serves `dist/` on `WEB_PORT` (default `3000`).
+`src/lib/`, and `src/templates/`; serves `dist/` on `WEB_PORT` (default `3001`).
 
 ## Add content
 

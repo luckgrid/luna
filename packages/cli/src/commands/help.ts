@@ -6,8 +6,9 @@ Usage:
   luna [options] <command>
 
 Commands:
-  outdated   Report outdated proto, bun, uv; exit 1 if any tier has upgrades (CI)
-  update     Apply upgrades (proto → bun → uv), then bun run setup
+  outdated         Report outdated proto, bun, uv; exit 1 if any tier has upgrades (CI)
+  update           Apply upgrades within current ranges (proto → bun → uv), then bun run setup
+  update --major   Also bump major versions (Bun --latest, proto --latest, prerelease catch-up)
 
 Options:
   -h, --help          Show this help

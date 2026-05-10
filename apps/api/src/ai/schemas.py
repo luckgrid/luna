@@ -16,7 +16,7 @@ class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, description="User message")
     history: list[ChatMessage] = Field(
         default_factory=list,
-        description="Conversation history",
+        description="Prior messages only (exclude the current ``message``)",
     )
 
 

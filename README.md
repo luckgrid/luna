@@ -84,7 +84,7 @@ bun run setup       # proto + Bun workspaces + api:build (see Quick Start)
 bun run dev         # moon run :dev --query "projectLayer=application"
 bun run build       # moon run :build --query "projectLayer=application"
 bun run start       # moon run :start --query "projectLayer=application"
-bun run clean       # moon clean --all (+ root clean steps — see package.json)
+bun run clean       # moon :clean (per-project, uncached) + moon clean --all + git clean .cache .moon/cache node_modules
 ```
 
 ### Code quality (Bun)
@@ -167,7 +167,7 @@ bun run update     # wraps `luna update`; then review and run bun run check
 Another process is still bound to the port (often after stopping a dev server).
 
 ```sh
-lsof -i :8080    # API default; try :3000 for web, :3001 for app
+lsof -i :8080    # API default; try :3000 for app, :3001 for web
 ```
 
 Note the `PID` from `lsof`, then:

@@ -32,7 +32,8 @@ Configuration is managed via environment variables from the root `.env.local` fi
 | `API_PORT`       | Server port                                  | `8080`      |
 | `DEBUG`          | Enable debug mode                            | `false`     |
 | `API_BASE_URL`   | API base URL for cross-service communication | -           |
-| `WEB_BASE_URL`   | Web app URL (used for CORS)                  | -           |
+| `APP_BASE_URL`   | SolidStart app origin (CORS)                 | -           |
+| `WEB_BASE_URL`   | Static site origin (CORS)                    | -           |
 | `DATABASE_URL`   | Database connection string                   | -           |
 | `AI_MODEL`       | AI model to use (e.g., `openai:gpt-4o-mini`) | -           |
 | `OPENAI_API_KEY` | API key for the AI provider                  | -           |
@@ -44,8 +45,8 @@ All apps share a single `.env.local` in the repository root. This file contains 
 ```sh
 # Ports
 API_PORT=8080
-APP_PORT=3001
-WEB_PORT=3000
+APP_PORT=3000
+WEB_PORT=3001
 
 # Hosts
 API_HOST=localhost
@@ -54,8 +55,8 @@ WEB_HOST=localhost
 
 # URLs
 API_BASE_URL=http://localhost:8080
-APP_BASE_URL=http://localhost:3001
-WEB_BASE_URL=http://localhost:3000
+APP_BASE_URL=http://localhost:3000
+WEB_BASE_URL=http://localhost:3001
 
 # Database
 DATABASE_URL=sqlite+aiosqlite:///./data.db

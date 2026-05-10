@@ -64,3 +64,5 @@ tasks:
       - "--"
       - "dist"
       - "node_modules"
+    options:
+      cache: false

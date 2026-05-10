@@ -73,4 +73,4 @@ moon run web:dev
 
 | Variable   | Description     | Default |
 | ---------- | --------------- | ------- |
-| `WEB_PORT` | Dev server port | `3000`  |
+| `WEB_PORT` | Dev server port | `3001`  |

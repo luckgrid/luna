@@ -58,6 +58,12 @@ tasks:
       - "clean"
       - "-fdx"
       - "--"
+      - ".nitro"
       - ".output"
+      - ".solid-start"
+      - ".vinxi"
+      - ".vite"
       - "dist"
       - "node_modules"
+    options:
+      cache: false

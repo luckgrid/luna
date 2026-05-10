@@ -83,27 +83,43 @@ export async function main(): Promise<void> {
     process.exit(0);
   }
 
-  if (rest.length > 1) {
-    console.error(`error: unexpected arguments: ${rest.slice(1).join(" ")}`);
-    printRootHelp();
-    process.exit(2);
-  }
-
   if (cmd === "help") {
+    if (rest.length > 1) {
+      console.error(`error: unexpected arguments: ${rest.slice(1).join(" ")}`);
+      printRootHelp();
+      process.exit(2);
+    }
     printRootHelp();
     process.exit(0);
   }
 
+  const cmdArgs = rest.slice(1);
+
   let code: number;
   switch (cmd) {
     case "outdated": {
+      if (cmdArgs.length > 0) {
+        console.error(`error: unexpected arguments for outdated: ${cmdArgs.join(" ")}`);
+        printRootHelp();
+        process.exit(2);
+      }
       const { runOutdated } = await import("./commands/outdated");
       code = runOutdated();
       break;
     }
     case "update": {
+      let major = false;
+      for (const a of cmdArgs) {
+        if (a === "--major") {
+          major = true;
+        } else {
+          console.error(`error: unknown argument for update: ${a}`);
+          printRootHelp();
+          process.exit(2);
+        }
+      }
       const { runUpdate } = await import("./commands/update");
-      code = runUpdate();
+      code = runUpdate({ major });
       break;
     }
     default:

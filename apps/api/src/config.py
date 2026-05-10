@@ -38,7 +38,8 @@ class Settings(BaseSettings):
     - API_HOST: Server host (default: localhost)
     - API_PORT: Server port (default: 8080)
     - API_BASE_URL: API base URL for cross-service communication
-    - WEB_BASE_URL: Web app URL for CORS
+    - APP_BASE_URL: SolidStart app URL (CORS)
+    - WEB_BASE_URL: Static web site URL (CORS)
     - DATABASE_URL: Database connection string
     - DEBUG: Enable debug mode
     """
@@ -54,10 +55,10 @@ class Settings(BaseSettings):
     api_port: int = 8080
     debug: bool = False
 
-    # Base URLs (from API_BASE_URL, WEB_BASE_URL env vars)
+    # Base URLs (from API_BASE_URL, WEB_BASE_URL, APP_BASE_URL env vars)
     api_base_url: str = ""
+    app_base_url: str = ""
     web_base_url: str = ""
-
     # Database (from DATABASE_URL env var)
     database_url: PostgresDsn | str = ""
 
@@ -73,10 +74,20 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        """CORS origins derived from web_base_url."""
-        if self.web_base_url:
-            return [self.web_base_url]
-        return []
+        """Browser origins allowed to call this API (SolidStart + static web)."""
+        origins: list[str] = []
+        for raw in (self.web_base_url, self.app_base_url):
+            u = raw.strip()
+            if u:
+                origins.append(u.rstrip("/"))
+        if not origins and self.debug:
+            origins = [
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:3001",
+            ]
+        return list(dict.fromkeys(origins))
 
     @property
     def app_name(self) -> str:

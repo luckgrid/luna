@@ -9,4 +9,5 @@ project:
 workspace:
   inheritedTasks:
     include:
+      - "clean"
       - "typecheck"

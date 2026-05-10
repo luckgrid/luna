@@ -28,7 +28,7 @@ From this app directory:
 bun run dev
 ```
 
-Default port: `APP_PORT` (`3001`).
+Default port: `APP_PORT` (`3000`).
 
 ## Build and run
 
@@ -56,12 +56,19 @@ bun run start
 
 ## Environment Variables
 
-The app uses Nitro's runtime config for cross-service communication:
+SolidStart is full-stack: **Nitro** serves the SSR app and production Node
+handler. The **Python API** ([`apps/api`](../api/README.md) — FastAPI,
+Pydantic AI) is a **separate process** on **`API_PORT` (default 8080)**.
 
-| Variable       | Description     | Default                 |
-| -------------- | --------------- | ----------------------- |
-| `APP_PORT`     | Dev server port | `3001`                  |
-| `API_BASE_URL` | Backend API URL | `http://localhost:8080` |
+`API_BASE_URL` is wired into Nitro `runtimeConfig` / `public` and into Vite
+`define` so the browser can call the Python service (for example from
+[`src/routes/ai.tsx`](src/routes/ai.tsx)). It is not the Nitro-internal URL.
+
+| Variable       | Description                                   | Default                 |
+| -------------- | --------------------------------------------- | ----------------------- |
+| `APP_PORT`     | SolidStart dev server port                    | `3000`                  |
+| `API_BASE_URL` | Python FastAPI base URL (separate from Nitro) | `http://localhost:8080` |
 
 Environment variables are loaded from the root `.env.local` via moon's
-`envFile` option, then passed to Nitro's `runtimeConfig` in `vite.config.ts`.
+`envFile` option, then passed to Nitro's `runtimeConfig` in
+[`vite.config.ts`](vite.config.ts).
