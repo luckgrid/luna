@@ -20,6 +20,8 @@ export default defineConfig(
     ],
     server: {
       port: parseInt(process.env.APP_PORT || "3000", 10),
+      /** Fail fast if `APP_PORT` is taken (e.g. stray Node on 3000) instead of binding another port quietly. */
+      strictPort: true,
     },
     // Client bundle: same URL as Nitro `public` (FastAPI on 8080).
     define: {

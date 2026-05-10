@@ -24,7 +24,7 @@
         "@solidjs/start": "2.0.0-alpha.2",
         "@solidjs/vite-plugin-nitro-2": "^0.1.0",
         "solid-js": "^1.9.12",
-        "vite": "^7.3.3",
+        "vite": "7.3.3",
       },
     },
     "apps/web": {
@@ -76,6 +76,9 @@
         "solid-js": "^1.9.12",
       },
     },
+  },
+  "overrides": {
+    "vite": "7.3.3",
   },
   "packages": {
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
