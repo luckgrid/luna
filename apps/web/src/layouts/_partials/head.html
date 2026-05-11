@@ -1,0 +1,11 @@
+<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ printf "%s · %s" .Title .Site.Title }}{{ end }}</title>
+{{- if .Description -}}
+<meta name="description" content="{{ .Description }}">
+{{- else if .Summary -}}
+<meta name="description" content="{{ .Summary | plainify | truncate 160 }}">
+{{- else if .Site.Params.description -}}
+<meta name="description" content="{{ .Site.Params.description }}">
+{{- end -}}
+<link rel="icon" href='{{ "favicon.svg" | relURL }}' type="image/svg+xml"/>
+<link rel="canonical" href="{{ .Permalink }}">
+{{- partial "opengraph.html" . -}}

@@ -1,0 +1,62 @@
+{
+  "htmlElements": {
+    "tags": [
+      "a",
+      "article",
+      "aside",
+      "body",
+      "button",
+      "code",
+      "div",
+      "footer",
+      "form",
+      "h1",
+      "h2",
+      "h3",
+      "head",
+      "header",
+      "hgroup",
+      "html",
+      "input",
+      "li",
+      "link",
+      "main",
+      "meta",
+      "nav",
+      "p",
+      "pre",
+      "section",
+      "small",
+      "strong",
+      "time",
+      "title",
+      "ul"
+    ],
+    "classes": [
+      "chroma",
+      "docs-main",
+      "docs-shell",
+      "docs-sidebar",
+      "docs-toc",
+      "highlight",
+      "layout-docs",
+      "page-body",
+      "page-with-toc",
+      "toc",
+      "toc-heading"
+    ],
+    "ids": [
+      "TableOfContents",
+      "add-another-announcement",
+      "add-content",
+      "build",
+      "contact",
+      "content",
+      "develop",
+      "layout-source",
+      "privacy",
+      "terms",
+      "what-this-template-gives-you"
+    ]
+  }
+}

@@ -133,6 +133,24 @@ export function listGoModuleRoots(repoRoot: string): string[] {
   return uniqSorted(roots);
 }
 
+/** `tool` directive paths from `go.mod` (e.g. `github.com/gohugoio/hugo`). */
+export function readGoModToolPaths(moduleRoot: string): string[] {
+  const path = join(moduleRoot, "go.mod");
+  if (!existsSync(path)) return [];
+  const raw = readFileSync(path, "utf8");
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const line of raw.split(/\r?\n/)) {
+    const m = /^\s*tool\s+(\S+)/.exec(line);
+    if (!m) continue;
+    const p = m[1];
+    if (seen.has(p)) continue;
+    seen.add(p);
+    out.push(p);
+  }
+  return out;
+}
+
 /**
  * `apps/*` and `packages/*` dirs that contain `package.json`. Root `bun update --recursive` does not
  * rewrite semver ranges in these nested workspace manifests (Bun 1.3.x); `luna update` runs

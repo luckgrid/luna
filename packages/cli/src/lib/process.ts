@@ -1,4 +1,4 @@
-import { die } from "./term";
+import { die } from "./terminal";
 
 export function requireCmd(name: string): void {
   const r = Bun.spawnSync(["/bin/sh", "-c", `command -v "${name.replace(/"/g, '\\"')}"`], {
@@ -22,13 +22,21 @@ export function spawnText(cmd: string[], opts: { cwd?: string } = {}): string {
 
 export function spawnExit(
   cmd: string[],
-  opts: { cwd?: string; stdin?: "ignore" | "inherit" } = {},
+  opts: { cwd?: string; stdin?: "ignore" | "inherit"; env?: NodeJS.ProcessEnv } = {},
 ): number {
   const r = Bun.spawnSync(cmd, {
     cwd: opts.cwd,
+    env: opts.env ?? process.env,
     stdin: opts.stdin ?? "ignore",
     stdout: "inherit",
     stderr: "inherit",
   });
   return r.exitCode ?? 1;
+}
+
+export function runOrExit(code: number, step: string): void {
+  if (code !== 0) {
+    console.error(`error: ${step} (exit ${code})`);
+    process.exit(code);
+  }
 }

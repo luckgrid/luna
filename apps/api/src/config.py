@@ -68,7 +68,7 @@ class Settings(BaseSettings):
 
     Environment variables (from root .env.local):
     - API_HOST: Server host (default: localhost)
-    - API_PORT: Server port (default: 8080)
+    - API_PORT: Server port (default: 8000; usual Uvicorn convention)
     - API_BASE_URL: API base URL for cross-service communication
     - APP_BASE_URL: SolidStart app URL (CORS)
     - WEB_BASE_URL: Static web site URL (CORS)
@@ -86,7 +86,7 @@ class Settings(BaseSettings):
 
     # Server (from API_HOST, API_PORT env vars)
     api_host: str = "localhost"
-    api_port: int = 8080
+    api_port: int = 8000
     debug: bool = False
 
     # Dev server ports (APP_PORT, WEB_PORT) — align CORS with vite.config / moon envFile

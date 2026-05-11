@@ -1,0 +1,11 @@
+<header>
+  <hgroup>
+    {{- with .Params.category }}<small>{{ . }}</small>{{ end -}}
+    <h1>{{ .Title }}</h1>
+    {{- with .Description -}}
+    <p>{{ . }}</p>
+    {{- end -}} {{- $show := or .Date (not (eq (len .Params.tags) 0)) -}} {{- if $show -}}
+    <div data-meta>{{ partial "article-meta.html" . }}</div>
+    {{- end -}}
+  </hgroup>
+</header>

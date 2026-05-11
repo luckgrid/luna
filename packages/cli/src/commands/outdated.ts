@@ -1,7 +1,12 @@
 import { join } from "node:path";
-import { printOutdatedTable } from "../lib/format";
-import { findRepoRoot, formatProjectDirLabel, listUvProjectRoots } from "../lib/repo";
 import {
+  findRepoRoot,
+  formatProjectDirLabel,
+  listGoModuleRoots,
+  listUvProjectRoots,
+} from "../lib/repo";
+import {
+  printOutdatedTable,
   section,
   strictAllPassed,
   strictHint,
@@ -9,25 +14,34 @@ import {
   strictOk,
   strictSummaryBullet,
   strictSummaryFailTitle,
-} from "../lib/term";
+} from "../lib/terminal";
 import { requireCmd } from "../lib/process";
 import {
   bunWorkspaceOutdatedFromOutput,
   captureBunOutdatedRecursive,
+  captureGoGetNDryRunUAll,
+  captureProtoPinsOutdatedJson,
   captureUvLockDryRun,
+  goGetDryRunHasModuleChanges,
+  type ProtoPinsOutdatedReport,
   printProtoOutdated,
-  protoHasOutdatedPins,
+  protoPinsAnyOutdated,
   uvLockHasUpgradesFromOutput,
 } from "../lib/toolchains";
 
 export type UvProjectSnap = { root: string; dryRunOut: string };
 
+export type GoModuleSnap = { root: string; goGetDryRunOut: string };
+
 export type OutdatedSnapshot = {
+  protoReport: ProtoPinsOutdatedReport;
   bunOut: string;
   uvProjects: UvProjectSnap[];
+  goModules: GoModuleSnap[];
 };
 
 export function gatherOutdatedSnapshot(repoRoot: string): OutdatedSnapshot {
+  const protoReport = captureProtoPinsOutdatedJson(repoRoot);
   const bunOut = captureBunOutdatedRecursive(repoRoot);
 
   const uvProjects: UvProjectSnap[] = listUvProjectRoots(repoRoot).map((root) => ({
@@ -35,14 +49,19 @@ export function gatherOutdatedSnapshot(repoRoot: string): OutdatedSnapshot {
     dryRunOut: captureUvLockDryRun(root),
   }));
 
-  return { bunOut, uvProjects };
+  const goModules: GoModuleSnap[] = listGoModuleRoots(repoRoot).map((root) => ({
+    root,
+    goGetDryRunOut: captureGoGetNDryRunUAll(root),
+  }));
+
+  return { protoReport, bunOut, uvProjects, goModules };
 }
 
 /** Human report: only tiers with something to say print a section. */
 export function printOutdatedReport(repoRoot: string, snap: OutdatedSnapshot): void {
-  if (protoHasOutdatedPins()) {
-    section("proto (.prototools — moon, bun, python, proto)");
-    printProtoOutdated();
+  if (protoPinsAnyOutdated(snap.protoReport)) {
+    section("proto (.prototools)");
+    printProtoOutdated(repoRoot);
   }
 
   if (bunWorkspaceOutdatedFromOutput(snap.bunOut)) {
@@ -59,14 +78,26 @@ export function printOutdatedReport(repoRoot: string, snap: OutdatedSnapshot): v
       pyprojectPath: join(p.root, "pyproject.toml"),
     });
   }
+
+  for (const g of snap.goModules) {
+    if (!goGetDryRunHasModuleChanges(g.goGetDryRunOut)) continue;
+    const label = formatProjectDirLabel(repoRoot, g.root);
+    section(`Go (${label} — go.mod + go.sum; go get -n -u all)`);
+    printOutdatedTable("go", g.goGetDryRunOut, {
+      repoRoot,
+      goModPath: join(g.root, "go.mod"),
+    });
+  }
 }
 
 /** Report all tiers, then enforce CI-style exit (1 if any tier has upgrades). */
 export function runOutdated(): number {
   const repoRoot = findRepoRoot();
+  const goRootsPrecheck = listGoModuleRoots(repoRoot);
   requireCmd("proto");
   requireCmd("bun");
   requireCmd("uv");
+  if (goRootsPrecheck.length > 0) requireCmd("go");
 
   const snap = gatherOutdatedSnapshot(repoRoot);
   printOutdatedReport(repoRoot, snap);
@@ -76,9 +107,10 @@ export function runOutdated(): number {
   let stProto = 0;
   let stBun = 0;
   let stUv = 0;
+  let stGo = 0;
 
-  if (protoHasOutdatedPins()) {
-    strictNeed("proto — outdated tool pin(s) (.prototools)");
+  if (protoPinsAnyOutdated(snap.protoReport)) {
+    strictNeed("proto — outdated pin(s) in .prototools");
     stProto = 1;
     failed = 1;
   } else {
@@ -96,7 +128,7 @@ export function runOutdated(): number {
   const uvBad = snap.uvProjects.filter((p) => uvLockHasUpgradesFromOutput(p.dryRunOut));
   if (uvBad.length > 0) {
     strictNeed(
-      `Python / uv — lockfile(s) can update: ${uvBad.map((p) => formatProjectDirLabel(repoRoot, p.root)).join(", ")} (see bun run update)`,
+      `Python / uv — lockfile(s) can update: ${uvBad.map((p) => formatProjectDirLabel(repoRoot, p.root)).join(", ")} (see luna update)`,
     );
     stUv = 1;
     failed = 1;
@@ -104,6 +136,19 @@ export function runOutdated(): number {
     strictOk("Python / uv — OK (no uv projects discovered)");
   } else {
     strictOk(`Python / uv — OK (${snap.uvProjects.length} project(s))`);
+  }
+
+  const goBad = snap.goModules.filter((g) => goGetDryRunHasModuleChanges(g.goGetDryRunOut));
+  if (goBad.length > 0) {
+    strictNeed(
+      `Go — go.mod can advance: ${goBad.map((g) => formatProjectDirLabel(repoRoot, g.root)).join(", ")} (see luna update)`,
+    );
+    stGo = 1;
+    failed = 1;
+  } else if (snap.goModules.length === 0) {
+    strictOk("Go — OK (no go.mod projects discovered)");
+  } else {
+    strictOk(`Go — OK (${snap.goModules.length} module(s))`);
   }
 
   if (failed === 0) {
@@ -114,6 +159,7 @@ export function runOutdated(): number {
     if (stProto) strictSummaryBullet("proto (.prototools)");
     if (stBun) strictSummaryBullet("Bun workspaces");
     if (stUv) strictSummaryBullet("Python / uv lockfile(s)");
+    if (stGo) strictSummaryBullet("Go module(s)");
     console.error("");
     strictHint("Exit code 1 is intentional (use in CI). To refresh everything run: luna update");
   }

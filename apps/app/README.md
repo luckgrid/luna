@@ -58,7 +58,7 @@ bun run start
 
 SolidStart is full-stack: **Nitro** serves the SSR app and production Node
 handler. The **Python API** ([`apps/api`](../api/README.md) — FastAPI,
-Pydantic AI) is a **separate process** on **`API_PORT` (default 8080)**.
+Pydantic AI) is a **separate process** on **`API_PORT` (default 8000)**.
 
 `API_BASE_URL` is wired into Nitro `runtimeConfig` / `public` and into Vite
 `define` so the browser can call the Python service (for example from
@@ -67,7 +67,7 @@ Pydantic AI) is a **separate process** on **`API_PORT` (default 8080)**.
 | Variable       | Description                                   | Default                 |
 | -------------- | --------------------------------------------- | ----------------------- |
 | `APP_PORT`     | SolidStart dev server port                    | `3000`                  |
-| `API_BASE_URL` | Python FastAPI base URL (separate from Nitro) | `http://localhost:8080` |
+| `API_BASE_URL` | Python FastAPI base URL (separate from Nitro) | `http://localhost:8000` |
 
 Environment variables are loaded from the root `.env.local` via moon's
 `envFile` option, then passed to Nitro's `runtimeConfig` in

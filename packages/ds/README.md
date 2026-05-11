@@ -53,14 +53,21 @@ When a component module starts to accumulate nested selectors, treat the module 
 - **Prefer nested selectors inside `:scope { … }` for cohesion**: place `&:is(...)` and `&::before/after` alongside the declarations they relate to, so the reader can scan one block.
 - **Placement/variant “clusters” can be their own nested scopes**: for components like tooltip, group placement variants as multiple `@scope (:scope:is(...)) { … }` blocks inside `@layer variants`.
 
-## Scripts and moon tasks
+## Moon tasks
 
-`@luna/ds` is intentionally source-only and currently exposes only typecheck:
+`@luna/ds` is source-only (no package `build` script). It uses the shared **bun-ts-lib** task definitions in [`.moon/tasks/ts-lib.yml`](../../.moon/tasks/ts-lib.yml). This project’s [`moon.yml`](moon.yml) inherits:
+
+| Task            | Purpose                                                                         |
+| --------------- | ------------------------------------------------------------------------------- |
+| **`clean`**     | Clear `dist/` and `node_modules` under this package (inherited git-clean task). |
+| **`typecheck`** | Run `tsc --noEmit` for this package (Moon runs the command in `packages/ds/`).  |
 
 ```sh
-bun run typecheck --cwd packages/ds
+moon run ds:clean
 moon run ds:typecheck
 ```
+
+Repo-wide checks (`bun run typecheck`, `bun run check`) are documented in the [root README](../../README.md#code-quality-bun).
 
 ## Resources
 

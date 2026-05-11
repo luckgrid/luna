@@ -1,0 +1,17 @@
+{{- $collection := or (eq .Section "legal") (strings.HasPrefix .File.Path "posts/list-example/") -}}
+{{- if $collection -}}
+<article>
+	{{- partial "page-header.html" . -}}
+	{{ .Content }}
+</article>
+{{- else -}}
+<main>
+	<article>
+		{{- partial "page-header.html" . -}}
+		{{ .Content }}
+	</article>
+	{{- if .Params.toc }}
+	<aside aria-label="On this page">{{ .TableOfContents }}</aside>
+	{{- end }}
+</main>
+{{- end -}}

@@ -1,14 +1,14 @@
 # `@luna/cli`
 
-`luna` is a Bun-native monorepo CLI: a single [`src/main.ts`](src/main.ts) is both the **`bin` entry** (shebang + `import.meta.main`) and the router. Shared helpers under [`src/lib/`](src/lib) (`repo`, `process`, `term`, `format`) and toolchain helpers in [`src/lib/toolchains.ts`](src/lib/toolchains.ts) (`proto`, `bun`, `uv`).
+`luna` is a Bun-native monorepo CLI: a single [`src/main.ts`](src/main.ts) is both the **`bin` entry** (shebang + `import.meta.main`) and the router. Shared helpers under [`src/lib/`](src/lib) (`repo`, `process`, `utils`, `terminal`) and toolchain helpers in [`src/lib/toolchains.ts`](src/lib/toolchains.ts) (`proto`, `bun`, `uv`). [`.prototools`](../../.prototools) pins **proto**, **moon**, **bun**, **python**, and **go**; `luna outdated` / `luna update` refresh those pins through `proto`. The **Hugo** CLI for `apps/web` is versioned in [`apps/web/go.mod`](../../apps/web/go.mod) as a **`go tool`**, not as a proto pin.
 
 ## Commands
 
-| Command               | Description                                                                                                                                                                       |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `luna outdated`       | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins, Bun workspaces, or uv lock have upgrades (CI-friendly).                 |
-| `luna update`         | Refresh proto pins **within manifest constraints**, Bun workspaces **within semver ranges** (no major bumps), uv lock + sync, then root `bun run setup`. Safe default for CI/dev. |
-| `luna update --major` | Same as `luna update` but also applies **major-version bumps** (`bun update --latest`, `proto outdated --update --latest`) and runs the prerelease catch-up step.                 |
+| Command               | Description                                                                                                                                                                                      |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `luna outdated`       | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins (proto, moon, bun, python, go), Bun workspaces, or uv lock have upgrades (CI-friendly). |
+| `luna update`         | Refresh proto pins **within manifest constraints**, Bun workspaces **within semver ranges** (no major bumps), uv lock + sync, then root `bun run setup`. Safe default for CI/dev.                |
+| `luna update --major` | Same as `luna update` but also applies **major-version bumps** (`bun update --latest`, `proto outdated --update --latest`) and runs the prerelease catch-up step.                                |
 
 Root shortcuts: `bun run outdated`, `bun run update` (no major). For majors, run `bunx luna update --major` (or add a `update:major` script).
 
@@ -28,5 +28,5 @@ From this package: `bun run build` → standalone binary under `dist/` (ignored 
 
 ## Roadmap
 
-- **More top-level commands** — e.g. `clean`, `setup`, `add`, `run`, `build`, `dev` (thin wrappers over moon/bun/proto as needed).
-- **`--quiet` for `outdated` / `update`** — Less banner noise or machine-readable output; needs a shared verbosity flag through `commands/*`, `lib/term`, `lib/format`, and `lib/toolchains.ts`.
+- **More top-level commands** — e.g. `clean`, `add`, `run`, `build`, `dev` (thin wrappers over moon/bun/proto as needed).
+- **`--quiet` for `outdated` / `update`** — Less banner noise or machine-readable output; needs a shared verbosity flag through `commands/*`, `lib/terminal`, and `lib/toolchains.ts`.

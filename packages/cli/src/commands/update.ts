@@ -3,24 +3,22 @@ import {
   findRepoRoot,
   formatProjectDirLabel,
   listBunWorkspacePackageDirs,
+  listGoModuleRoots,
   listUvProjectRoots,
+  readGoModToolPaths,
   syncRootPackageManagerBun,
 } from "../lib/repo";
-import { requireCmd, spawnExit } from "../lib/process";
-import { section } from "../lib/term";
+import { requireCmd, runOrExit, spawnExit } from "../lib/process";
+import { section } from "../lib/terminal";
 import {
   bunWorkspaceOutdatedFromOutput,
   captureBunOutdatedRecursive,
   collectPrereleaseBumps,
+  installAllProtoPinnedTools,
+  protoOutdatedUpdateArgs,
+  protoRunOpts,
   runPrereleaseBumps,
 } from "../lib/toolchains";
-
-function runOrExit(code: number, step: string): void {
-  if (code !== 0) {
-    console.error(`error: ${step} (exit ${code})`);
-    process.exit(code);
-  }
-}
 
 export type RunUpdateOptions = {
   /** When true, allow major-version bumps for proto pins and Bun deps and run the prerelease catch-up step. */
@@ -42,17 +40,20 @@ export function runUpdate(opts: RunUpdateOptions): number {
 
   section(
     major
-      ? "proto — write latest tool versions to .prototools (incl. major)"
-      : "proto — update tool pins within manifest constraints (no major)",
+      ? "proto — write latest pin versions to .prototools (incl. major)"
+      : "proto — update pin versions in .prototools (within manifest; no major)",
   );
   requireCmd("proto");
-  const protoArgs = major
-    ? ["proto", "outdated", "--update", "--latest", "-y"]
-    : ["proto", "outdated", "--update", "-y"];
-  runOrExit(spawnExit(protoArgs, { cwd: repoRoot }), "proto outdated --update");
+  runOrExit(
+    spawnExit([...protoOutdatedUpdateArgs(major)], protoRunOpts(repoRoot)),
+    "proto outdated --update",
+  );
 
   section("proto — install pins from .prototools");
-  runOrExit(spawnExit(["proto", "install"], { cwd: repoRoot }), "proto install");
+  runOrExit(
+    installAllProtoPinnedTools(repoRoot),
+    "proto install (per-tool; see .proto/logs on failure)",
+  );
 
   section("sync root packageManager with .prototools bun pin");
   syncRootPackageManagerBun(repoRoot);
@@ -100,6 +101,37 @@ export function runUpdate(opts: RunUpdateOptions): number {
         `uv lock --upgrade (${label})`,
       );
       runOrExit(spawnExit(["uv", "sync"], { cwd: root }), `uv sync (${label})`);
+    }
+  }
+
+  const goRoots = listGoModuleRoots(repoRoot);
+  if (goRoots.length === 0) {
+    section(
+      "Go — no modules discovered (add moon.yml + language: go + go.mod, or set GO_MODULE_ROOT)",
+    );
+  } else {
+    requireCmd("go");
+    for (const root of goRoots) {
+      const label = formatProjectDirLabel(repoRoot, root);
+      section(
+        major
+          ? `Go — ${label} (go get go@latest + tool@latest + -u all && go mod tidy)`
+          : `Go — ${label} (go get -u all && go mod tidy)`,
+      );
+      if (major) {
+        runOrExit(
+          spawnExit(["go", "get", "go@latest"], { cwd: root }),
+          `go get go@latest (${label})`,
+        );
+        for (const tool of readGoModToolPaths(root)) {
+          runOrExit(
+            spawnExit(["go", "get", `${tool}@latest`], { cwd: root }),
+            `go get ${tool}@latest (${label})`,
+          );
+        }
+      }
+      runOrExit(spawnExit(["go", "get", "-u", "all"], { cwd: root }), `go get -u all (${label})`);
+      runOrExit(spawnExit(["go", "mod", "tidy"], { cwd: root }), `go mod tidy (${label})`);
     }
   }
 

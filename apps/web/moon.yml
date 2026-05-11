@@ -1,10 +1,10 @@
-language: typescript
+language: go
 layer: application
 stack: frontend
 
 tags:
-  - static-site
+  - ssg-web-app
 
 project:
   name: web
-  description: Luna marketing/static site (Bun SSG + Vite + @luna/ds).
+  description: Luna marketing/static site (Hugo + Tailwind v4 + @luna/ds).

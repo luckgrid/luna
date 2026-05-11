@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.LanguageCode | default `en` }}">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	{{- partial "head.html" . -}}
+	{{- with (templates.Defer (dict "key" "global")) }}
+		{{- partial "css.html" . -}}
+	{{- end }}
+</head>
+{{- $collection := or (eq .Section "legal") (strings.HasPrefix .File.Path "posts/list-example/") -}}
+<body
+	{{- if $collection }}
+	data-pattern="{{ if eq .Section "legal" }}legal{{ else }}posts-list-example{{ end }}"
+	{{- else }}
+	{{- with .Params.layout }} data-layout="{{ . }}"{{ end -}}
+	{{- with .Params.pattern }} data-pattern="{{ . }}"{{ end -}}
+	{{- end }}
+>
+{{- partial "header.html" . -}}
+{{- if $collection }}
+<div data-layout="collection">
+	<aside>{{ partial "article-hub-sidebar.html" . }}</aside>
+	<main>
+{{- end }}
+{{- block "main" . }}{{ end -}}
+{{- if $collection }}
+	</main>
+	{{- if .Params.toc }}
+	<aside aria-label="On this page" data-toc>
+		{{- with .TableOfContents }}
+			<h2>On this page</h2>
+			<div>{{ . }}</div>
+		{{- else }}
+			<h2>On this page</h2>
+			<p>No headings on this page.</p>
+		{{- end }}
+	</aside>
+	{{- end }}
+</div>
+{{- end }}
+{{- partial "footer.html" . -}}
+</body>
+</html>

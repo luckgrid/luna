@@ -1,22 +1,13 @@
 {
   "name": "web",
   "private": true,
-  "description": "Luna static marketing/content site (Bun SSG + Vite + @luna/ds).",
+  "description": "Luna static marketing/content site (Hugo + Tailwind v4 + @luna/ds).",
   "type": "module",
-  "scripts": {
-    "build": "bun ./scripts/build.ts",
-    "dev": "bun ./scripts/dev.ts",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
-  },
   "dependencies": {
-    "@luna/ds": "workspace:*",
-    "gray-matter": "^4.0.3",
-    "handlebars": "^4.7.9"
+    "@luna/ds": "workspace:*"
   },
   "devDependencies": {
-    "@types/handlebars": "^4.1.0",
-    "typescript": "^6.0.3",
-    "vite": "^7.3.3"
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
   }
 }

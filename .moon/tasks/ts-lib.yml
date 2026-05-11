@@ -1,6 +1,7 @@
 inheritedBy:
   language: typescript
-  layer: library
+  tags:
+    - bun-ts-lib
 
 fileGroups:
   configs:
@@ -26,12 +27,12 @@ tasks:
       - "@group(sources)"
 
   typecheck:
-    command: "bun run typecheck"
+    command: "tsc"
+    args:
+      - "--noEmit"
     inputs:
       - "@group(configs)"
       - "@group(sources)"
-    options:
-      runFromWorkspaceRoot: true
 
   clean:
     command: "git"

@@ -1,0 +1,94 @@
+inheritedBy:
+  language: go
+  layer: application
+  stack: frontend
+  tags:
+    - ssg-web-app
+
+fileGroups:
+  configs:
+    - "config/**/*"
+    - "go.mod"
+    - "go.sum"
+    - "hugo.toml"
+    - "package.json"
+    - ".env*"
+  sources:
+    - "src/**/*"
+  assets:
+    - "public/**/*"
+
+tasks:
+  setup:
+    command: go
+    args: ["mod", "download"]
+    inputs:
+      - "go.mod"
+      - "go.sum"
+
+  install:
+    command: bun
+    args: ["install"]
+    deps:
+      - "~:setup"
+    inputs:
+      - "package.json"
+      - "go.mod"
+      - "go.sum"
+
+  typecheck:
+    command: sh
+    args:
+      - "-c"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo config'
+    deps:
+      - "~:install"
+    inputs:
+      - "@group(configs)"
+
+  build:
+    command: sh
+    args:
+      - "-c"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && mkdir -p src/assets/css && bunx @tailwindcss/cli -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css --minify && exec go tool hugo --gc --minify'
+    deps:
+      - "~:install"
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+      - "/packages/ds/**/*.css"
+    outputs:
+      - "dist"
+
+  dev:
+    command: sh
+    args:
+      - "-c"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && mkdir -p src/assets/css && bunx @tailwindcss/cli -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css && ( bunx @tailwindcss/cli -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css --watch & ) && exec go tool hugo server --bind 0.0.0.0 --port "${WEB_PORT:-3001}"'
+    deps:
+      - "~:install"
+    options:
+      envFile: "/.env.local"
+      persistent: true
+      runInCI: false
+
+  preview:
+    command: sh
+    args:
+      - "-c"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo server --bind 0.0.0.0 --port "${WEB_PORT:-3001}"'
+    deps:
+      - "~:build"
+    preset: "server"
+
+  clean:
+    command: git
+    args:
+      - "clean"
+      - "-fdx"
+      - "--"
+      - "dist"
+      - "node_modules"
+      - "resources"
+    options:
+      cache: false

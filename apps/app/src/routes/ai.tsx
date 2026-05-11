@@ -1,8 +1,8 @@
 import { createSignal, For } from "solid-js";
 import { Title } from "@solidjs/meta";
 
-// Python FastAPI (`apps/api`, port 8080); mirrored from Nitro public + Vite define in vite.config.ts
-const API_BASE_URL = import.meta.env.NITRO_PUBLIC_API_BASE_URL || "http://localhost:8080";
+// Python FastAPI (`apps/api`, default API_PORT 8000); see vite.config.ts + root .env.local
+const API_BASE_URL = import.meta.env.NITRO_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 type Message = {
   role: "user" | "assistant";

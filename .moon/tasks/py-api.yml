@@ -31,7 +31,7 @@ tasks:
       - "--host"
       - "${API_HOST:-localhost}"
       - "--port"
-      - "${API_PORT:-8080}"
+      - "${API_PORT:-8000}"
     deps:
       - "build"
     env:
@@ -50,7 +50,7 @@ tasks:
       - "--host"
       - "${API_HOST:-localhost}"
       - "--port"
-      - "${API_PORT:-8080}"
+      - "${API_PORT:-8000}"
     deps:
       - "build"
     env:

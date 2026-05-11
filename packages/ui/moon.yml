@@ -2,9 +2,12 @@ language: typescript
 layer: library
 stack: "frontend"
 
+tags:
+  - bun-ts-lib
+
 project:
   name: "ui"
-  description: "Shared Solid UI components for Luna apps."
+  description: "Shared Solid UI components for Luna apps and packages supporting SolidJS and Design System dependencies and/or integrations."
 
 workspace:
   inheritedTasks:

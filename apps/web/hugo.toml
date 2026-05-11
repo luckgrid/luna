@@ -1,0 +1,71 @@
+baseURL = "https://example.org/"
+languageCode = "en"
+title = "Luna"
+
+enableRobotsTXT = false
+enableEmoji = true
+
+publishDir = "dist"
+staticDir = "public"
+
+disableKinds = ["taxonomy", "term"]
+
+[module]
+[[module.mounts]]
+source = "src/archetypes"
+target = "archetypes"
+[[module.mounts]]
+source = "src/assets"
+target = "assets"
+[[module.mounts]]
+source = "src/content"
+target = "content"
+[[module.mounts]]
+source = "src/data"
+target = "data"
+[[module.mounts]]
+source = "src/i18n"
+target = "i18n"
+[[module.mounts]]
+source = "src/layouts"
+target = "layouts"
+
+[params]
+description = "Luna template static site."
+author = "Luna"
+og_image = "/favicon.svg"
+
+[sitemap]
+changefreq = "weekly"
+priority = 0.5
+filename = "sitemap.xml"
+
+[outputs]
+home = ["HTML", "RSS"]
+section = ["HTML", "RSS"]
+
+[permalinks]
+posts = "/posts/:slug/"
+
+[markup]
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = false
+
+[markup.highlight]
+anchorLineNos = false
+codeFences = true
+guessSyntax = false
+lineNos = false
+noClasses = false
+style = "monokai"
+tabWidth = 2
+
+[markup.tableOfContents]
+startLevel = 2
+endLevel = 4
+ordered = false
+
+[services]
+[services.rss]
+limit = 20

@@ -1,0 +1,38 @@
+<main>
+  <header>
+    <hgroup>
+      {{- with .Params.category }}<small>{{ . }}</small>{{ end }}
+      <h1>{{ .Title }}</h1>
+      {{- with .Description }}
+      <p>{{ . }}</p>
+      {{ end }}
+    </hgroup>
+    <form role="search" method="get" action="#" aria-label="Search posts">
+      <input
+        type="search"
+        name="q"
+        placeholder="Search…"
+        autocomplete="off"
+        aria-label="Search query"
+      />
+      <button type="submit">Search</button>
+    </form>
+  </header>
+  <article>{{ .Content }}</article>
+  {{- range (.Pages.GroupByParam "category") }}
+  <section data-list aria-label="{{ .Key }}">
+    <header>
+      <hgroup>
+        <h2>{{ .Key }}</h2>
+      </hgroup>
+    </header>
+    <ul>
+      {{- range .Pages }}
+      {{- if not (strings.Contains .File.Path "posts/list-example") }}
+      <li>{{ partial "article-card.html" . }}</li>
+      {{- end }}
+      {{- end }}
+    </ul>
+  </section>
+  {{- end }}
+</main>

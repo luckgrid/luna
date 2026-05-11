@@ -1,0 +1,19 @@
+{{ define "main" }} {{- $p := .File.Path -}} {{- if eq $p "posts/_index.md" -}} {{- partial
+"catalog-main.html" . -}} {{- else if or (eq $p "legal/_index.md") (eq $p
+"posts/list-example/_index.md") -}} {{- partial "article-hub-main.html" . -}} {{- else -}}
+<main>
+  <header>
+    <hgroup>
+      <h1>{{ .Title }}</h1>
+      {{- with .Description }}
+      <p>{{ . }}</p>
+      {{ end }}
+    </hgroup>
+  </header>
+  <ul>
+    {{- range .Pages }}
+    <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+    {{- end }}
+  </ul>
+</main>
+{{- end -}} {{ end }}

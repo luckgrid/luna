@@ -34,19 +34,21 @@ Shared utilities (non-component logic):
 
 - `src/utils/`
 
-## Typecheck
+## Moon tasks
 
-From the repository root:
+`@luna/ui` uses the shared **bun-ts-lib** definitions in [`.moon/tasks/ts-lib.yml`](../../.moon/tasks/ts-lib.yml). This project’s [`moon.yml`](moon.yml) inherits:
+
+| Task            | Purpose                                                                         |
+| --------------- | ------------------------------------------------------------------------------- |
+| **`clean`**     | Clear `dist/` and `node_modules` under this package (inherited git-clean task). |
+| **`typecheck`** | Run `tsc --noEmit` for this package (Moon runs the command in `packages/ui/`).  |
 
 ```sh
-bun run typecheck --cwd packages/ui
-```
-
-With moon:
-
-```sh
+moon run ui:clean
 moon run ui:typecheck
 ```
+
+Repo-wide checks (`bun run typecheck`, `bun run check`) are documented in the [root README](../../README.md#code-quality-bun).
 
 ## Add a new component
 

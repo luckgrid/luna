@@ -10,9 +10,6 @@
     "./tailwind.css": "./tailwind.css",
     "./vite.config": "./vite.config.ts"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
   "dependencies": {},
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.0",

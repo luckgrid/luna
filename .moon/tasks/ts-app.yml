@@ -3,8 +3,7 @@ inheritedBy:
   layer: application
   stack: frontend
   tags:
-    not:
-      - static-site
+    - solid-web-app
 
 fileGroups:
   configs:

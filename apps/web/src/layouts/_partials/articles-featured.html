@@ -1,0 +1,18 @@
+<section data-list aria-label="{{ .title }}">
+  {{- if or .title .description }}
+  <header>
+    <hgroup>
+      {{- with .title }}
+      <h2>{{ . }}</h2>
+      {{ end -}} {{- with .description }}
+      <p>{{ . }}</p>
+      {{ end -}}
+    </hgroup>
+  </header>
+  {{- end }}
+  <ul>
+    {{- range .pages }}
+    <li>{{ partial "article-card.html" . }}</li>
+    {{- end }}
+  </ul>
+</section>

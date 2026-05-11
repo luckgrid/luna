@@ -1,6 +1,6 @@
 # Luna
 
-Luna is a polyglot monorepo starter built around **moonrepo** for the task graph, **proto** and [`.prototools`](.prototools) for pinned runtimes (Bun, Python, moon), and **Bun workspaces** for JavaScript and TypeScript packages. The template layers three application stacks on that foundation: a **SolidStart** interactive app with SSR and streaming, a **Bun + Vite** static site generator for HTML and Markdown, and a **FastAPI** service with Pydantic and Pydantic AI. Shared libraries live under `packages/*`. Use each app or package README for ports, env files, and moon task details.
+Luna is a polyglot monorepo starter built around **moonrepo** for the task graph, **proto** for pinned runtimes, and **Bun workspaces** for JavaScript and TypeScript packages. It layers three application stacks: a **SolidStart** interactive app with SSR and streaming, a **Hugo** static site for Markdown and templates, and a **FastAPI** service with Pydantic and Pydantic AI. Shared libraries live under **`packages/*`**. Ports, environment files, and moon tasks are covered in the sections and READMEs below.
 
 ## Tech Stacks
 
@@ -21,9 +21,15 @@ SolidStart on **Vite** and **Nitro** is the stack for SPA-style apps that need *
 - 🔥 [Nitro](https://nitro.build/) ([guide](https://nitro.build/guide)) — server runtime used by SolidStart
 - 🎨 [Tailwind CSS v4](https://tailwindcss.com/) ([documentation](https://tailwindcss.com/docs)) — utility CSS used by `@luna/ds` (consumed from the interactive app and the static site pipeline)
 
-### Static site generator stack (Bun and Vite)
+### Static site generator stack (Hugo)
 
-The `apps/web` stack is a **file-based static site generator**: a small **Bun** / TypeScript build writes HTML into `dist/`, using **[`Bun.markdown`](https://bun.com/docs/runtime/markdown)** for Markdown bodies (after YAML frontmatter) and string templates for layout. **Vite** compiles the Tailwind entry that imports [`@luna/ds`](packages/ds/README.md) into minified **`dist/styles.css`**—same design system as `apps/app`, without routing Markdown through Vite. Dev runs **`vite build --watch`** plus an SSG watcher so `packages/ds` and `src/content/` edits rebuild without restarting the process. For **signal-style** HTML-driven UI you can add [Datastar](https://data-star.dev/) later (optional script hook in the shell template) without a SPA shell.
+The `apps/web` project is a static-site workflow: Markdown and front matter in `src/content/`, [Go HTML templates](https://gohugo.io/templates/) in `src/layouts/`, and the published site in **`dist/`**. **`@luna/ds`** styles are compiled by the **[Tailwind CSS v4](https://tailwindcss.com/)** CLI into `src/assets/css/bundle.css` before each build (same design system as `apps/app`). **Go** is pinned in [`.prototools`](.prototools); the **Hugo** CLI version is pinned in [`apps/web/go.mod`](apps/web/go.mod) as a [`go tool`](https://go.dev/doc/go1.24#tools) (same idea as Python deps living under `apps/api`). See [apps/web/README.md](apps/web/README.md).
+
+- 📰 [Hugo](https://gohugo.io/) ([documentation](https://gohugo.io/documentation/)) — static site generator; HTML, RSS, and sitemap from content + templates
+- ✍️ [Goldmark](https://github.com/yuin/goldmark) — CommonMark-compatible Markdown (Hugo’s default renderer)
+- 🧩 [Go HTML templates](https://gohugo.io/templates/) — partials, blocks, and `baseof` layouts under `src/layouts/`
+- 🎨 [Tailwind CSS v4](https://tailwindcss.com/) ([documentation](https://tailwindcss.com/docs)) — utility CSS for **`@luna/ds`** ([package](packages/ds/README.md)); **`@tailwindcss/cli`** emits `src/assets/css/bundle.css` (same tokens as `apps/app`)
+- 🖍️ [Chroma](https://github.com/alecthomas/chroma) — syntax highlighting for fenced code blocks (`[markup.highlight]` in [`hugo.toml`](apps/web/hugo.toml))
 
 ### API service stack (FastAPI and Pydantic)
 
@@ -46,20 +52,24 @@ The `apps/api` stack centers on **FastAPI**, **Pydantic**, and **Pydantic AI** f
 
 Run commands from the repository root unless an app README says otherwise.
 
+**Prerequisites:** install [Proto](https://moonrepo.dev/docs/proto/install) and [Bun](https://bun.sh/docs/installation) so `proto` and `bun` are on your `PATH`. Setup uses Bun to run the workspace CLI and uses Proto to install the pinned **moon** (and align **bun**, **proto**, **python**, and **go** with [`.prototools`](.prototools)).
+
 ```sh
-bun run setup    # proto + Bun workspaces + Python venv (api:build / uv sync)
+bun run setup    # proto + Bun workspaces + web:setup (go mod) + Python venv (api:build / uv sync)
 bun run dev      # all application-layer dev tasks (see moon query / app READMEs for subsets)
 ```
 
-The **`setup`** script (not named `install`) runs `proto install`, then `bun install --ignore-scripts`, then `moon run api:build`. A root script named **`install` is a Bun/npm lifecycle hook**: any `bun install` that runs lifecycle scripts (including Moon’s dependency sync or `bunx`) could recurse into Moon and **hang `dev` / `build`**. Use **`bun run setup`** for full-stack bootstrap; use plain **`bun install`** when you only need workspace `node_modules`. [`.moon/toolchains.yml`](.moon/toolchains.yml) disables **`javascript.installDependencies`** (Moon skips redundant `bun install` before each task) and sets **`bun.installArgs: ["--ignore-scripts"]`** as a safeguard.
+The **`setup`** script (not named `install`) lives in the root [`package.json`](package.json): **`proto install`**, **`bun install --ignore-scripts`**, **`moon run web:setup`** (`go mod download` for `apps/web`), **`moon run api:build`** (Python / uv). New pins in [`.prototools`](.prototools) are picked up by **`proto install`** (or **`luna update`**, which refreshes pins then runs **`bun run setup`**). A root script named **`install` is a Bun/npm lifecycle hook**: any `bun install` that runs lifecycle scripts (including Moon’s dependency sync or `bunx`) could recurse into Moon and **hang `dev` / `build`**. Use **`bun run setup`** for full-stack bootstrap; use plain **`bun install`** when you only need workspace `node_modules`. [`.moon/toolchains.yml`](.moon/toolchains.yml) disables **`javascript.installDependencies`** (Moon skips redundant `bun install` before each task) and sets **`bun.installArgs: ["--ignore-scripts"]`** as a safeguard.
 
-For a full compile of every application project first, run **`bun run build`**. Default ports are documented in each app README and can be overridden via [`.env.local`](.env.local).
+For a full compile of every application project first, run **`bun run build`**.
+
+**Local dev ports** (copy [`.env.example`](.env.example) → `.env.local` to customize): **FastAPI / Uvicorn `8000`** (common tutorial default — avoids stealing **`3000`** from the SPA), **SolidStart `3000`**, **Hugo static site `3001`**. Details and CORS URLs are in each app README.
 
 ## Workspaces
 
 - **`apps/api/`** — FastAPI + Pydantic AI · [README](apps/api/README.md)
 - **`apps/app/`** — SolidStart (SSR, Vite, Nitro) · [README](apps/app/README.md)
-- **`apps/web/`** — Bun SSG + Vite (`@luna/ds`) · [README](apps/web/README.md)
+- **`apps/web/`** — Hugo + Tailwind v4 + `@luna/ds` · [README](apps/web/README.md)
 - **`packages/cli/`** — internal `luna` CLI (Bun entry; `deps …` today, `ds …` reserved for design-system / UI tooling) · [README](packages/cli/README.md)
 - **`packages/ds/`** — design system / Tailwind · [README](packages/ds/README.md)
   - **Entrypoints**: `packages/ds/src/tailwind.css` (main import), `packages/ds/src/components.css`, `packages/ds/src/layouts.css`, `packages/ds/src/primitives.css`
@@ -89,6 +99,8 @@ bun run clean       # moon :clean (per-project, uncached) + moon clean --all + g
 
 ### Code quality (Bun)
 
+From the repository root, **`bun run typecheck`** runs `tsc --build` using the root [`tsconfig.json`](tsconfig.json) project references, so **every TypeScript app and package** in the workspace is typechecked in one pass. **`bun run check`** runs lint, format check, and that same typecheck (and delegates lint/format fixes for the API project to Moon where configured).
+
 ```sh
 bun run lint
 bun run format:check
@@ -113,11 +125,11 @@ Use **`--query`** to filter the graph instead of listing every target (same quer
 
 ```sh
 moon run :dev --query 'project=[app,api]'
-moon run :typecheck --query "projectLayer=library"   # shared packages (tasks they inherit)
+moon run :typecheck --query "projectLayer=library"   # shared packages (per-project inherited tasks)
 moon query projects --help                           # filters: --id, --language, --layer, etc.
 ```
 
-Examples for **shared packages**:
+Examples for **shared packages** (see each package README for inherited tasks):
 
 ```sh
 moon run ds:typecheck
@@ -133,6 +145,7 @@ moon run ui:typecheck
 - Shared TS app tasks: [`.moon/tasks/ts-app.yml`](.moon/tasks/ts-app.yml) (`language: typescript`, `layer: application`, `stack: frontend`)
 - Shared TS lib tasks: [`.moon/tasks/ts-lib.yml`](.moon/tasks/ts-lib.yml) (`language: typescript`, `layer: library`)
 - Shared Python API tasks: [`.moon/tasks/py-api.yml`](.moon/tasks/py-api.yml) (`language: python`, `stack: backend`)
+- Shared Go web tasks: [`.moon/tasks/go-web.yml`](.moon/tasks/go-web.yml) (`language: go`, `stack: frontend`) — **`go tool hugo`** from [`apps/web/go.mod`](apps/web/go.mod)
 
 - Root moon config: [`moon.yml`](moon.yml)
 - TypeScript project graph: [`tsconfig.json`](tsconfig.json)
@@ -156,7 +169,8 @@ bun run update     # wraps `luna update`; then review and run bun run check
 
 **Per stack (manual add / remove)** — use these when you are changing one project, not refreshing everything:
 
-- **Toolchain (proto)** — edit [`.prototools`](.prototools), then `proto install` or `bun run setup` (or `proto pin <tool> <version>`). Removing a tool line drops it from proto’s install set for this repo.
+- **Toolchain (proto)** — edit [`.prototools`](.prototools), then `bun run setup` or `proto install` individually. Removing a tool line drops it from proto’s install set for this repo.
+- **Hugo (`apps/web`)** — bump the CLI with Go: `cd apps/web` then `go get -tool github.com/gohugoio/hugo@vX.Y.Z` (updates [`apps/web/go.mod`](apps/web/go.mod) / `go.sum`); `luna outdated` does not scan Go modules today.
 - **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
 - **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
 
@@ -167,7 +181,7 @@ bun run update     # wraps `luna update`; then review and run bun run check
 Another process is still bound to the port (often after stopping a dev server).
 
 ```sh
-lsof -i :8080    # API default; try :3000 for app, :3001 for web
+lsof -i :8000    # API (Uvicorn) default; :3000 app; :3001 web
 ```
 
 Note the `PID` from `lsof`, then:

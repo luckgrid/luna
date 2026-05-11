@@ -1,0 +1,23 @@
+{{ define "main" }}
+<main>
+  <header data-hero>
+    <hgroup>
+      <h1>{{ .Title }}</h1>
+      {{- with .Description }}
+      <p>{{ . }}</p>
+      {{ end }}
+    </hgroup>
+  </header>
+  <article>{{ .Content }}</article>
+  {{- $latest := .Params.latest_posts_title | default "Latest posts" -}}
+  {{- $posts := slice -}}
+  {{- range where site.RegularPages "Section" "posts" -}}
+    {{- if not (strings.Contains .File.Path "posts/list-example") -}}
+      {{- $posts = $posts | append . -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $sorted := sort $posts "Date" "desc" -}}
+  {{- $pick := first 5 $sorted -}}
+  {{- partial "articles-featured.html" (dict "title" $latest "pages" $pick) -}}
+</main>
+{{ end }}

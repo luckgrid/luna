@@ -5,7 +5,7 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 ## Core Rules
 
 - Bun-first monorepo: prefer Bun commands over npm/pnpm/yarn.
-- Toolchain versions are pinned in `.prototools`; bootstrap with `bun run setup` (or `proto install` alone).
+- Toolchain versions are pinned in `.prototools`; install **Proto** and **Bun** first, then bootstrap with `bun run setup` (or run `proto install` per tool / with no args per Proto docs).
 - Run commands from the repository root unless an app/package README says otherwise.
 - Keep app-specific scripts in each app's `package.json`; shared orchestration goes through moon/root scripts.
 
@@ -24,7 +24,7 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 - Toolchain pins: [`.prototools`](.prototools)
 - Root scripts/workspaces: [`package.json`](package.json)
-- Repo-wide outdated / update: [`packages/cli`](packages/cli) — `luna outdated` / `luna update` (router in `packages/cli/src/main.ts`; Python roots from Moon + `lib/repo.ts`)
+- Repo-wide outdated / update: [`packages/cli`](packages/cli) — `luna outdated` / `luna update` (router in `packages/cli/src/main.ts`; Python roots from Moon + `lib/repo.ts`; Hugo is **`go tool`** in `apps/web`, not a proto pin)
 - Moon workspace/toolchains/tasks: [`.moon/`](.moon/)
 - TypeScript project references: [`tsconfig.json`](tsconfig.json), [`tsconfig.options.json`](tsconfig.options.json)
 - OXC config: [`.oxlintrc.json`](.oxlintrc.json), [`.oxfmtrc.json`](.oxfmtrc.json)

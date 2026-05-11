@@ -1,0 +1,12 @@
+# Cache
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+
+# Outputs
+*.py[cod]
+*$py.class
+*.pyc
+*.egg-info/
+.eggs/
+.venv/

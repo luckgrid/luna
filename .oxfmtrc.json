@@ -6,6 +6,7 @@
     "**/.moon/cache/**",
     "**/.output/**",
     "**/.vinxi/**",
-    "apps/web/src/templates/**/*.html"
+    "**/templates/**/*.html",
+    "**/layouts/**/*.html"
   ]
 }
