@@ -1,0 +1,37 @@
+{{- $sec := .CurrentSection -}}
+{{- if not $sec }}{{ return }}{{ end -}}
+{{- $pages := sort $sec.RegularPages "Weight" -}}
+{{- $prev := false -}}
+{{- $next := false -}}
+{{- range $index, $page := $pages -}}
+  {{- if eq $page.RelPermalink $.RelPermalink -}}
+    {{- if gt $index 0 -}}
+      {{- $prev = index $pages (sub $index 1) -}}
+    {{- end -}}
+    {{- if lt (add $index 1) (len $pages) -}}
+      {{- $next = index $pages (add $index 1) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if or $prev $next }}
+<footer>
+  <nav aria-label="Collection navigation" data-pagination>
+    {{- with $prev }}
+    <div data-prev>
+      <a href="{{ .RelPermalink }}" rel="prev">
+        <small>Previous article</small>
+        <span>{{ .Title }}</span>
+      </a>
+    </div>
+    {{- end -}}
+    {{- with $next }}
+    <div data-next>
+      <a href="{{ .RelPermalink }}" rel="next">
+        <small>Next article</small>
+        <span>{{ .Title }}</span>
+      </a>
+    </div>
+    {{- end -}}
+  </nav>
+</footer>
+{{- end }}

@@ -1,10 +1,4 @@
 <header>
-	<nav aria-label="Main navigation">
-		<a href='{{ "/" | relURL }}'>{{ .Site.Title }}</a>
-		<ul>
-			<li><a href='{{ "posts/" | relURL }}'>Posts</a></li>
-			<li><a href='{{ "posts/list-example/" | relURL }}'>List example</a></li>
-			<li><a href='{{ "legal/" | relURL }}'>Legal</a></li>
-		</ul>
-	</nav>
+  {{- partial "brand.html" (dict "page" . "showName" true "isLink" true) -}}
+  {{- partial "nav.html" (dict "page" . "label" "Primary navigation") -}}
 </header>

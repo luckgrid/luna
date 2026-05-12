@@ -1,0 +1,27 @@
+{{ define "main" }}
+{{- partial "header.html" . -}}
+<aside aria-label="In this collection">{{ partial "article/collection.html" . }}</aside>
+<main>
+  {{- partial "page-header.html" . -}}
+  <article>
+    {{ .Content }}
+    {{- partial "article/footer.html" . -}}
+  </article>
+  {{- if .Params.toc }}
+  <aside aria-label="In this article">
+    {{- partial "toc.html" . -}}
+  </aside>
+  {{- end }}
+  {{- with .RegularPages }}
+  <section data-list aria-label="{{ $.Title }} articles">
+    <header>
+      <hgroup>
+        <h2>Articles</h2>
+        <p>Browse everything in this collection.</p>
+      </hgroup>
+    </header>
+    <ul>{{- range sort . "Weight" -}}<li>{{ partial "article/card.html" . }}</li>{{- end }}</ul>
+  </section>
+  {{- end }}
+</main>
+{{ end }}

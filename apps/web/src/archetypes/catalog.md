@@ -2,6 +2,14 @@
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
 description: ""
 draft: false
+type: catalog
+params:
+  layout: catalog
+cascade:
+  type: article
+  params:
+    layout: article
+    pattern: post
 ---
 
-Intro copy for this **catalog** page (list + search + grouped entries). Section children render below when you use the posts-style list layout.
+Intro copy for this **catalog** page (list + search + pagination). Section children render below when you use the catalog section layout.

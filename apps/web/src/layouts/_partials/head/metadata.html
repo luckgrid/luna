@@ -1,0 +1,26 @@
+<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ printf "%s · %s" .Title .Site.Title }}{{ end }}</title>
+{{- if .Description -}}
+<meta name="description" content="{{ .Description }}">
+{{- else if .Summary -}}
+<meta name="description" content="{{ .Summary | plainify | truncate 160 }}">
+{{- else if .Site.Params.description -}}
+<meta name="description" content="{{ .Site.Params.description }}">
+{{- end -}}
+<link rel="icon" href='{{ "favicon.svg" | relURL }}' type="image/svg+xml"/>
+<link rel="canonical" href="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ .Site.Title }}" />
+<meta
+  property="og:title"
+  content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}"
+/>
+<meta property="og:url" content="{{ .Permalink }}" />
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
+{{- $desc := or .Description (.Summary | plainify | truncate 200) .Site.Params.description -}}
+{{- with $desc }}
+<meta property="og:description" content="{{ . }}" />
+{{- end -}}
+{{- $img := or .Params.og_image .Site.Params.og_image -}}
+{{- with $img }}
+<meta property="og:image" content="{{ . | absURL }}" />
+{{- end -}}
+<meta name="twitter:card" content="summary_large_image" />

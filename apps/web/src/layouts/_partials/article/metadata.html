@@ -1,0 +1,8 @@
+<div data-meta>
+  {{- if .Date -}}
+  <time datetime='{{ .Date.Format "2006-01-02" }}'>{{ .Date.Format "Jan 2, 2006" }}</time>
+  {{- end -}}
+  {{- with .Params.tags -}}
+  <ul aria-label="Tags">{{- range . -}}<li>{{ . }}</li>{{- end -}}</ul>
+  {{- end -}}
+</div>

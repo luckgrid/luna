@@ -2,13 +2,15 @@
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
 date: "{{ .Date }}"
 draft: true
+type: article
 description: ""
 category: guides
 tags: []
 weight: 30
-layout: article
-pattern: post
 toc: false
+params:
+  layout: article
+  pattern: post
 ---
 
 Lead paragraph.

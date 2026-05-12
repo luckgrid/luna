@@ -4,8 +4,8 @@
     <h1>{{ .Title }}</h1>
     {{- with .Description -}}
     <p>{{ . }}</p>
-    {{- end -}} {{- $show := or .Date (not (eq (len .Params.tags) 0)) -}} {{- if $show -}}
-    <div data-meta>{{ partial "article-meta.html" . }}</div>
+    {{- end -}} {{- $show := and (eq .Kind "page") (or .Date (not (eq (len .Params.tags) 0))) -}} {{- if $show -}}
+    {{- partial "article/metadata.html" . -}}
     {{- end -}}
   </hgroup>
 </header>

@@ -1,0 +1,142 @@
+{{ define "main" }}
+{{- partial "header.html" . -}}
+{{- $allPages := .Pages.ByDate.Reverse -}}
+{{- $paginator := .Paginate $allPages 2 -}}
+{{- $entries := slice -}}
+{{- range $allPages }}
+  {{- $entry := dict
+    "title" .Title
+    "url" .RelPermalink
+    "description" (.Description | default "")
+    "dateISO" (cond (and .Date (eq .Kind "page")) (.Date.Format "2006-01-02") "")
+    "dateLabel" (cond (and .Date (eq .Kind "page")) (.Date.Format "Jan 2, 2006") "")
+    "kind" .Kind
+    "metaLabel" (cond (eq .Kind "section") "Collection" "")
+    "search" (printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\\s+` " " | strings.TrimSpace | lower)
+  -}}
+  {{- $entries = $entries | append $entry -}}
+{{- end -}}
+{{- $hasPaginatorPages := gt (len $paginator.Pages) 0 -}}
+{{- $showPagination := gt $paginator.TotalPages 1 -}}
+<main>
+  <header data-hero>
+    <hgroup>
+      <h1>{{ .Title }}</h1>
+      {{- with .Description }}
+      <p>{{ . }}</p>
+      {{- end }}
+    </hgroup>
+    <form role="search" aria-label="Search posts">
+      <input
+        type="search"
+        id="catalog-search"
+        name="q"
+        placeholder="Search posts"
+        autocomplete="off"
+        aria-label="Search posts"
+      />
+      <button type="submit">Search</button>
+    </form>
+  </header>
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+  {{- if $hasPaginatorPages }}
+  <section aria-label="{{ .Title }}" data-list>
+    <ul id="catalog-list">{{- range $paginator.Pages -}}
+      {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+      <li data-search="{{ $hay }}">{{ partial "article/card.html" . }}</li>{{- end }}</ul>
+    <p id="catalog-search-status" hidden>No matching posts.</p>
+  </section>
+  {{- end }}
+  {{- if $showPagination }}
+  <footer aria-label="{{ .Title }}">
+    <div id="catalog-pagination">
+      {{- partial "pagination.html" . -}}
+    </div>
+  </footer>
+  {{- end }}
+</main>
+<script type="application/json" id="catalog-entries">
+  {{- $entries | jsonify | safeJS -}}
+</script>
+<script>
+  (function () {
+    var form = document.querySelector('form[role="search"]');
+    var input = document.getElementById("catalog-search");
+    var list = document.getElementById("catalog-list");
+    var status = document.getElementById("catalog-search-status");
+    var pager = document.getElementById("catalog-pagination");
+    var data = document.getElementById("catalog-entries");
+    if (!input || !list || !data) return;
+
+    var entries = JSON.parse(data.textContent || "[]");
+    var initial = list.innerHTML;
+
+    function escapeHTML(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderEntry(entry) {
+      var parts = [
+        '<li data-search="' + escapeHTML(entry.search) + '">',
+        '<a href="' + escapeHTML(entry.url) + '" data-card>',
+        "<hgroup>",
+        "<h3>" + escapeHTML(entry.title) + "</h3>"
+      ];
+
+      if (entry.metaLabel) {
+        parts.push("<p>" + escapeHTML(entry.metaLabel) + "</p>");
+      } else if (entry.dateISO && entry.dateLabel) {
+        parts.push(
+          '<p><time datetime="' +
+            escapeHTML(entry.dateISO) +
+            '">' +
+            escapeHTML(entry.dateLabel) +
+            "</time></p>"
+        );
+      }
+
+      if (entry.description) {
+        parts.push("<p>" + escapeHTML(entry.description) + "</p>");
+      }
+
+      parts.push("</hgroup>", "</a>", "</li>");
+      return parts.join("");
+    }
+
+    function filter() {
+      var q = (input.value || "").toLowerCase().trim();
+      if (!q) {
+        list.innerHTML = initial;
+        if (pager) pager.hidden = false;
+        if (status) status.hidden = true;
+        return;
+      }
+
+      var matches = entries.filter(function (entry) {
+        return entry.search.indexOf(q) !== -1;
+      });
+
+      list.innerHTML = matches.map(renderEntry).join("");
+
+      if (pager) pager.hidden = true;
+      if (status) status.hidden = matches.length !== 0;
+    }
+
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        filter();
+      });
+    }
+
+    input.addEventListener("input", filter);
+    input.addEventListener("search", filter);
+  })();
+</script>
+{{ end }}
