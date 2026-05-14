@@ -1,9 +1,15 @@
-{{ define "main" }}
-{{- partial "header.html" . -}}
-{{- $allPages := .Pages.ByDate.Reverse -}}
-{{- $paginator := .Paginate $allPages 2 -}}
+{{- partial "layout/header.html" . -}}
+{{- /* D6 paginated list: direct children, by date desc; includes collection landings, excludes their children. */ -}}
+{{- $listed := .Pages.ByDate.Reverse -}}
+{{- $paginator := .Paginate $listed -}}
+{{- /* D6 search index: every leaf article + every section landing under this section. */ -}}
+{{- $indexed := slice -}}
+{{- $indexed = $indexed | append .RegularPagesRecursive -}}
+{{- range where .Pages "Kind" "section" -}}
+  {{- $indexed = $indexed | append . -}}
+{{- end -}}
 {{- $entries := slice -}}
-{{- range $allPages }}
+{{- range $indexed }}
   {{- $entry := dict
     "title" .Title
     "url" .RelPermalink
@@ -12,32 +18,19 @@
     "dateLabel" (cond (and .Date (eq .Kind "page")) (.Date.Format "Jan 2, 2006") "")
     "kind" .Kind
     "metaLabel" (cond (eq .Kind "section") "Collection" "")
-    "search" (printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\\s+` " " | strings.TrimSpace | lower)
+    "search" (printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower)
   -}}
   {{- $entries = $entries | append $entry -}}
 {{- end -}}
 {{- $hasPaginatorPages := gt (len $paginator.Pages) 0 -}}
 {{- $showPagination := gt $paginator.TotalPages 1 -}}
+{{- $searchForm := partial "list/search-form.html" (dict
+  "id" "catalog-search"
+  "label" "Search posts"
+  "placeholder" "Search posts")
+-}}
 <main>
-  <header data-hero>
-    <hgroup>
-      <h1>{{ .Title }}</h1>
-      {{- with .Description }}
-      <p>{{ . }}</p>
-      {{- end }}
-    </hgroup>
-    <form role="search" aria-label="Search posts">
-      <input
-        type="search"
-        id="catalog-search"
-        name="q"
-        placeholder="Search posts"
-        autocomplete="off"
-        aria-label="Search posts"
-      />
-      <button type="submit">Search</button>
-    </form>
-  </header>
+  {{- partial "hero.html" (dict "page" . "slot" $searchForm) -}}
   {{- with .Content }}
   <article>{{ . }}</article>
   {{- end }}
@@ -52,7 +45,7 @@
   {{- if $showPagination }}
   <footer aria-label="{{ .Title }}">
     <div id="catalog-pagination">
-      {{- partial "pagination.html" . -}}
+      {{- partial "list/pagination.html" $paginator -}}
     </div>
   </footer>
   {{- end }}
@@ -139,4 +132,3 @@
     input.addEventListener("search", filter);
   })();
 </script>
-{{ end }}

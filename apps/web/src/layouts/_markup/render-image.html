@@ -1,0 +1,20 @@
+{{- /*
+  Render hook: image.
+  - loading="lazy" + decoding="async" defer offscreen images.
+  - When standalone (parser.wrapStandAloneImageWithinParagraph = false in hugo.toml),
+    wrap in <figure> with optional <figcaption> from the image title.
+  Hugo: https://gohugo.io/render-hooks/images/
+*/ -}}
+{{- $img := printf `<img src="%s" alt="%s"%s loading="lazy" decoding="async" />`
+  (.Destination | safeURL)
+  (.Text | htmlEscape)
+  (cond (eq .Title "") "" (printf ` title="%s"` (.Title | htmlEscape)))
+-}}
+{{- if .IsBlock -}}
+<figure>
+  {{ $img | safeHTML }}
+  {{- with .Title }}<figcaption>{{ . | safeHTML }}</figcaption>{{ end }}
+</figure>
+{{- else -}}
+{{ $img | safeHTML }}
+{{- end -}}

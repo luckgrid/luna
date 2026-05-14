@@ -1,0 +1,26 @@
+{{- /*
+  Reusable search form for list pages (catalogs, search-enabled sections).
+
+  Params (dict):
+    id          — input element id (required, used by JS to wire up filtering).
+    label       — accessible label / aria-label (default "Search").
+    placeholder — input placeholder text (default = label).
+    name        — query string parameter name (default "q").
+    submit      — submit button text (default "Search").
+*/ -}}
+{{- $id := .id | default "search" -}}
+{{- $label := .label | default "Search" -}}
+{{- $placeholder := .placeholder | default $label -}}
+{{- $name := .name | default "q" -}}
+{{- $submit := .submit | default "Search" -}}
+<form role="search" aria-label="{{ $label }}">
+  <input
+    type="search"
+    id="{{ $id }}"
+    name="{{ $name }}"
+    placeholder="{{ $placeholder }}"
+    autocomplete="off"
+    aria-label="{{ $label }}"
+  />
+  <button type="submit">{{ $submit }}</button>
+</form>

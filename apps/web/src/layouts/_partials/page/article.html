@@ -1,12 +1,12 @@
-{{ define "main" }}
 {{- partial "article/header.html" . -}}
 <main>
-  {{- partial "page-header.html" . -}}
+  {{- partial "page/header.html" . -}}
   <article>
     {{ .Content }}
   </article>
   {{- if .Params.toc }}
-  {{- partial "toc.html" . -}}
+  <aside aria-label="In this article">
+    {{- partial "article/toc.html" . -}}
+  </aside>
   {{- end }}
 </main>
-{{ end }}

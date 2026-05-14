@@ -6,6 +6,7 @@ import {
   listUvProjectRoots,
   readGoModToolPaths,
   syncRootPackageManagerBun,
+  verifyGoModuleAfterDependencyUpdate,
 } from "../lib/repo";
 import { tryReadOutdatedCache } from "../lib/outdated";
 import { gatherOutdatedSnapshotAsync, printOutdatedCheckSummary } from "./outdated";
@@ -138,8 +139,8 @@ export async function runUpdate(opts: RunUpdateOptions): Promise<number> {
       const label = formatProjectDirLabel(repoRoot, root);
       section(
         major
-          ? `Go — ${label} (go get go@latest + tool@latest + -u all && go mod tidy)`
-          : `Go — ${label} (go get -u all && go mod tidy)`,
+          ? `Go — ${label} (go get go@latest + tool@latest + -u all && go mod tidy && verify)`
+          : `Go — ${label} (go get -u all && go mod tidy && verify)`,
       );
       if (major) {
         runOrExit(
@@ -155,6 +156,11 @@ export async function runUpdate(opts: RunUpdateOptions): Promise<number> {
       }
       runOrExit(spawnExit(["go", "get", "-u", "all"], { cwd: root }), `go get -u all (${label})`);
       runOrExit(spawnExit(["go", "mod", "tidy"], { cwd: root }), `go mod tidy (${label})`);
+      const verify = verifyGoModuleAfterDependencyUpdate(root);
+      if (!verify.ok) {
+        console.error(`[luna] Go module verify failed (${label}):\n${verify.reason}`);
+        return 1;
+      }
     }
   }
 

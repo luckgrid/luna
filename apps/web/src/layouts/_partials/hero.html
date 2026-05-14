@@ -1,8 +1,23 @@
+{{- /*
+  Hero header for sections, list pages, and simple pages.
+
+  Two calling conventions:
+    1. Page context  — {{ partial "hero.html" . }}
+    2. Slot variant  — {{ partial "hero.html" (dict "page" . "slot" $rendered) }}
+       where $rendered is HTML produced by another partial (e.g. a search form).
+*/ -}}
+{{- $page := . -}}
+{{- $slot := "" -}}
+{{- if reflect.IsMap . -}}
+  {{- $page = .page | default . -}}
+  {{- $slot = .slot | default "" -}}
+{{- end -}}
 <header data-hero>
   <hgroup>
-    <h1>{{ .Title }}</h1>
-    {{- with .Description }}
+    <h1>{{ $page.Title }}</h1>
+    {{- with $page.Description }}
     <p>{{ . }}</p>
     {{- end }}
   </hgroup>
+  {{- with $slot }}{{ . | safeHTML }}{{ end -}}
 </header>

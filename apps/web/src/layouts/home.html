@@ -1,44 +1,7 @@
 {{ define "main" }}
-<main>
-  {{- partial "hero.html" . -}}
-  <article>{{ .Content }}</article>
-  <section aria-label="Why Luna">
-    <header>
-      <hgroup>
-        <h2>Why Luna works well for content-heavy sites</h2>
-        <p>Use a small set of templates to publish marketing pages, article collections, and long-form docs.</p>
-      </hgroup>
-    </header>
-    <ul>
-      <li>
-        <article>
-          <h3>Content first</h3>
-          <p>Write in Markdown, keep structure in layouts, and avoid burying page copy inside hard-coded templates.</p>
-        </article>
-      </li>
-      <li>
-        <article>
-          <h3>Reusable sections</h3>
-          <p>Featured posts, collection lists, breadcrumbs, and nav stay as small partials instead of page-sized includes.</p>
-        </article>
-      </li>
-      <li>
-        <article>
-          <h3>Built for Hugo</h3>
-          <p>Template types, section pages, and archetypes stay aligned with Hugo's lookup model so the site scales cleanly.</p>
-        </article>
-      </li>
-    </ul>
-  </section>
+  {{- partial "page/simple.html" . -}}
   {{- $latest := .Params.latest_posts_title | default "Latest posts" -}}
-  {{- $posts := slice -}}
-  {{- range where site.RegularPages "Section" "posts" -}}
-    {{- if not (strings.Contains .File.Path "posts/list-example") -}}
-      {{- $posts = $posts | append . -}}
-    {{- end -}}
-  {{- end -}}
-  {{- $sorted := sort $posts "Date" "desc" -}}
-  {{- $pick := first 5 $sorted -}}
-  {{- partial "article/featured.html" (dict "title" $latest "pages" $pick) -}}
-</main>
+  {{- $top := where site.RegularPages "CurrentSection.RelPermalink" "/posts/" -}}
+  {{- $sorted := sort $top "Date" "desc" -}}
+  {{- partial "article/featured.html" (dict "title" $latest "pages" (first 5 $sorted)) -}}
 {{ end }}

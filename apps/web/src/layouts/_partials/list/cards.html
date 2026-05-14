@@ -1,0 +1,20 @@
+{{- /*
+  Reusable cards listing — wraps a sequence of pages in <section data-list><ul>...</ul></section>.
+
+  Params (dict):
+    pages — page slice to render (required).
+    aria  — aria-label for the section (required for a11y; falls back to "List").
+    id    — optional id on the <ul> (lets parent templates target it for JS).
+*/ -}}
+{{- $pages := .pages -}}
+{{- $aria := .aria | default "List" -}}
+{{- $id := .id | default "" -}}
+{{- with $pages }}
+<section data-list aria-label="{{ $aria }}">
+  <ul{{ with $id }} id="{{ . }}"{{ end }}>
+    {{- range . }}
+    <li>{{ partial "article/card.html" . }}</li>
+    {{- end }}
+  </ul>
+</section>
+{{- end }}

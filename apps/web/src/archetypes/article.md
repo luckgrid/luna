@@ -1,12 +1,10 @@
 ---
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
+description: ""
 date: "{{ .Date }}"
 draft: true
 type: article
-description: ""
-category: guides
 tags: []
-weight: 30
 toc: false
 params:
   layout: article

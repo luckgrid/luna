@@ -191,6 +191,72 @@ export function readGoModToolPaths(moduleRoot: string): string[] {
   return out;
 }
 
+/** Last path segment of a Go module path (e.g. `github.com/gohugoio/hugo` → `hugo`). */
+export function goToolBinaryName(toolModulePath: string): string {
+  const t = toolModulePath.trim();
+  const i = t.lastIndexOf("/");
+  return i >= 0 ? t.slice(i + 1) : t;
+}
+
+export type VerifyGoModuleResult = { ok: true } | { ok: false; reason: string };
+
+/**
+ * Smoke-test after `go get` / `go mod tidy`: run `go build ./...` when the module lists packages,
+ * then run each declared `go tool` (prefers `version`, falls back to `-h`).
+ */
+export function verifyGoModuleAfterDependencyUpdate(moduleRoot: string): VerifyGoModuleResult {
+  const dec = new TextDecoder();
+  const list = Bun.spawnSync(["go", "list", "./..."], {
+    cwd: moduleRoot,
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+  if (list.exitCode !== 0) {
+    const msg = dec.decode(list.stderr).trim();
+    return { ok: false, reason: msg || "go list ./... failed" };
+  }
+  const pkgLines = dec
+    .decode(list.stdout)
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (pkgLines.length > 0) {
+    const build = Bun.spawnSync(["go", "build", "./..."], {
+      cwd: moduleRoot,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    if (build.exitCode !== 0) {
+      const msg =
+        dec.decode(build.stderr).trim() ||
+        dec.decode(build.stdout).trim() ||
+        "go build ./... failed";
+      return { ok: false, reason: msg };
+    }
+  }
+  for (const path of readGoModToolPaths(moduleRoot)) {
+    const name = goToolBinaryName(path);
+    const ver = Bun.spawnSync(["go", "tool", name, "version"], {
+      cwd: moduleRoot,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    if (ver.exitCode === 0) continue;
+    const help = Bun.spawnSync(["go", "tool", name, "-h"], {
+      cwd: moduleRoot,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    if (help.exitCode === 0) continue;
+    const msg =
+      dec.decode(ver.stderr).trim() ||
+      dec.decode(help.stderr).trim() ||
+      `go tool ${name} did not accept version or -h`;
+    return { ok: false, reason: msg };
+  }
+  return { ok: true };
+}
+
 /**
  * `apps/*` and `packages/*` dirs that contain `package.json`. Root `bun update --recursive` does not
  * rewrite semver ranges in these nested workspace manifests (Bun 1.3.x); `luna update` runs

@@ -1,0 +1,15 @@
+{{- /*
+  Render hook: heading.
+  H1 stays plain (page title belongs to page-header.html / hero.html).
+  H2-H6 get an "#" anchor link for deep-linking and TOC alignment.
+  Hugo: https://gohugo.io/render-hooks/headings/
+*/ -}}
+{{- $level := .Level -}}
+{{- $id := .Anchor -}}
+{{- $class := index .Attributes "class" -}}
+<h{{ $level }} id="{{ $id }}"{{ with $class }} class="{{ . }}"{{ end }}>
+  {{- .Text | safeHTML -}}
+  {{- if ge $level 2 }}
+  <a data-anchor href="#{{ $id }}" aria-label="Link to {{ .PlainText }}">#</a>
+  {{- end }}
+</h{{ $level }}>

@@ -17,4 +17,8 @@ cascade:
     collection_nav_aria: "Pages in this section"
 ---
 
-Collection introduction page. Add child pages with **`hugo new content … -k article`**.
+Collection introduction page.
+
+> **Customize per section:** update `params.pattern` (self), `cascade.params.pattern` (children), and the two `collection_*` labels to match the section name (e.g. `legal`, `posts-list-example`).
+
+Add child pages with **`hugo new content … -k article`**.

@@ -2,6 +2,11 @@ module github.com/luckgrid/luna/apps/web
 
 go 1.26.2
 
+exclude (
+	github.com/oasdiff/yaml v0.1.0
+	github.com/oasdiff/yaml3 v0.0.13
+)
+
 tool github.com/gohugoio/hugo
 
 require (
@@ -129,8 +134,8 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/muesli/smartcrop v0.3.0 // indirect
 	github.com/niklasfasching/go-org v1.9.1 // indirect
-	github.com/oasdiff/yaml v0.1.0 // indirect
-	github.com/oasdiff/yaml3 v0.0.13 // indirect
+	github.com/oasdiff/yaml v0.0.9 // indirect
+	github.com/oasdiff/yaml3 v0.0.12 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
 	github.com/olekukonko/errors v1.3.0 // indirect
 	github.com/olekukonko/ll v0.1.8 // indirect

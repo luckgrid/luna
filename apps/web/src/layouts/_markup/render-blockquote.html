@@ -1,0 +1,19 @@
+{{- /*
+  Render hook: blockquote.
+  Regular blockquotes pass through unchanged.
+  GitHub-flavored alert blockquotes — > [!NOTE], [!TIP], [!IMPORTANT], [!WARNING], [!CAUTION] —
+  render as <aside role="note" data-alert="<type>"> to match the existing `_shortcodes/alert.html`
+  contract (data-alert hook in @luna/ds).
+  Hugo: https://gohugo.io/render-hooks/blockquotes/
+*/ -}}
+{{- if eq .Type "alert" -}}
+{{- $kind := .AlertType | default "note" | lower -}}
+<aside role="note" data-alert="{{ $kind }}">
+  {{- with .AlertTitle }}<p data-alert-title>{{ . | safeHTML }}</p>{{ end }}
+  {{ .Text }}
+</aside>
+{{- else -}}
+<blockquote{{ with index .Attributes "class" }} class="{{ . }}"{{ end }}>
+  {{ .Text }}
+</blockquote>
+{{- end -}}

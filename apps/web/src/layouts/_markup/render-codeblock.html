@@ -1,0 +1,23 @@
+{{- /*
+  Render hook: code block (generic fallback).
+
+  Wraps Hugo's default Chroma-highlighted output in a <figure> when the fence
+  carries a {filename="..."} attribute (requires markup.goldmark.parser.attribute.block = true).
+  Plain fences pass through unchanged.
+
+  Language-specific hooks (render-codeblock-mermaid.html, render-codeblock-katex.html)
+  take precedence over this generic fallback.
+
+  Hugo: https://gohugo.io/render-hooks/code-blocks/
+  Theme reference: https://github.com/alex-shpak/hugo-book/blob/main/layouts/_markup/render-codeblock.html
+*/ -}}
+{{- $filename := index .Attributes "filename" -}}
+{{- $highlighted := (transform.HighlightCodeBlock . .Options).Wrapped -}}
+{{- if $filename -}}
+<figure data-codeblock>
+  <figcaption><code>{{ $filename }}</code></figcaption>
+  {{ $highlighted }}
+</figure>
+{{- else -}}
+{{ $highlighted }}
+{{- end -}}

@@ -34,11 +34,11 @@ Archetypes only apply to **`hugo new content`**. This repo uses four **`-k`** ki
 - **`article`** -> [`article.md`](../../archetypes/article.md): single **articles** such as posts, legal policies, and `posts/list-example/...`
 - **`collection`** -> [`collection.md`](../../archetypes/collection.md): collection `_index` pages with shared sidebar + optional TOC
 
-Shared markup lives in **`layouts/_partials/`** (brand, nav, breadcrumbs, TOC, cards, featured posts, collection sidebar). Hugo resolves the main page shells through [`home.html`](../../layouts/home.html), [`page.html`](../../layouts/page.html), [`catalog/section.html`](../../layouts/catalog/section.html), [`collection/section.html`](../../layouts/collection/section.html), [`collection/page.html`](../../layouts/collection/page.html), and [`article/page.html`](../../layouts/article/page.html).
+Shared markup lives in **`layouts/_partials/`** (brand, nav, breadcrumbs, TOC, cards, featured posts, collection sidebar). Hugo resolves the main page shells through four root templates ([`home.html`](../../layouts/home.html), [`page.html`](../../layouts/page.html), [`section.html`](../../layouts/section.html), [`all.html`](../../layouts/all.html)); `page.html` and `section.html` are tiny dispatchers that delegate to behavior partials under `_partials/page/` and `_partials/section/` keyed on **`params.layout`**.
 
-- **Posts catalog** — [`/posts/`](./) → [`catalog/section.html`](../../layouts/catalog/section.html)
+- **Posts catalog** — [`/posts/`](./) → `section.html` → [`_partials/section/catalog.html`](../../layouts/_partials/section/catalog.html)
 - **New post** — `hugo new content posts/<slug>.md -k article`
 - **New legal policy** — `hugo new content legal/<slug>.md -k article`
 - **New page inside a collection hub** — `hugo new content posts/list-example/<slug>.md -k article`
 - **New collection** — `hugo new content <section>/_index.md -k collection`, then adjust `params.pattern` and copy in the generated front matter if needed.
-- **`toc`** — single flag for both collection pages (right **`aside[data-toc]`** inside the collection **`<main>`**) and article pages (TOC **`aside`** after **`<article>`** inside **`<main>`**). Body hooks now come from front matter **`params.layout`** / **`params.pattern`** rather than path-based conditions in the root layouts, and collection child pages keep the same two-sidebar shell.
+- **`toc`** — single flag for both collection pages (right **`aside[data-toc]`** inside the collection **`<main>`**) and article pages (TOC **`aside`** after **`<article>`** inside **`<main>`**). Body hooks come from front matter **`params.layout`** / **`params.pattern`** (the dispatcher key) rather than path-based conditions, and collection child pages keep the same two-sidebar shell.

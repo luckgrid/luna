@@ -1,0 +1,13 @@
+{{- /*
+  Render hook: link.
+  External links open in a new tab with rel="noopener noreferrer".
+  Internal links and anchor (#) links pass through unchanged.
+  Hugo: https://gohugo.io/render-hooks/links/
+*/ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $isExternal := and $u.Scheme (not (in (slice "" "mailto" "tel") $u.Scheme)) (not (eq $u.Host (urls.Parse site.BaseURL).Host)) -}}
+<a href="{{ .Destination | safeURL }}"
+  {{- with .Title }} title="{{ . }}"{{ end -}}
+  {{- if $isExternal }} rel="noopener noreferrer" target="_blank"{{ end -}}
+>{{ .Text | safeHTML }}</a>
+{{- /**/ -}}

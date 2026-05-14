@@ -1,14 +1,5 @@
 {{ define "main" }}
-<main>
-  {{- partial "hero.html" . -}}
-  {{- with .Content }}
-  <article>{{ . }}</article>
-  {{- end }}
-  <section data-list aria-label="{{ .Title }}">
-    <ul>
-      {{- range .Pages -}}
-      <li>{{ partial "article/card.html" . }}</li>{{- end }}
-    </ul>
-  </section>
-</main>
+  {{- $layout := .Params.layout | default "list" -}}
+  {{- if not (templates.Exists (printf "_partials/section/%s.html" $layout)) }}{{ $layout = "list" }}{{ end -}}
+  {{- partial (printf "section/%s.html" $layout) . -}}
 {{ end }}

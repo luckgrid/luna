@@ -8,7 +8,10 @@ enableEmoji = true
 publishDir = "dist"
 staticDir = "public"
 
-disableKinds = ["taxonomy", "term"]
+disableKinds = []
+
+[pagination]
+pagerSize = 10
 
 [module]
 [[module.mounts]]
@@ -49,6 +52,14 @@ posts = "/posts/:slug/"
 
 [markup]
 [markup.goldmark]
+[markup.goldmark.parser]
+# Render hooks under layouts/_markup/ (links, images, headings, blockquotes, code blocks).
+# wrapStandAloneImageWithinParagraph = false lets render-image.html emit <figure> for standalone images.
+wrapStandAloneImageWithinParagraph = false
+[markup.goldmark.parser.attribute]
+# Enable Markdown attributes on block-level elements so code fences can carry {filename="..."} etc.
+# Consumed by layouts/_markup/render-codeblock.html.
+block = true
 [markup.goldmark.renderer]
 unsafe = false
 

@@ -23,7 +23,7 @@ Commands:
         Proto (\`proto outdated --update\`, then per-pin \`proto install\` from \`.proto/logs/\` so failure logs stay out of the repo root; Python may fall back to \`--build\` if no pre-built exists);
         Bun (\`bun update --recursive\` and per-workspace manifests, then \`bun add pkg@latest\` per workspace for non-major bumps that caret semver leaves stuck — e.g. 0.x → 0.x+1);
         uv (\`uv lock --upgrade\` + \`uv sync\`) per Python project;
-        Go (\`go get -u all\` + \`go mod tidy\`) per module root;
+        Go (\`go get -u all\` + \`go mod tidy\`, then \`go build ./...\` when packages exist + smoke-test each \`tool\` via \`go tool\`) per module root;
         then \`bun run setup\` (root \`package.json\` script: proto, workspaces, \`moon run web:setup\`, api build).
       Only true major bumps (leading non-zero version digit changing, e.g. 1.x → 2.x) are blocked — use \`--major\` to apply them.
       Precheck uses an in-process snapshot (no nested \`luna outdated\`). Optional \`--use-outdated-cache\` (or \`LUNA_UPDATE_USE_OUTDATED_CACHE=1\`) skips live precheck when \`.cache/outdated-snapshot.json\` matches the current fingerprint.
@@ -45,7 +45,7 @@ Python project discovery:
 Go module discovery:
   • Primary: same \`moon query projects\` JSON as Python, filtered by \`language: go\` and \`go.mod\`.
   • Fallback: scan \`apps/*\` and \`packages/*\` for \`moon.yml\` with \`language: go\` plus \`go.mod\`.
-  • Multiple modules: each gets \`go get\` / \`go mod tidy\` during \`luna update\`.
+  • Multiple modules: each gets \`go get\` / \`go mod tidy\` / post-bump verify during \`luna update\`.
 
 Optional env (add a path Moon does not list, e.g. outside apps/packages):
   UV_PROJECT_ROOT              Extra uv project dir (absolute or relative to repo root)

@@ -1,0 +1,32 @@
+{{- /*
+  Render hook: code block — language=katex.
+
+  Renders LaTeX as KaTeX-rendered math; loads the KaTeX CDN bundle once per page
+  (gated via .Page.Store) so pages without math don't pay the cost. Falls back to
+  the raw \[ ... \] delimiters when JS is disabled.
+
+  Hugo: https://gohugo.io/render-hooks/code-blocks/
+  Theme reference: https://github.com/alex-shpak/hugo-book/blob/main/layouts/_markup/render-codeblock-katex.html
+*/ -}}
+{{- with .Inner -}}
+<span class="katex-block" data-katex>\[ {{ . | htmlEscape | safeHTML }} \]</span>
+{{- end -}}
+{{- if not (.Page.Store.Get "hasKatex") -}}
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css"
+    crossorigin="anonymous"
+  />
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"
+    crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"
+  ></script>
+  {{- .Page.Store.Set "hasKatex" true -}}
+{{- end -}}

@@ -1,0 +1,7 @@
+<main>
+  {{- partial "hero.html" . -}}
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+  {{- partial "list/cards.html" (dict "pages" .Pages "aria" .Title) -}}
+</main>

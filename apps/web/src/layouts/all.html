@@ -1,0 +1,22 @@
+{{ define "main" }}
+<main>
+  <header data-hero>
+    <hgroup>
+      <h1>{{ .Title }}</h1>
+      {{- with .Description }}<p>{{ . }}</p>{{ end }}
+    </hgroup>
+  </header>
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+  {{- with .Pages }}
+  <section data-list aria-label="{{ $.Title }}">
+    <ul>
+      {{- range . }}
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+      {{- end }}
+    </ul>
+  </section>
+  {{- end }}
+</main>
+{{ end }}

@@ -1,15 +1,14 @@
-{{ define "main" }}
-{{- partial "header.html" . -}}
+{{- partial "layout/header.html" . -}}
 <aside aria-label="In this collection">{{ partial "article/collection.html" . }}</aside>
 <main>
-  {{- partial "page-header.html" . -}}
+  {{- partial "page/header.html" . -}}
   <article>
     {{ .Content }}
+    {{- partial "article/footer.html" . -}}
   </article>
   {{- if .Params.toc }}
   <aside aria-label="In this article">
-    {{- partial "toc.html" . -}}
+    {{- partial "article/toc.html" . -}}
   </aside>
   {{- end }}
 </main>
-{{ end }}

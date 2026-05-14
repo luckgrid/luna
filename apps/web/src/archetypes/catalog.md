@@ -5,6 +5,7 @@ draft: false
 type: catalog
 params:
   layout: catalog
+  pattern: catalog
 cascade:
   type: article
   params:

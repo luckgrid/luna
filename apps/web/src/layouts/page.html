@@ -1,6 +1,5 @@
 {{ define "main" }}
-<main>
-  {{- partial "hero.html" . -}}
-  <article>{{ .Content }}</article>
-</main>
+  {{- $layout := .Params.layout | default "simple" -}}
+  {{- if not (templates.Exists (printf "_partials/page/%s.html" $layout)) }}{{ $layout = "simple" }}{{ end -}}
+  {{- partial (printf "page/%s.html" $layout) . -}}
 {{ end }}

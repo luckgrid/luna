@@ -13,6 +13,6 @@
     {{- with .Params.pattern }} data-pattern="{{ . }}"{{ end -}}
   >
     {{- block "main" . }}{{ end -}}
-    {{- partial "footer.html" . -}}
+    {{- partial "layout/footer.html" . -}}
   </body>
 </html>

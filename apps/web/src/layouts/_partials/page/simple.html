@@ -1,0 +1,6 @@
+<main>
+  {{- partial "hero.html" . -}}
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+</main>
