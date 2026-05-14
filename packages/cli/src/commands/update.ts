@@ -1,4 +1,3 @@
-import { fileURLToPath } from "node:url";
 import {
   findRepoRoot,
   formatProjectDirLabel,
@@ -8,11 +7,14 @@ import {
   readGoModToolPaths,
   syncRootPackageManagerBun,
 } from "../lib/repo";
+import { tryReadOutdatedCache } from "../lib/outdated";
+import { gatherOutdatedSnapshotAsync, printOutdatedCheckSummary } from "./outdated";
 import { requireCmd, runOrExit, spawnExit } from "../lib/process";
 import { section } from "../lib/terminal";
 import {
   bunWorkspaceOutdatedFromOutput,
   captureBunOutdatedRecursive,
+  collectInRangeMinorBumps,
   collectPrereleaseBumps,
   installAllProtoPinnedTools,
   protoOutdatedUpdateArgs,
@@ -23,20 +25,30 @@ import {
 export type RunUpdateOptions = {
   /** When true, allow major-version bumps for proto pins and Bun deps and run the prerelease catch-up step. */
   major: boolean;
+  /** When true, use `.cache/outdated-snapshot.json` if fingerprint still matches (skip live precheck). */
+  useOutdatedCache: boolean;
 };
 
-export function runUpdate(opts: RunUpdateOptions): number {
+export async function runUpdate(opts: RunUpdateOptions): Promise<number> {
   const repoRoot = findRepoRoot();
-  const cliEntry = fileURLToPath(new URL("../main.ts", import.meta.url));
-  const { major } = opts;
+  const { major, useOutdatedCache } = opts;
 
   section("current outdated snapshot");
-  Bun.spawnSync(["bun", cliEntry, "outdated"], {
-    cwd: repoRoot,
-    stdin: "ignore",
-    stdout: "inherit",
-    stderr: "inherit",
-  });
+  let snap;
+  if (useOutdatedCache) {
+    const cached = tryReadOutdatedCache(repoRoot);
+    if (cached) {
+      console.log(
+        "[luna] using cached outdated snapshot (.cache/outdated-snapshot.json; fingerprint match)",
+      );
+      snap = cached;
+    } else {
+      snap = await gatherOutdatedSnapshotAsync(repoRoot);
+    }
+  } else {
+    snap = await gatherOutdatedSnapshotAsync(repoRoot);
+  }
+  printOutdatedCheckSummary(repoRoot, snap);
 
   section(
     major
@@ -83,6 +95,17 @@ export function runUpdate(opts: RunUpdateOptions): number {
     if (bunWorkspaceOutdatedFromOutput(bunOutPost)) {
       const bumps = collectPrereleaseBumps(bunOutPost, repoRoot);
       runOrExit(runPrereleaseBumps(bumps), "bun add @latest (prerelease bumps)");
+    }
+  } else {
+    // Widen ranges for "not a real major" upgrades that caret semver leaves stuck
+    // (e.g. 0.48.0 → 0.49.0, where npm treats the minor as breaking).
+    const bunOutPost = captureBunOutdatedRecursive(repoRoot);
+    if (bunWorkspaceOutdatedFromOutput(bunOutPost)) {
+      const minorBumps = collectInRangeMinorBumps(bunOutPost, repoRoot);
+      if (minorBumps.length > 0) {
+        section("Bun — widen ranges for non-major upgrades (0.x → 0.x+1 etc.)");
+        runOrExit(runPrereleaseBumps(minorBumps), "bun add @latest (non-major widening)");
+      }
     }
   }
 

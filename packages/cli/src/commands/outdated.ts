@@ -6,7 +6,17 @@ import {
   listUvProjectRoots,
 } from "../lib/repo";
 import {
+  computeOutdatedSummaryState,
+  isOutdatedLiveStatusEnabled,
+  outdatedTierMessages,
+  OutdatedLiveStatus,
+  tryReadOutdatedCache,
+  type StoredOutdatedSnapshot,
+  writeOutdatedCache,
+} from "../lib/outdated";
+import {
   printOutdatedTable,
+  printProtoOutdatedTableFromReport,
   section,
   strictAllPassed,
   strictHint,
@@ -18,41 +28,84 @@ import {
 import { requireCmd } from "../lib/process";
 import {
   bunWorkspaceOutdatedFromOutput,
-  captureBunOutdatedRecursive,
-  captureGoGetNDryRunUAll,
-  captureProtoPinsOutdatedJson,
-  captureUvLockDryRun,
+  captureBunOutdatedRecursiveAsync,
+  captureGoGetNDryRunUAllAsync,
+  captureProtoPinsOutdatedJsonAsync,
+  captureUvLockDryRunAsync,
   goGetDryRunHasModuleChanges,
-  type ProtoPinsOutdatedReport,
-  printProtoOutdated,
   protoPinsAnyOutdated,
   uvLockHasUpgradesFromOutput,
 } from "../lib/toolchains";
+
+export type OutdatedSnapshot = StoredOutdatedSnapshot;
 
 export type UvProjectSnap = { root: string; dryRunOut: string };
 
 export type GoModuleSnap = { root: string; goGetDryRunOut: string };
 
-export type OutdatedSnapshot = {
-  protoReport: ProtoPinsOutdatedReport;
-  bunOut: string;
-  uvProjects: UvProjectSnap[];
-  goModules: GoModuleSnap[];
-};
+function outdatedProgressTimingsEnabled(): boolean {
+  return process.env.LUNA_OUTDATED_PROGRESS === "1";
+}
 
-export function gatherOutdatedSnapshot(repoRoot: string): OutdatedSnapshot {
-  const protoReport = captureProtoPinsOutdatedJson(repoRoot);
-  const bunOut = captureBunOutdatedRecursive(repoRoot);
+async function runTier<T>(
+  tier: "proto" | "bun" | "uv" | "go",
+  ok: (v: T) => boolean,
+  work: Promise<T>,
+  live: OutdatedLiveStatus | null,
+): Promise<T> {
+  const t0 = Date.now();
+  const v = await work;
+  const ms = Date.now() - t0;
+  live?.markDone(tier, ok(v), ms);
+  if (!live && outdatedProgressTimingsEnabled()) {
+    console.error(`[luna] ok ${tier} (${ms}ms)`);
+  }
+  return v;
+}
 
-  const uvProjects: UvProjectSnap[] = listUvProjectRoots(repoRoot).map((root) => ({
-    root,
-    dryRunOut: captureUvLockDryRun(root),
-  }));
+export async function gatherOutdatedSnapshotAsync(
+  repoRoot: string,
+  live?: OutdatedLiveStatus | null,
+): Promise<OutdatedSnapshot> {
+  const uvRoots = listUvProjectRoots(repoRoot);
+  const goRoots = listGoModuleRoots(repoRoot);
 
-  const goModules: GoModuleSnap[] = listGoModuleRoots(repoRoot).map((root) => ({
-    root,
-    goGetDryRunOut: captureGoGetNDryRunUAll(root),
-  }));
+  live?.begin();
+
+  const [protoReport, bunOut, uvProjects, goModules] = await Promise.all([
+    runTier(
+      "proto",
+      (r) => !protoPinsAnyOutdated(r),
+      captureProtoPinsOutdatedJsonAsync(repoRoot),
+      live ?? null,
+    ),
+    runTier(
+      "bun",
+      (o) => !bunWorkspaceOutdatedFromOutput(o),
+      captureBunOutdatedRecursiveAsync(repoRoot),
+      live ?? null,
+    ),
+    runTier(
+      "uv",
+      (rows) => rows.every((p) => !uvLockHasUpgradesFromOutput(p.dryRunOut)),
+      Promise.all(
+        uvRoots.map((root) =>
+          captureUvLockDryRunAsync(root).then((dryRunOut) => ({ root, dryRunOut })),
+        ),
+      ),
+      live ?? null,
+    ),
+    runTier(
+      "go",
+      (rows) => rows.every((g) => !goGetDryRunHasModuleChanges(g.goGetDryRunOut)),
+      Promise.all(
+        goRoots.map((root) =>
+          captureGoGetNDryRunUAllAsync(root).then((goGetDryRunOut) => ({ root, goGetDryRunOut })),
+        ),
+      ),
+      live ?? null,
+    ),
+  ]);
 
   return { protoReport, bunOut, uvProjects, goModules };
 }
@@ -61,7 +114,7 @@ export function gatherOutdatedSnapshot(repoRoot: string): OutdatedSnapshot {
 export function printOutdatedReport(repoRoot: string, snap: OutdatedSnapshot): void {
   if (protoPinsAnyOutdated(snap.protoReport)) {
     section("proto (.prototools)");
-    printProtoOutdated(repoRoot);
+    printProtoOutdatedTableFromReport(repoRoot, snap.protoReport);
   }
 
   if (bunWorkspaceOutdatedFromOutput(snap.bunOut)) {
@@ -90,65 +143,23 @@ export function printOutdatedReport(repoRoot: string, snap: OutdatedSnapshot): v
   }
 }
 
-/** Report all tiers, then enforce CI-style exit (1 if any tier has upgrades). */
-export function runOutdated(): number {
-  const repoRoot = findRepoRoot();
-  const goRootsPrecheck = listGoModuleRoots(repoRoot);
-  requireCmd("proto");
-  requireCmd("bun");
-  requireCmd("uv");
-  if (goRootsPrecheck.length > 0) requireCmd("go");
+export type OutdatedCheckSummaryMode = "full" | "rollup";
 
-  const snap = gatherOutdatedSnapshot(repoRoot);
-  printOutdatedReport(repoRoot, snap);
+/** CI-style check lines; returns 1 if any tier is outdated, else 0. */
+export function printOutdatedCheckSummary(
+  repoRoot: string,
+  snap: OutdatedSnapshot,
+  opts?: { mode?: OutdatedCheckSummaryMode },
+): number {
+  const mode = opts?.mode ?? "full";
+  const { failed, stProto, stBun, stUv, stGo } = computeOutdatedSummaryState(snap);
 
-  section("check results");
-  let failed = 0;
-  let stProto = 0;
-  let stBun = 0;
-  let stUv = 0;
-  let stGo = 0;
-
-  if (protoPinsAnyOutdated(snap.protoReport)) {
-    strictNeed("proto — outdated pin(s) in .prototools");
-    stProto = 1;
-    failed = 1;
-  } else {
-    strictOk("proto — OK (.prototools)");
-  }
-
-  if (bunWorkspaceOutdatedFromOutput(snap.bunOut)) {
-    strictNeed("Bun — outdated direct dependencies in workspaces");
-    stBun = 1;
-    failed = 1;
-  } else {
-    strictOk("Bun — OK (workspaces)");
-  }
-
-  const uvBad = snap.uvProjects.filter((p) => uvLockHasUpgradesFromOutput(p.dryRunOut));
-  if (uvBad.length > 0) {
-    strictNeed(
-      `Python / uv — lockfile(s) can update: ${uvBad.map((p) => formatProjectDirLabel(repoRoot, p.root)).join(", ")} (see luna update)`,
-    );
-    stUv = 1;
-    failed = 1;
-  } else if (snap.uvProjects.length === 0) {
-    strictOk("Python / uv — OK (no uv projects discovered)");
-  } else {
-    strictOk(`Python / uv — OK (${snap.uvProjects.length} project(s))`);
-  }
-
-  const goBad = snap.goModules.filter((g) => goGetDryRunHasModuleChanges(g.goGetDryRunOut));
-  if (goBad.length > 0) {
-    strictNeed(
-      `Go — go.mod can advance: ${goBad.map((g) => formatProjectDirLabel(repoRoot, g.root)).join(", ")} (see luna update)`,
-    );
-    stGo = 1;
-    failed = 1;
-  } else if (snap.goModules.length === 0) {
-    strictOk("Go — OK (no go.mod projects discovered)");
-  } else {
-    strictOk(`Go — OK (${snap.goModules.length} module(s))`);
+  if (mode === "full") {
+    section("check results");
+    for (const { ok, text } of outdatedTierMessages(repoRoot, snap)) {
+      if (ok) strictOk(text);
+      else strictNeed(text);
+    }
   }
 
   if (failed === 0) {
@@ -164,5 +175,71 @@ export function runOutdated(): number {
     strictHint("Exit code 1 is intentional (use in CI). To refresh everything run: luna update");
   }
 
+  return failed;
+}
+
+function printCachedOutdatedNotice(): void {
+  console.error(
+    "[luna] outdated: using .cache/outdated-snapshot.json (fingerprint match). Omit --use-cache for a live check (CI-safe).\n",
+  );
+}
+
+/** Report all tiers, then enforce CI-style exit (1 if any tier has upgrades). */
+export async function runOutdated(opts?: { useCache?: boolean }): Promise<number> {
+  const repoRoot = findRepoRoot();
+  const goRootsPrecheck = listGoModuleRoots(repoRoot);
+  requireCmd("proto");
+  requireCmd("bun");
+  requireCmd("uv");
+  if (goRootsPrecheck.length > 0) requireCmd("go");
+
+  if (opts?.useCache) {
+    const cached = tryReadOutdatedCache(repoRoot);
+    if (cached) {
+      printCachedOutdatedNotice();
+      const ttyLive = isOutdatedLiveStatusEnabled();
+      if (ttyLive) {
+        new OutdatedLiveStatus().printSummaryBlock(
+          outdatedTierMessages(repoRoot, cached),
+          (ok, text) => {
+            if (ok) strictOk(text);
+            else strictNeed(text);
+          },
+        );
+        printOutdatedReport(repoRoot, cached);
+        return printOutdatedCheckSummary(repoRoot, cached, { mode: "rollup" });
+      }
+      printOutdatedReport(repoRoot, cached);
+      return printOutdatedCheckSummary(repoRoot, cached);
+    }
+    console.error(
+      "[luna] outdated: no valid cache (run `luna outdated` without --use-cache first)\n",
+    );
+  }
+
+  const live = isOutdatedLiveStatusEnabled() ? new OutdatedLiveStatus() : null;
+  const snap = await gatherOutdatedSnapshotAsync(repoRoot, live);
+  if (live) {
+    live.finishAfterGather(outdatedTierMessages(repoRoot, snap), (ok, text) => {
+      if (ok) strictOk(text);
+      else strictNeed(text);
+    });
+    printOutdatedReport(repoRoot, snap);
+    const failed = printOutdatedCheckSummary(repoRoot, snap, { mode: "rollup" });
+    try {
+      writeOutdatedCache(repoRoot, snap);
+    } catch {
+      /* best-effort cache */
+    }
+    return failed;
+  }
+
+  printOutdatedReport(repoRoot, snap);
+  const failed = printOutdatedCheckSummary(repoRoot, snap);
+  try {
+    writeOutdatedCache(repoRoot, snap);
+  } catch {
+    /* best-effort cache */
+  }
   return failed;
 }

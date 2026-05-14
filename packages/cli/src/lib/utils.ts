@@ -2,8 +2,9 @@
 // semver (loose numeric core)
 // --------------------
 
-function semverCoreParts(v: string): [number, number, number] {
-  const core = (v.split("-")[0] ?? v).trim();
+/** Loose semver: numeric `[major, minor, patch]` parsed from `x.y.z` (suffixes stripped). */
+export function semverCoreParts(v: string): [number, number, number] {
+  const core = (v.split("-")[0] ?? v).trim().replace(/^v/, "");
   const p = core.split(".").map((x) => Number.parseInt(x, 10));
   return [p[0] ?? 0, p[1] ?? 0, p[2] ?? 0];
 }

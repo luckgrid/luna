@@ -6,17 +6,6 @@
   <article>
     {{ .Content }}
   </article>
-  {{- with .RegularPages }}
-  <section data-list aria-label="{{ $.Title }} articles">
-    <header>
-      <hgroup>
-        <h2>Articles</h2>
-        <p>Browse everything in this collection.</p>
-      </hgroup>
-    </header>
-    <ul>{{- range sort . "Weight" -}}<li>{{ partial "article/card.html" . }}</li>{{- end }}</ul>
-  </section>
-  {{- end }}
   {{- if .Params.toc }}
   <aside aria-label="In this article">
     {{- partial "toc.html" . -}}

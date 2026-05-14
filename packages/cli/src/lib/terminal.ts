@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
+import type { ProtoPinsOutdatedReport } from "./toolchains";
 import {
   readOptionalIntEnvMin,
   shortenMiddle,
@@ -322,4 +323,63 @@ export function printOutdatedTable(
       renderBox(rows, "go", repoRoot);
     }
   }
+}
+
+const PROTO_TABLE_HEADERS = ["Tool", "Current", "Newest", "Latest", "Config"] as const;
+
+/** Box-drawn proto pin table from `proto outdated --json` (avoids a second `proto outdated` spawn). */
+export function printProtoOutdatedTableFromReport(
+  repoRoot: string,
+  report: ProtoPinsOutdatedReport,
+): void {
+  const vmax = versionMaxForTable();
+  const entries = Object.entries(report).toSorted(([a], [b]) => a.localeCompare(b));
+  const rows: string[][] = entries.map(([tool, row]) => {
+    const cfgAbs = row.config_source?.trim() ?? "";
+    const cfgLabel = cfgAbs ? friendlyConfigLabel(cfgAbs, repoRoot) : "N/A";
+    return [
+      tool,
+      shortenVersionCell(row.current_version, vmax),
+      shortenVersionCell(row.newest_version, vmax),
+      shortenVersionCell(row.latest_version, vmax),
+      cfgLabel,
+    ];
+  });
+  const configHrefs: (string | null)[] = entries.map(([, row]) => {
+    const cfgAbs = row.config_source?.trim() ?? "";
+    return cfgAbs ? configFileHref(cfgAbs) : null;
+  });
+  const display = rows;
+  const widths = PROTO_TABLE_HEADERS.map((h, i) =>
+    Math.max(h.length, ...display.map((r) => (r[i] ?? "").length)),
+  );
+  const stripe = useRowStripes();
+  const headerLine = renderProtoRow(widths, [...PROTO_TABLE_HEADERS], null);
+  const sepLine = renderProtoSep(widths);
+  const dataLines = display.map((r, i) => renderProtoRow(widths, r, configHrefs[i] ?? null));
+  const innerWidth = headerLine.length - 2;
+  const top = `╭${"─".repeat(innerWidth)}╮`;
+  const bot = `╰${"─".repeat(innerWidth)}╯`;
+  console.log(top);
+  console.log(headerLine);
+  console.log(sepLine);
+  for (let i = 0; i < dataLines.length; i++) {
+    const ln = dataLines[i];
+    if (ln === undefined) continue;
+    console.log(stripe && i % 2 === 1 ? `${BG_ALT}${ln}${RESET}` : ln);
+  }
+  console.log(bot);
+}
+
+function renderProtoSep(widths: number[]): string {
+  const inner = widths.reduce((a, b) => a + b, 0) + (widths.length - 1) * 2;
+  return `│${"─".repeat(inner)}│`;
+}
+
+function renderProtoRow(widths: number[], cells: string[], configHref: string | null): string {
+  const parts = cells.map((c, i) => {
+    if (i === 4) return formatConfigCell(c, widths[i], configHref);
+    return c.padEnd(widths[i]);
+  });
+  return `│${parts.join("  ")}│`;
 }

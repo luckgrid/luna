@@ -42,39 +42,69 @@ function uniqSorted(paths: string[]): string[] {
   return [...new Set(paths.map((p) => resolve(p)))].toSorted();
 }
 
+type MoonProjectRow = { root: string; language: string };
+
+/** One `moon query projects` (all languages) per process; avoids duplicate moon spawns. */
+let moonAllProjectsCache: MoonProjectRow[] | null | undefined;
+
+/** For tests or long-lived runners that change cwd/repo between calls. */
+export function resetMoonProjectsCache(): void {
+  moonAllProjectsCache = undefined;
+}
+
 /**
- * Resolve roots of Moon projects for a language (`moon query projects --language …`).
- * Returns `null` if moon is missing, fails, or JSON is unusable (caller should fall back).
+ * All Moon projects with `config.language` — single `moon query projects` per repo per process.
+ * Returns `null` if moon is missing, fails, or JSON is unusable.
  */
-function queryMoonRoots(repoRoot: string, language: "python" | "go"): string[] | null {
-  const r = Bun.spawnSync(["moon", "query", "projects", `--language`, language], {
+function queryMoonProjectsAll(repoRoot: string): MoonProjectRow[] | null {
+  if (moonAllProjectsCache !== undefined) return moonAllProjectsCache;
+
+  const r = Bun.spawnSync(["moon", "query", "projects"], {
     cwd: repoRoot,
     stdout: "pipe",
     stderr: "pipe",
   });
-  if (r.exitCode !== 0) return null;
+  if (r.exitCode !== 0) {
+    moonAllProjectsCache = null;
+    return null;
+  }
   const text = new TextDecoder().decode(r.stdout).trim();
-  if (!text.startsWith("{")) return null;
+  if (!text.startsWith("{")) {
+    moonAllProjectsCache = null;
+    return null;
+  }
   let data: unknown;
   try {
     data = JSON.parse(text);
   } catch {
+    moonAllProjectsCache = null;
     return null;
   }
-  if (typeof data !== "object" || data === null || !("projects" in data)) return null;
+  if (typeof data !== "object" || data === null || !("projects" in data)) {
+    moonAllProjectsCache = null;
+    return null;
+  }
   const projects = Reflect.get(data, "projects");
-  if (!Array.isArray(projects)) return null;
-  const roots: string[] = [];
+  if (!Array.isArray(projects)) {
+    moonAllProjectsCache = null;
+    return null;
+  }
+  const rows: MoonProjectRow[] = [];
   for (const item of projects) {
     if (typeof item !== "object" || item === null) continue;
     const rootRaw = Reflect.get(item, "root");
     const root = typeof rootRaw === "string" ? rootRaw.trim() : "";
     if (!root) continue;
-    if (language === "python" && existsSync(join(root, "pyproject.toml")))
-      roots.push(resolve(root));
-    if (language === "go" && existsSync(join(root, "go.mod"))) roots.push(resolve(root));
+    const config = Reflect.get(item, "config");
+    let language = "";
+    if (typeof config === "object" && config !== null) {
+      const lang = Reflect.get(config, "language");
+      if (typeof lang === "string") language = lang.trim().toLowerCase();
+    }
+    rows.push({ root: resolve(root), language });
   }
-  return uniqSorted(roots);
+  moonAllProjectsCache = rows;
+  return moonAllProjectsCache;
 }
 
 /** Same globs as `.moon/workspace.yml` — walk `moon.yml` + `language:` when moon query is unavailable. */
@@ -107,13 +137,23 @@ function optionalExtraRoot(repoRoot: string, envName: string): string | null {
 }
 
 /**
- * Prefer `moon query projects --language …` when it returns at least one root; otherwise scan
+ * Prefer a single `moon query projects` when it returns at least one project; otherwise scan
  * `apps/*` + `packages/*` for `moon.yml` + `language:` (covers missing moon, JSON changes, or empty query).
  */
 function resolveProjectRoots(repoRoot: string, language: "python" | "go"): string[] {
-  const queried = queryMoonRoots(repoRoot, language);
   const scanned = scanWorkspaceForLanguage(repoRoot, language);
-  if (queried !== null && queried.length > 0) return queried;
+  const all = queryMoonProjectsAll(repoRoot);
+  if (all !== null && all.length > 0) {
+    const token = language === "python" ? "python" : "go";
+    const fromMoon = all
+      .filter((e) => {
+        if (e.language !== token) return false;
+        if (language === "python") return existsSync(join(e.root, "pyproject.toml"));
+        return existsSync(join(e.root, "go.mod"));
+      })
+      .map((e) => e.root);
+    if (fromMoon.length > 0) return uniqSorted(fromMoon);
+  }
   return scanned;
 }
 

@@ -1,12 +1,29 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { die } from "./terminal";
-import { spawnExit, spawnText } from "./process";
-import { trimOuterWhitespace } from "./utils";
+import { spawnExit, spawnText, spawnTextAsync } from "./process";
+import { semverCoreParts, trimOuterWhitespace } from "./utils";
 
 // --------------------
 // proto (pins in .prototools)
 // --------------------
+
+/**
+ * Strip per-tool runtime hints that Bun (and other proto shims) inject so
+ * `proto outdated` resolves pin sources from `.prototools` instead of treating
+ * the running tool as "version-locked by env" (which silently drops `config_source`
+ * and prevents `--update` from rewriting the pin).
+ *
+ * Keeps `PROTO_VERSION` (used by proto for self-reflection).
+ */
+export function protoScrubbedEnv(extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env };
+  for (const k of Object.keys(env)) {
+    if (k === "PROTO_VERSION") continue;
+    if (/^PROTO_[A-Z0-9]+_VERSION$/.test(k)) delete env[k];
+  }
+  return { ...env, ...extra };
+}
 
 /** One toolchain row from \`proto outdated --json\`. */
 export type ProtoPinOutdatedEntry = {
@@ -64,18 +81,13 @@ export function protoPinsAnyOutdated(report: ProtoPinsOutdatedReport): boolean {
   return Object.values(report).some((x) => x.is_outdated);
 }
 
-/** `proto outdated --json`, parsed — run from repo root so .prototools resolves. */
-export function captureProtoPinsOutdatedJson(repoRoot: string): ProtoPinsOutdatedReport {
-  const r = Bun.spawnSync(["proto", "outdated", "--json"], {
-    cwd: repoRoot,
-    stdout: "pipe",
-    stderr: "pipe",
-  });
-  const text = new TextDecoder().decode(r.stdout).trim();
-  if (!text) die("proto outdated --json returned empty output (is proto in PATH?)");
+/** Parse stdout of `proto outdated --json` (combined stdout+stderr also ok). */
+export function parseProtoPinsOutdatedJson(text: string): ProtoPinsOutdatedReport {
+  const trimmed = text.trim();
+  if (!trimmed) die("proto outdated --json returned empty output (is proto in PATH?)");
   let data: unknown;
   try {
-    data = JSON.parse(text);
+    data = JSON.parse(trimmed);
   } catch {
     die("proto outdated --json returned invalid JSON");
   }
@@ -90,19 +102,29 @@ export function captureProtoPinsOutdatedJson(repoRoot: string): ProtoPinsOutdate
   return out;
 }
 
-export function printProtoOutdated(repoRoot: string): void {
-  Bun.spawnSync(["proto", "outdated"], {
+/** `proto outdated --json`, parsed — run from repo root so .prototools resolves. */
+export function captureProtoPinsOutdatedJson(repoRoot: string): ProtoPinsOutdatedReport {
+  const r = Bun.spawnSync(["proto", "outdated", "--json"], {
     cwd: repoRoot,
-    stdout: "inherit",
-    stderr: "inherit",
-    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "pipe",
+    env: protoScrubbedEnv(),
   });
+  const text = new TextDecoder().decode(r.stdout) + new TextDecoder().decode(r.stderr);
+  return parseProtoPinsOutdatedJson(text);
 }
 
-/**
- * Writes updated versions into .prototools (every configured pin).
- * @param major — passes \`--latest\` when true so proto may bump across major lines.
- */
+/** Async `proto outdated --json` for parallel outdated gathering. */
+export async function captureProtoPinsOutdatedJsonAsync(
+  repoRoot: string,
+): Promise<ProtoPinsOutdatedReport> {
+  const text = await spawnTextAsync(["proto", "outdated", "--json"], {
+    cwd: repoRoot,
+    env: protoScrubbedEnv(),
+  });
+  return parseProtoPinsOutdatedJson(text);
+}
+
 export function protoOutdatedUpdateArgs(major: boolean): readonly string[] {
   return major
     ? ["proto", "outdated", "--update", "--latest", "-y"]
@@ -120,7 +142,7 @@ export function protoRunOpts(repoRoot: string): {
   mkdirSync(logsDir, { recursive: true });
   return {
     cwd: logsDir,
-    env: { ...process.env, PROTO_CONFIG_MODE: "upwards" },
+    env: protoScrubbedEnv({ PROTO_CONFIG_MODE: "upwards" }),
   };
 }
 
@@ -198,9 +220,43 @@ export function captureBunOutdatedRecursive(repoRoot: string): string {
   return spawnText(["bun", "outdated", "--recursive"], { cwd: repoRoot });
 }
 
+export async function captureBunOutdatedRecursiveAsync(repoRoot: string): Promise<string> {
+  return spawnTextAsync(["bun", "outdated", "--recursive"], { cwd: repoRoot });
+}
+
 export type PrereleaseBumpRow = { pkg: string; cwd: string };
 
+/** Structured row from `bun outdated --recursive` (pipe-table format). */
+export type BunOutdatedRow = {
+  pkg: string;
+  current: string;
+  update: string;
+  latest: string;
+  workspace: string;
+};
+
+/** Strip ` (dev)` / ` (peer)` / ` (optional)` suffixes that bun adds to the Package column. */
+function stripDepKindSuffix(pkg: string): string {
+  return pkg.replace(/\s*\((?:dev|peer|optional)\)\s*$/i, "").trim();
+}
+
+function readPackageName(pkgJsonPath: string): string | null {
+  try {
+    const j: unknown = JSON.parse(readFileSync(pkgJsonPath, "utf8"));
+    if (typeof j === "object" && j !== null && "name" in j) {
+      const rec = j as Record<string, unknown>;
+      if (typeof rec.name === "string") return rec.name;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
 function resolveWorkspaceDir(repoRoot: string, workspaceLabel: string): string | null {
+  // Root workspace (e.g. "luna") lives in the repo root, not under apps/* or packages/*.
+  const rootPkg = join(repoRoot, "package.json");
+  if (existsSync(rootPkg) && readPackageName(rootPkg) === workspaceLabel) return repoRoot;
   for (const top of ["apps", "packages"] as const) {
     const base = join(repoRoot, top);
     if (!existsSync(base)) continue;
@@ -208,38 +264,68 @@ function resolveWorkspaceDir(repoRoot: string, workspaceLabel: string): string |
       if (!ent.isDirectory()) continue;
       const pkgPath = join(base, ent.name, "package.json");
       if (!existsSync(pkgPath)) continue;
-      try {
-        const raw = readFileSync(pkgPath, "utf8");
-        const j: unknown = JSON.parse(raw);
-        if (typeof j === "object" && j !== null && "name" in j) {
-          const rec = j as Record<string, unknown>;
-          if (typeof rec.name === "string" && rec.name === workspaceLabel)
-            return join(base, ent.name);
-        }
-      } catch {
-        /* ignore */
-      }
+      if (readPackageName(pkgPath) === workspaceLabel) return join(base, ent.name);
     }
   }
   return null;
 }
 
-/** Rows where Current === Update but Latest differs — needs `bun add pkg@latest` per workspace. */
-export function collectPrereleaseBumps(stdin: string, repoRoot: string): PrereleaseBumpRow[] {
-  const rows: PrereleaseBumpRow[] = [];
+/** Parse pipe-table rows from `bun outdated --recursive` into structured form. */
+export function parseBunOutdatedRows(stdin: string): BunOutdatedRow[] {
+  const rows: BunOutdatedRow[] = [];
   for (const line of stdin.split("\n")) {
     const m = /^\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|/.exec(line);
     if (!m) continue;
-    const pkg = trimOuterWhitespace(m[1]);
-    if (pkg === "Package" || pkg.startsWith("-")) continue;
+    const pkgRaw = trimOuterWhitespace(m[1]);
+    if (pkgRaw === "Package" || pkgRaw.startsWith("-")) continue;
     const current = trimOuterWhitespace(m[2]);
-    const update = trimOuterWhitespace(m[3]);
-    const latest = trimOuterWhitespace(m[4]);
-    const ws = trimOuterWhitespace(m[5]);
-    if (current === update && latest !== current) {
-      const cwd = resolveWorkspaceDir(repoRoot, ws);
-      if (cwd) rows.push({ pkg, cwd });
+    if (!/^[\dv]/.test(current)) continue;
+    rows.push({
+      pkg: stripDepKindSuffix(pkgRaw),
+      current,
+      update: trimOuterWhitespace(m[3]),
+      latest: trimOuterWhitespace(m[4]),
+      workspace: trimOuterWhitespace(m[5]),
+    });
+  }
+  return rows;
+}
+
+/**
+ * "Real major" = leading non-zero digit changes. By convention `0.X → 0.Y` is
+ * treated as a minor bump even though npm's `^` treats it as breaking, because
+ * Luna's policy is "block only true major bumps without --major".
+ */
+export function isRealMajorBump(from: string, to: string): boolean {
+  const [fMajor] = semverCoreParts(from);
+  const [tMajor] = semverCoreParts(to);
+  return fMajor !== tMajor && fMajor >= 1;
+}
+
+/** Rows where Current === Update but Latest differs — needs `bun add pkg@latest` per workspace. */
+export function collectPrereleaseBumps(stdin: string, repoRoot: string): PrereleaseBumpRow[] {
+  const rows: PrereleaseBumpRow[] = [];
+  for (const row of parseBunOutdatedRows(stdin)) {
+    if (row.current === row.update && row.latest !== row.current) {
+      const cwd = resolveWorkspaceDir(repoRoot, row.workspace);
+      if (cwd) rows.push({ pkg: row.pkg, cwd });
     }
+  }
+  return rows;
+}
+
+/**
+ * Rows where the configured range can't reach the latest version, but the jump
+ * is not a "real major" bump (leading non-zero digit unchanged). These need
+ * `bun add pkg@latest` per workspace to widen the package.json range.
+ */
+export function collectInRangeMinorBumps(stdin: string, repoRoot: string): PrereleaseBumpRow[] {
+  const rows: PrereleaseBumpRow[] = [];
+  for (const row of parseBunOutdatedRows(stdin)) {
+    if (row.current !== row.update || row.latest === row.current) continue;
+    if (isRealMajorBump(row.current, row.latest)) continue;
+    const cwd = resolveWorkspaceDir(repoRoot, row.workspace);
+    if (cwd) rows.push({ pkg: row.pkg, cwd });
   }
   return rows;
 }
@@ -270,13 +356,28 @@ export function captureUvLockDryRun(uvProjectRoot: string): string {
   return spawnText(["uv", "lock", "--upgrade", "--dry-run"], { cwd: uvProjectRoot });
 }
 
+export async function captureUvLockDryRunAsync(uvProjectRoot: string): Promise<string> {
+  return spawnTextAsync(["uv", "lock", "--upgrade", "--dry-run"], { cwd: uvProjectRoot });
+}
+
 // --------------------
 // Go modules
 // --------------------
 
-/** `go get -n -u all` — dry-run of dependency bumps the module graph would apply (MVS-aligned). */
+/**
+ * `go get -n -u all` — dry-run of what `go get -u all` would change (MVS-aligned).
+ * This can be slow (often 10–30s+) on large graphs because the toolchain resolves the
+ * upgrade like a real `go get`. Faster probes such as `go list -m -u all` only show
+ * “newer versions exist on the proxy” and often disagree with this dry-run (many
+ * `[v…]` lines can appear even when `go get -n -u all` prints no `go: upgraded` lines),
+ * so we keep this command for an accurate match to `luna update`’s Go step.
+ */
 export function captureGoGetNDryRunUAll(moduleRoot: string): string {
   return spawnText(["go", "get", "-n", "-u", "all"], { cwd: moduleRoot });
+}
+
+export async function captureGoGetNDryRunUAllAsync(moduleRoot: string): Promise<string> {
+  return spawnTextAsync(["go", "get", "-n", "-u", "all"], { cwd: moduleRoot });
 }
 
 export function goGetDryRunHasModuleChanges(out: string): boolean {

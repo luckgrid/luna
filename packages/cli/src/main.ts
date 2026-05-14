@@ -98,28 +98,37 @@ export async function main(): Promise<void> {
   let code: number;
   switch (cmd) {
     case "outdated": {
-      if (cmdArgs.length > 0) {
-        console.error(`error: unexpected arguments for outdated: ${cmdArgs.join(" ")}`);
-        printRootHelp();
-        process.exit(2);
+      let useCache = false;
+      for (const a of cmdArgs) {
+        if (a === "--use-cache") {
+          useCache = true;
+        } else {
+          console.error(`error: unexpected arguments for outdated: ${cmdArgs.join(" ")}`);
+          printRootHelp();
+          process.exit(2);
+        }
       }
       const { runOutdated } = await import("./commands/outdated");
-      code = runOutdated();
+      code = await runOutdated({ useCache });
       break;
     }
     case "update": {
       let major = false;
+      let useOutdatedCache = false;
       for (const a of cmdArgs) {
         if (a === "--major") {
           major = true;
+        } else if (a === "--use-outdated-cache") {
+          useOutdatedCache = true;
         } else {
           console.error(`error: unknown argument for update: ${a}`);
           printRootHelp();
           process.exit(2);
         }
       }
+      if (process.env.LUNA_UPDATE_USE_OUTDATED_CACHE === "1") useOutdatedCache = true;
       const { runUpdate } = await import("./commands/update");
-      code = runUpdate({ major });
+      code = await runUpdate({ major, useOutdatedCache });
       break;
     }
     default:
