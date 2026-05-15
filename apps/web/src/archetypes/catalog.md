@@ -12,5 +12,3 @@ cascade:
     layout: article
     pattern: post
 ---
-
-Intro copy for this **catalog** page (list + search + pagination). Section children render below when you use the catalog section layout.

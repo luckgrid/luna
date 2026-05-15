@@ -1,5 +1,80 @@
 {{ define "main" }}
   {{- $layout := .Params.layout | default "list" -}}
-  {{- if not (templates.Exists (printf "_partials/section/%s.html" $layout)) }}{{ $layout = "list" }}{{ end -}}
-  {{- partial (printf "section/%s.html" $layout) . -}}
+  {{- if not (or (eq $layout "list") (eq $layout "catalog") (eq $layout "collection")) }}{{ $layout = "list" }}{{ end -}}
+  {{- if eq $layout "list" -}}
+<main>
+  {{- partial "hero.html" . -}}
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+  {{- partial "card-list.html" (dict "pages" .Pages "aria" .Title) -}}
+</main>
+  {{- else if eq $layout "collection" -}}
+{{- partial "site-header.html" . -}}
+<aside aria-label="In this collection">{{ partial "collection-sidebar.html" . }}</aside>
+<main>
+  {{- partial "title-block.html" . -}}
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+  {{- if .Params.toc }}
+  <aside aria-label="In this article">
+    {{- partial "toc.html" . -}}
+  </aside>
+  {{- end }}
+</main>
+  {{- else -}}
+{{- partial "site-header.html" . -}}
+{{- $listed := .Pages.ByDate.Reverse -}}
+{{- $paginator := .Paginate $listed -}}
+{{- $indexed := slice -}}
+{{- $indexed = $indexed | append .RegularPagesRecursive -}}
+{{- range where .Pages "Kind" "section" -}}
+  {{- $indexed = $indexed | append . -}}
+{{- end -}}
+{{- $entries := slice -}}
+{{- range $indexed }}
+  {{- $entry := dict
+    "title" .Title
+    "url" .RelPermalink
+    "description" (.Description | default "")
+    "dateISO" (cond (and .Date (eq .Kind "page")) (.Date.Format "2006-01-02") "")
+    "dateLabel" (cond (and .Date (eq .Kind "page")) (.Date.Format "Jan 2, 2006") "")
+    "kind" .Kind
+    "metaLabel" (cond (eq .Kind "section") "Collection" "")
+    "search" (printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower)
+  -}}
+  {{- $entries = $entries | append $entry -}}
+{{- end -}}
+{{- $hasPaginatorPages := gt (len $paginator.Pages) 0 -}}
+{{- $showPagination := gt $paginator.TotalPages 1 -}}
+{{- $searchForm := partial "search-form.html" (dict
+  "id" "catalog-search"
+  "label" "Search posts"
+  "placeholder" "Search posts")
+-}}
+<main>
+  {{- partial "hero.html" (dict "page" . "slot" $searchForm) -}}
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+  {{- if $hasPaginatorPages }}
+  <section aria-label="{{ .Title }}" data-list>
+    <ul id="catalog-list">{{- range $paginator.Pages -}}
+      {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+      <li data-search="{{ $hay }}">{{ partial "post-card.html" . }}</li>{{- end }}</ul>
+    <p id="catalog-search-status" hidden>No matching posts.</p>
+  </section>
+  {{- end }}
+  {{- if $showPagination }}
+  <footer aria-label="{{ .Title }}">
+    <div id="catalog-pagination">
+      {{- partial "pagination.html" $paginator -}}
+    </div>
+  </footer>
+  {{- end }}
+</main>
+{{- partial "catalog-entries-json.html" (dict "entries" $entries) -}}
+{{- partial "catalog-script.html" . -}}
+  {{- end -}}
 {{ end }}

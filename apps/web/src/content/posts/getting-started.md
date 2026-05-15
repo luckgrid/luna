@@ -34,9 +34,9 @@ Archetypes only apply to **`hugo new content`**. This repo uses four **`-k`** ki
 - **`article`** -> [`article.md`](../../archetypes/article.md): single **articles** such as posts, legal policies, and `posts/list-example/...`
 - **`collection`** -> [`collection.md`](../../archetypes/collection.md): collection `_index` pages with shared sidebar + optional TOC
 
-Shared markup lives in **`layouts/_partials/`** (brand, nav, breadcrumbs, TOC, cards, featured posts, collection sidebar). Hugo resolves the main page shells through four root templates ([`home.html`](../../layouts/home.html), [`page.html`](../../layouts/page.html), [`section.html`](../../layouts/section.html), [`all.html`](../../layouts/all.html)); `page.html` and `section.html` are tiny dispatchers that delegate to behavior partials under `_partials/page/` and `_partials/section/` keyed on **`params.layout`**.
+Shared markup lives as flat files under **`layouts/_partials/`** (e.g. `brand.html`, `hero.html`, `collection-sidebar.html`). Page and section **layouts** are inlined in root [`page.html`](../../layouts/page.html) and [`section.html`](../../layouts/section.html) (branch on **`params.layout`**); [`home.html`](../../layouts/home.html) matches the **`simple`** page shape.
 
-- **Posts catalog** — [`/posts/`](./) → `section.html` → [`_partials/section/catalog.html`](../../layouts/_partials/section/catalog.html)
+- **Posts catalog** — [`/posts/`](./) → `section.html` → **`catalog`** branch
 - **New post** — `hugo new content posts/<slug>.md -k article`
 - **New legal policy** — `hugo new content legal/<slug>.md -k article`
 - **New page inside a collection hub** — `hugo new content posts/list-example/<slug>.md -k article`

@@ -1,0 +1,21 @@
+{{- $path := .Get "section" | default "/posts" -}}
+{{- $count := .Get "count" | default "3" | int -}}
+{{- $label := .Get "label" | default "Latest posts" -}}
+{{- with site.GetPage $path -}}
+  {{- $listed := where .Pages "Kind" "page" -}}
+  {{- $sorted := sort $listed "Date" "desc" -}}
+  {{- with first $count $sorted }}
+  <section data-list aria-label="{{ $label }}">
+    <header>
+      <hgroup>
+        <h2>{{ $label }}</h2>
+      </hgroup>
+    </header>
+    <ul>
+      {{- range . }}
+      <li>{{ partial "post-card.html" . }}</li>
+      {{- end }}
+    </ul>
+  </section>
+  {{- end -}}
+{{- end -}}

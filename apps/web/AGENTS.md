@@ -8,56 +8,40 @@ Four root templates live directly under `src/layouts/`:
 
 ```text
 src/layouts/
-├── baseof.html   # chrome — body data hooks from .Params.layout / .Params.pattern
-├── home.html     # kind=home  → calls _partials/page/simple.html (+ optional featured)
-├── page.html     # kind=page  → dispatcher (≤ 5 lines)
-├── section.html  # kind=section → dispatcher (≤ 5 lines)
+├── baseof.html   # chrome — charset/viewport + partial head.html; body data hooks; site footer via site-footer.html
+├── home.html     # kind=home  → same `<main>` as `page.html` simple branch (hero + article)
+├── page.html     # kind=page  → `params.layout` branches (simple / article / collection) inlined
+├── section.html  # kind=section → `params.layout` branches (list / catalog / collection) inlined
 └── all.html      # ultimate fallback (taxonomy/term + safety net)
 ```
 
-`page.html` and `section.html` are **tiny dispatchers**:
-
-```go-html-template
-{{ define "main" }}
-  {{- $layout := .Params.layout | default "simple" -}}
-  {{- if not (templates.Exists (printf "_partials/page/%s.html" $layout)) }}{{ $layout = "simple" }}{{ end -}}
-  {{- partial (printf "page/%s.html" $layout) . -}}
-{{ end }}
-```
-
-`section.html` is the same shape with `"list"` as the default and `_partials/section/...` as the path. The `templates.Exists` check is the **D12 fallback guard** — unknown values render the safe default instead of erroring.
+`page.html` and `section.html` normalize **`params.layout`** against an allowlist, then **`if` / `else if`** on `$layout` to render markup (each branch composes flat **`_partials/*.html`** fragments). Unknown values reset to **`simple`** / **`list`** (**D12**).
 
 ## Partials folder map
 
-Behavior partials are grouped by concern, not by kind:
-
 ```text
 src/layouts/_partials/
-├── layout/      # site chrome (header, nav, footer) — used by baseof + section partials
-├── page/        # one file per page-kind design (simple, article, collection) + page/header.html
-├── section/     # one file per section-kind design (list, catalog, collection)
-├── article/     # article chrome (header w/ breadcrumbs, footer, metadata, card, featured, toc, collection)
-├── list/        # reusable list scaffolding (cards, search-form, pagination)
-├── head/        # <head> fragments (metadata, css)
-├── brand.html   # site logo + name
-└── hero.html    # `<header data-hero>` — accepts a page or { page, slot } dict
+├── head.html    # <head>: meta/OG + deferred fingerprinted bundle.css
+└── *.html       # flat fragments (site-header, hero, title-block, toc, …)
 ```
 
 Calling conventions worth knowing:
 
-- Every site chrome reference goes through `partial "layout/<name>.html" .`.
-- The TOC partial is `partial "article/toc.html" .` (article concern, not page-kind concern).
-- The pagination partial is `partial "list/pagination.html" $paginator` and only emits when `$paginator.TotalPages > 1`.
-- `partial "hero.html" .` keeps the simple-page behavior; `partial "hero.html" (dict "page" . "slot" $rendered)` injects extra HTML inside the `<header data-hero>` (the catalog uses this for its search form).
+- Document head: `partial "head.html" .` from [`baseof.html`](src/layouts/baseof.html) (meta tags + deferred CSS).
+- Site chrome: `partial "site-header.html" .`, `partial "site-footer.html" .` (footer is wired from [`baseof.html`](src/layouts/baseof.html)).
+- TOC: `partial "toc.html" .`
+- Pagination: `partial "pagination.html" $paginator` (renders nothing when `TotalPages <= 1`).
+- Hero: `partial "hero.html" .` or `partial "hero.html" (dict "page" . "slot" $html)` (catalog injects search form into the hero slot).
+- Marketing strips from Markdown: shortcode [`latest-posts.html`](src/layouts/_shortcodes/latest-posts.html) (e.g. on the home page).
 
 ## Layout rules
 
 1. **Do not** create `layouts/_default/`, `layouts/article/`, `layouts/catalog/`, or `layouts/collection/`. Hugo's type-folder lookup beats root templates and bypasses the dispatcher.
 2. **Do not** add a `single.html` — `page.html` already handles kind=page.
-3. **Behavior** lives in partials under `_partials/page/<name>.html` (page kinds) or `_partials/section/<name>.html` (section kinds). One partial = one design.
-4. To add a new design, add **one partial** + set `params.layout: <name>` in the matching archetype / cascade. Update the [README dispatcher table](README.md#layouts-dispatcher-pattern).
+3. **Page/section layout markup** lives in root **`page.html`** / **`section.html`** (and **`home.html`** for kind=home) — compose flat **`_partials/*.html`** fragments; do not add a `_partials/shell/` or `_partials/ui/` layer.
+4. To add a new **`params.layout`** value, add a branch in the right root template + set `params.layout: <name>` in the matching archetype / cascade. Update the [README dispatcher table](README.md#layouts-dispatcher-pattern).
 5. Do not reorder the locked collection DOM (D4): outer `<aside>` → `<main>` (page header + `<article>` + optional inner `<aside>` for TOC). CSS in `@luna/ds` positions the sidebars.
-6. `home.html` stays ≤ 10 lines. Marketing copy goes in `content/_index.md` (rendered via `_partials/page/simple.html`), not hard-coded HTML.
+6. Marketing copy and optional strips (e.g. latest posts via **`latest-posts`**) live in **`content/*.md`**, rendered through the same **`page.html`** shapes — not hard-coded in `home.html`.
 
 ## Valid `params.layout` matrix (D11)
 
@@ -65,37 +49,20 @@ Calling conventions worth knowing:
 | ------------------ | --------------------------------------------------------------------- | -------- |
 | `page`             | `simple` (default), `article`, `collection`                           | `simple` |
 | `section`          | `list` (default), `catalog`, `collection`                             | `list`   |
-| `home`             | n/a — `home.html` calls `_partials/page/simple.html` directly         | n/a      |
+| `home`             | n/a — `home.html` inlines the same `<main>` as **`simple`** pages     | n/a      |
 | `taxonomy`, `term` | n/a — handled by `all.html` (or future `taxonomy.html` / `term.html`) | n/a      |
 
-Unknown `params.layout` values fall back to `simple` / `list` via the D12 guard. The build won't break, but the rendered design won't match author intent — fix the front matter.
-
-## Decisions (D1–D12)
-
-| ID      | Decision                                                                                                                                                                |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **D1**  | Drop `layouts/article/`. Root `page.html` dispatches to `_partials/page/<layout>.html`.                                                                                 |
-| **D2**  | Drop `layouts/catalog/`. Root `section.html` dispatches to `_partials/section/<layout>.html`.                                                                           |
-| **D3**  | Site-wide `[pagination] pagerSize = 10` in [`hugo.toml`](hugo.toml); templates call `.Paginate $coll` with no second arg.                                               |
-| **D4**  | Collection DOM (hub + child) is locked: outer `<aside>` → `<main>` (page header + `<article>` + optional inner `<aside>` for TOC).                                      |
-| **D5**  | Drop `layouts/collection/`. Collection lives in `_partials/page/collection.html` (child) + `_partials/section/collection.html` (hub).                                   |
-| **D6**  | Catalog renders two collections: paginated list = `.Pages.ByDate.Reverse`; search index = `.RegularPagesRecursive ∪ (where .Pages "Kind" "section")`.                   |
-| **D7**  | Keep root `home.html` as a thin delegator to `_partials/page/simple.html` + `_partials/article/featured.html`.                                                          |
-| **D8**  | `all.html` is the ultimate fallback (catches taxonomy/term until/unless dedicated templates ship).                                                                      |
-| **D9**  | Keep 4 archetypes (`default`, `article`, `catalog`, `collection`) selected by `-k`. Names match `params.layout` values.                                                 |
-| **D10** | Conservative archetype defaults: no `category` / `weight` in `article.md`; `description: ""` in `default.md` + `catalog.md`; `params.pattern: catalog` in `catalog.md`. |
-| **D11** | Single source of truth for valid `params.layout` (matrix above).                                                                                                        |
-| **D12** | Dispatcher fallback guard via `templates.Exists`.                                                                                                                       |
+Unknown `params.layout` values fall back to `simple` / `list` via the **D12** allowlist — the build won't break, but the rendered design won't match author intent; fix the front matter.
 
 ## Editing checklist (run before committing layout/archetype changes)
 
-1. `cd apps/web && hugo --gc --minify` exits 0 and shows `_partials/page/<layout>.html` + `_partials/section/<layout>.html` hits in `--templateMetrics` for the expected URLs.
+1. `cd apps/web && hugo --gc --minify` exits 0; `--templateMetrics` should show **`page.html`** / **`section.html`** / **`home.html`** + **`head.html`** and other **`_partials/*.html`** hits for the expected URLs.
 2. Smoke-test the URL matrix:
-   - `/` (home) → `home.html` → `_partials/page/simple.html` + featured
-   - `/posts/` → `section.html` → `_partials/section/catalog.html`
-   - `/posts/<slug>/` → `page.html` → `_partials/page/article.html`
-   - `/legal/` and `/posts/list-example/` → `section.html` → `_partials/section/collection.html`
-   - `/legal/<policy>/` and `/posts/list-example/<note>/` → `page.html` → `_partials/page/collection.html`
+   - `/` (home) → `home.html` (simple `<main>`) + `latest-posts` shortcode in content
+   - `/posts/` → `section.html` (`catalog` branch)
+   - `/posts/<slug>/` → `page.html` (`article` branch)
+   - `/legal/` and `/posts/list-example/` → `section.html` (`collection` branch)
+   - `/legal/<policy>/` and `/posts/list-example/<note>/` → `page.html` (`collection` branch)
    - `/tags/` and `/tags/<term>/` → `all.html`
 3. Ripgrep for stale paths and stop on any non-zero result (only D-decision text in `README.md` / `AGENTS.md` should match):
 
@@ -104,7 +71,7 @@ Unknown `params.layout` values fall back to `simple` / `list` via the D12 guard.
    rg 'partial "(catalog|article/page|collection/section|collection/page)' apps/web/src/layouts
    ```
 
-4. If a template grows logic beyond a 5-line dispatcher, push the logic into a partial under `_partials/page/` or `_partials/section/`.
+4. Prefer small **`_partials/*.html`** fragments for repeated markup; keep **`page.html`** / **`section.html`** readable. If a branch grows large, extract another flat partial — not a nested category folder unless Hugo requires it (e.g. `_markup/`).
 
 ## Markdown render hooks (`_markup/`)
 
@@ -131,4 +98,3 @@ Custom Goldmark rendering lives in [`src/layouts/_markup/`](src/layouts/_markup/
 - [Hugo template types](https://gohugo.io/templates/types/)
 - [Hugo template lookup order](https://gohugo.io/templates/lookup-order/)
 - [Hugo new template system overview](https://gohugo.io/templates/new-templatesystem-overview/)
-- Full blueprints (kept while refactor is fresh): [`temp/hugo-web-refactor-blueprints/README.md`](../../temp/hugo-web-refactor-blueprints/README.md)

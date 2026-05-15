@@ -1,12 +1,6 @@
 {{- /*
-  Reusable search form for list pages (catalogs, search-enabled sections).
-
   Params (dict):
-    id          — input element id (required, used by JS to wire up filtering).
-    label       — accessible label / aria-label (default "Search").
-    placeholder — input placeholder text (default = label).
-    name        — query string parameter name (default "q").
-    submit      — submit button text (default "Search").
+    id, label, placeholder?, name?, submit?
 */ -}}
 {{- $id := .id | default "search" -}}
 {{- $label := .label | default "Search" -}}

@@ -4,5 +4,3 @@ description: ""
 date: "{{ .Date }}"
 draft: true
 ---
-
-Start writing here.

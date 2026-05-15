@@ -17,7 +17,7 @@
       --letter-spacing: var(--text-xl--letter-spacing);
       --line-height: var(--text-xl--line-height);
 
-      & :is(img, svg, figure, [role="figure"], [data-figure]) {
+      & :is(img, svg, figure, [role="figure"]) {
         width: var(--spacing-64-128);
         height: var(--spacing-64-128);
       }

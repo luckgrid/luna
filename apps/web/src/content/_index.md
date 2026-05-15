@@ -1,7 +1,6 @@
 ---
 title: Luna
 description: Luna template static site.
-latest_posts_title: Latest posts
 ---
 
 Launch a content-first site with **Hugo**, reusable layout families, and a small set of shared partials.
@@ -16,6 +15,8 @@ Write Markdown in `src/content/`, shape pages in `src/layouts/`, and keep stylin
 - **Catalogs** for searchable article indexes
 - **Collections** for grouped docs like legal pages
 - **Articles** for long-form content with breadcrumbs and optional TOCs
+
+{{< latest-posts section="/posts" count="3" >}}
 
 ## Why Luna works well for content-heavy sites
 

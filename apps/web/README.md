@@ -26,11 +26,11 @@ This document is the **single entry point** for this app. Monorepo orchestration
 **Layout terms:** **catalog** = searchable section index of articles (e.g. `/posts/`); **collection** = multi-page group with shared chrome (sidebar + optional right TOC), e.g. [`legal/`](src/content/legal/) or nested [`posts/list-example/`](src/content/posts/list-example/) (Legal is a collection, not under the posts catalog); **article** = one Markdown page (standalone, in a catalog, or inside a collection).
 
 - Content-driven **home**, **posts** catalog with **category** grouping (nested **`posts/list-example/`** posts are excluded from that catalog), and per-post pages.
-- **Collection sections** — [`legal/`](src/content/legal/) and [`posts/list-example/`](src/content/posts/list-example/) share [`src/layouts/_partials/article/collection.html`](src/layouts/_partials/article/collection.html): filter-as-you-type sidebar, optional right **TOC** via [`TableOfContents`](https://gohugo.io/methods/page/tableofcontents/) when **`toc: true`** on the page, and an article list in the main column. Collection routes carry **`data-layout="collection"`** and a section-specific **`data-pattern`** on `<body>` (see [`main.css`](src/assets/css/main.css)).
+- **Collection sections** — [`legal/`](src/content/legal/) and [`posts/list-example/`](src/content/posts/list-example/) share [`src/layouts/_partials/collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): filter-as-you-type sidebar listing every page in the section, optional right **TOC** via [`TableOfContents`](https://gohugo.io/methods/page/tableofcontents/) when **`toc: true`** on the page. Collection routes carry **`data-layout="collection"`** and a section-specific **`data-pattern`** on `<body>` (see [`main.css`](src/assets/css/main.css)).
 - **[Archetypes](https://gohugo.io/content-management/archetypes/)** — four starters (**`default`**, **`catalog`**, **`article`**, **`collection`**) with **`-k`**; see [Archetypes](#archetypes-hugo-new) below.
-- **Dispatcher layouts** — four root templates ([`home.html`](src/layouts/home.html), [`page.html`](src/layouts/page.html), [`section.html`](src/layouts/section.html), [`all.html`](src/layouts/all.html)) plus [`baseof.html`](src/layouts/baseof.html). `page.html` and `section.html` are 3-line dispatchers that delegate to behavior partials under [`_partials/page/`](src/layouts/_partials/page/) and [`_partials/section/`](src/layouts/_partials/section/) keyed on **`params.layout`**. See [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern).
-- **SEO**: meta description, canonical URL, minimal Open Graph / Twitter tags grouped in [`src/layouts/_partials/head/metadata.html`](src/layouts/_partials/head/metadata.html); [sitemap](https://gohugo.io/templates/sitemap-template/), [RSS](https://gohugo.io/templates/rss/).
-- **Shortcodes** — e.g. [`src/layouts/_shortcodes/alert.html`](src/layouts/_shortcodes/alert.html) (`{{< alert >}}...{{< /alert >}}`).
+- **Dispatcher layouts** — [`baseof.html`](src/layouts/baseof.html) plus [`home.html`](src/layouts/home.html), [`page.html`](src/layouts/page.html), [`section.html`](src/layouts/section.html), [`all.html`](src/layouts/all.html). **`page.html`** and **`section.html`** branch on **`params.layout`** inline (each branch composes flat **`_partials/*.html`** fragments). See [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern).
+- **SEO**: meta description, canonical URL, minimal Open Graph / Twitter tags in [`src/layouts/_partials/head.html`](src/layouts/_partials/head.html) (with deferred CSS link); [sitemap](https://gohugo.io/templates/sitemap-template/), [RSS](https://gohugo.io/templates/rss/).
+- **Shortcodes** — e.g. [`alert.html`](src/layouts/_shortcodes/alert.html), [`latest-posts.html`](src/layouts/_shortcodes/latest-posts.html).
 - **Markdown render hooks** — [`src/layouts/_markup/`](src/layouts/_markup/) overrides Goldmark's default rendering for links, images, headings, blockquotes, and code blocks (generic Chroma + Mermaid + KaTeX) ([Hugo render hooks](https://gohugo.io/render-hooks/)). See [Render hooks](#render-hooks) below.
 - **Taxonomies enabled** — default `tags` and `categories` resolve to `/tags/` and `/categories/`, rendered by the catch-all [`all.html`](src/layouts/all.html) until a dedicated `taxonomy.html` / `term.html` ships ([`hugo.toml`](hugo.toml) sets `disableKinds = []`).
 
@@ -57,55 +57,50 @@ web/
     i18n/                Optional translation bundles
 ```
 
-Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-templatesystem-overview/)** (v0.146+) and use a **dispatcher pattern** (see [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern) and [`AGENTS.md`](AGENTS.md)). Root [`baseof.html`](src/layouts/baseof.html) is document chrome only; [`home.html`](src/layouts/home.html) handles kind=home; root [`page.html`](src/layouts/page.html) and [`section.html`](src/layouts/section.html) are tiny dispatchers that fan out to behavior partials under [`_partials/page/`](src/layouts/_partials/page/) and [`_partials/section/`](src/layouts/_partials/section/) keyed on **`params.layout`**; [`all.html`](src/layouts/all.html) is the ultimate fallback (taxonomy/term + safety net). Body hooks come from front matter **`params.layout`** / **`params.pattern`**. Partials live in **`layouts/_partials/`**; shortcodes in **`layouts/_shortcodes/`**. References: [Hugo template types](https://gohugo.io/templates/types/), [template lookup order](https://gohugo.io/templates/lookup-order/), [introduction](https://gohugo.io/templates/introduction/).
-
-Partials are grouped by concern, not by kind:
+Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-templatesystem-overview/)** (v0.146+) and use a **dispatcher pattern** (see [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern) and [`AGENTS.md`](AGENTS.md)). Root [`baseof.html`](src/layouts/baseof.html) is document chrome only; [`home.html`](src/layouts/home.html) handles kind=home with the same `<main>` as **`simple`** pages; root [`page.html`](src/layouts/page.html) and [`section.html`](src/layouts/section.html) branch on **`params.layout`** inline; [`all.html`](src/layouts/all.html) is the ultimate fallback (taxonomy/term + safety net). Body hooks come from front matter **`params.layout`** / **`params.pattern`**. Shared fragments live as flat files under **`layouts/_partials/`** (e.g. `hero.html`, `site-header.html`, `metadata.html` for article meta); shortcodes in **`layouts/_shortcodes/`**. References: [Hugo template types](https://gohugo.io/templates/types/), [template lookup order](https://gohugo.io/templates/lookup-order/), [introduction](https://gohugo.io/templates/introduction/).
 
 ```text
 src/layouts/_partials/
-├── layout/      # site chrome (header, nav, footer) — used by baseof + section partials
-├── page/        # one file per page-kind design (simple, article, collection) + page/header.html
-├── section/     # one file per section-kind design (list, catalog, collection)
-├── article/     # article chrome (header w/ breadcrumbs, footer, metadata, card, featured, toc, collection)
-├── list/        # reusable list scaffolding (cards, search-form, pagination)
-├── head/        # <head> fragments (metadata, css)
-├── brand.html   # site logo + name
-└── hero.html    # `<header data-hero>` — accepts a page or { page, slot } dict
+├── head.html              # document `<head>`: meta/OG tags + deferred `bundle.css` fingerprint
+├── site-header.html, site-footer.html, nav-site.html, brand.html
+├── hero.html, title-block.html, breadcrumbs.html, metadata.html, toc.html
+├── post-card.html, card-list.html, search-form.html, pagination.html
+├── collection-sidebar.html, prev-next.html
+└── catalog-entries-json.html, catalog-script.html
 ```
 
-Key partials:
+Key pieces:
 
-- [`layout/header.html`](src/layouts/_partials/layout/header.html): shared top header for **catalog** and **collection** pages (brand + nav)
-- [`layout/nav.html`](src/layouts/_partials/layout/nav.html): primary + footer navigation; accepts `{ page, label }`
-- [`layout/footer.html`](src/layouts/_partials/layout/footer.html): site footer, called from [`baseof.html`](src/layouts/baseof.html)
-- [`hero.html`](src/layouts/_partials/hero.html): `<header data-hero>` for sections and simple pages. Accepts the page directly **or** `(dict "page" . "slot" $rendered)` so a caller can inject an extra HTML fragment (the catalog uses this to inject its search form)
-- [`page/header.html`](src/layouts/_partials/page/header.html): page-level `<header>` with `<hgroup>` (category, title, description, optional date/tags metadata for `kind=page`)
-- [`article/header.html`](src/layouts/_partials/article/header.html): article-page header with logo-only home link + breadcrumbs
-- [`article/collection.html`](src/layouts/_partials/article/collection.html): collection navigation with filter-as-you-type search
-- [`article/toc.html`](src/layouts/_partials/article/toc.html): reusable “On this page” aside for collection and article layouts
-- [`article/card.html`](src/layouts/_partials/article/card.html): card link for a page or collection index in catalogs, collections, and featured-post sections
-- [`article/featured.html`](src/layouts/_partials/article/featured.html): home **latest** list (`dict` with `title`, `pages`)
-- [`list/cards.html`](src/layouts/_partials/list/cards.html): generic `<section data-list><ul>…cards…</ul></section>` wrapper; accepts `{ pages, aria, id? }`
-- [`list/search-form.html`](src/layouts/_partials/list/search-form.html): reusable `<form role="search">`; accepts `{ id, label, placeholder?, name?, submit? }`
-- [`list/pagination.html`](src/layouts/_partials/list/pagination.html): paginator nav (prev/next + page numbers); accepts a paginator (the value of `.Paginate`) and renders nothing when `TotalPages <= 1`
+- [`head.html`](src/layouts/_partials/head.html): `<title>`, description, canonical, Open Graph / Twitter, then deferred [`bundle.css`](src/assets/css/bundle.css) link (fingerprinted outside dev)
+- [`site-header.html`](src/layouts/_partials/site-header.html) / [`site-footer.html`](src/layouts/_partials/site-footer.html): brand + primary nav; footer nav (footer is included from [`baseof.html`](src/layouts/baseof.html))
+- [`nav-site.html`](src/layouts/_partials/nav-site.html): primary + footer navigation; accepts `{ page, label }`
+- [`hero.html`](src/layouts/_partials/hero.html): `<header data-hero>` — page context or `(dict "page" . "slot" $html)` (catalog injects search form)
+- [`title-block.html`](src/layouts/_partials/title-block.html): `<hgroup>` (category, title, description, optional [`metadata.html`](src/layouts/_partials/metadata.html) for `kind=page`)
+- [`breadcrumbs.html`](src/layouts/_partials/breadcrumbs.html): logo link + breadcrumbs (standalone articles)
+- [`collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): collection nav + filter search
+- [`toc.html`](src/layouts/_partials/toc.html): “On this page” block
+- [`post-card.html`](src/layouts/_partials/post-card.html): card link for list/catalog/home/collection shortcode
+- [`card-list.html`](src/layouts/_partials/card-list.html): `<section data-list>` wrapper; accepts `{ pages, aria, id? }`
+- [`search-form.html`](src/layouts/_partials/search-form.html): `<form role="search">`; accepts `{ id, label, placeholder?, … }`
+- [`pagination.html`](src/layouts/_partials/pagination.html): paginator nav; accepts `.Paginate` output
 
-**Scaling:** add another **collection** subtree under `content/` by creating its `_index.md` with **`type: collection`** + **`params.layout: collection`** in `params`, and a **`cascade`** block for child articles. Add another searchable article index by creating a new section `_index.md` with **`params.layout: catalog`**. Add a new design by creating a new partial under `_partials/page/<name>.html` (or `_partials/section/<name>.html`) and setting **`params.layout: <name>`** in front matter or cascade.
+**Scaling:** add another **collection** subtree under `content/` by creating its `_index.md` with **`type: collection`** + **`params.layout: collection`** and a **`cascade`** block for child articles. Add another searchable article index with **`params.layout: catalog`**. Add a new design by extending the **`if` / `else if`** branches in [`page.html`](src/layouts/page.html) or [`section.html`](src/layouts/section.html) plus **`params.layout: <name>`** in front matter or cascade; add shared markup as a new partial next to the existing flat **`_partials/*.html`** files.
 
 ### Layouts (dispatcher pattern)
 
-| URL                                       | Root template                                                                                    | Behavior partial                                                                                                                                            |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`                                       | [`home.html`](src/layouts/home.html)                                                             | [`_partials/page/simple.html`](src/layouts/_partials/page/simple.html) (+ [`_partials/article/featured.html`](src/layouts/_partials/article/featured.html)) |
-| `/about/` (or any simple page)            | [`page.html`](src/layouts/page.html) (`params.layout=simple` default)                            | [`_partials/page/simple.html`](src/layouts/_partials/page/simple.html)                                                                                      |
-| `/posts/`                                 | [`section.html`](src/layouts/section.html) (`params.layout=catalog`)                             | [`_partials/section/catalog.html`](src/layouts/_partials/section/catalog.html)                                                                              |
-| `/posts/<slug>/`                          | [`page.html`](src/layouts/page.html) (`params.layout=article` cascaded)                          | [`_partials/page/article.html`](src/layouts/_partials/page/article.html)                                                                                    |
-| `/legal/`                                 | [`section.html`](src/layouts/section.html) (`params.layout=collection`)                          | [`_partials/section/collection.html`](src/layouts/_partials/section/collection.html)                                                                        |
-| `/legal/<policy>/`                        | [`page.html`](src/layouts/page.html) (`params.layout=collection` cascaded)                       | [`_partials/page/collection.html`](src/layouts/_partials/page/collection.html)                                                                              |
-| `/posts/list-example/`                    | [`section.html`](src/layouts/section.html) (`params.layout=collection`, overrides posts cascade) | [`_partials/section/collection.html`](src/layouts/_partials/section/collection.html)                                                                        |
-| `/posts/list-example/<note>/`             | [`page.html`](src/layouts/page.html) (`params.layout=collection` cascaded)                       | [`_partials/page/collection.html`](src/layouts/_partials/page/collection.html)                                                                              |
-| `/tags/`, `/tags/<term>/`, `/categories/` | [`all.html`](src/layouts/all.html) (taxonomy/term fallback)                                      | (inline list)                                                                                                                                               |
+| URL                                       | Root template                                                                                    | Where markup lives                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `/`                                       | [`home.html`](src/layouts/home.html)                                                             | Inlined simple `<main>` + **`latest-posts`** shortcode in [`_index.md`](src/content/_index.md) |
+| `/about/` (or any simple page)            | [`page.html`](src/layouts/page.html) (`params.layout=simple` default)                            | **`simple`** branch in [`page.html`](src/layouts/page.html)                                    |
+| `/posts/`                                 | [`section.html`](src/layouts/section.html) (`params.layout=catalog`)                             | **`catalog`** branch in [`section.html`](src/layouts/section.html)                             |
+| `/posts/<slug>/`                          | [`page.html`](src/layouts/page.html) (`params.layout=article` cascaded)                          | **`article`** branch in [`page.html`](src/layouts/page.html)                                   |
+| `/legal/`                                 | [`section.html`](src/layouts/section.html) (`params.layout=collection`)                          | **`collection`** branch in [`section.html`](src/layouts/section.html)                          |
+| `/legal/<policy>/`                        | [`page.html`](src/layouts/page.html) (`params.layout=collection` cascaded)                       | **`collection`** branch in [`page.html`](src/layouts/page.html)                                |
+| `/posts/list-example/`                    | [`section.html`](src/layouts/section.html) (`params.layout=collection`, overrides posts cascade) | **`collection`** branch in [`section.html`](src/layouts/section.html)                          |
+| `/posts/list-example/<note>/`             | [`page.html`](src/layouts/page.html) (`params.layout=collection` cascaded)                       | **`collection`** branch in [`page.html`](src/layouts/page.html)                                |
+| `/tags/`, `/tags/<term>/`, `/categories/` | [`all.html`](src/layouts/all.html) (taxonomy/term fallback)                                      | (inline list)                                                                                  |
 
-Both dispatchers wrap the partial call in a **`templates.Exists` guard** so an unknown `params.layout` value falls back to the safe default (`simple` for pages, `list` for sections) instead of erroring.
+Both root templates normalize **`params.layout`** against an allowlist so an unknown value falls back to the safe default (`simple` for pages, `list` for sections) instead of erroring.
 
 #### Valid `params.layout` matrix
 
@@ -113,25 +108,25 @@ Both dispatchers wrap the partial call in a **`templates.Exists` guard** so an u
 | ------------------ | --------------------------------------------------------------------- | -------- |
 | `page`             | `simple` (default), `article`, `collection`                           | `simple` |
 | `section`          | `list` (default), `catalog`, `collection`                             | `list`   |
-| `home`             | n/a — `home.html` calls `_partials/page/simple.html` directly         | n/a      |
+| `home`             | n/a — `home.html` inlines the same `<main>` as **`simple`** pages     | n/a      |
 | `taxonomy`, `term` | n/a — handled by `all.html` (or future `taxonomy.html` / `term.html`) | n/a      |
 
 #### Decisions (D1–D12)
 
 | ID      | Summary                                                                                                                                                                                                                                                        |
 | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **D1**  | Drop `layouts/article/`. Root `page.html` dispatches via `partial (printf "page/%s.html" (.Params.layout \| default "simple")) .`.                                                                                                                             |
-| **D2**  | Drop `layouts/catalog/`. Root `section.html` dispatches via `partial (printf "section/%s.html" (.Params.layout \| default "list")) .`.                                                                                                                         |
+| **D1**  | Drop `layouts/article/`. Root [`page.html`](src/layouts/page.html) holds all **`kind=page`** layout branches.                                                                                                                                                  |
+| **D2**  | Drop `layouts/catalog/`. Root [`section.html`](src/layouts/section.html) holds all **`kind=section`** layout branches.                                                                                                                                         |
 | **D3**  | Site-wide [`[pagination] pagerSize = 10`](hugo.toml); templates call `.Paginate $coll` with no second arg.                                                                                                                                                     |
 | **D4**  | Collection DOM (hub + child): outer `<aside>` (collection nav) → `<main>` containing page header + `<article>` + optional inner `<aside>` (TOC).                                                                                                               |
-| **D5**  | Drop `layouts/collection/`. Collection behavior lives in `_partials/page/collection.html` (child) and `_partials/section/collection.html` (hub).                                                                                                               |
+| **D5**  | Drop `layouts/collection/`. Collection markup lives in the **`collection`** branches of [`page.html`](src/layouts/page.html) (child) and [`section.html`](src/layouts/section.html) (hub).                                                                     |
 | **D6**  | Catalog (`/posts/`) renders two collections: paginated list = `.Pages.ByDate.Reverse` (direct children + collection landings, no grandchildren); search index = `.RegularPagesRecursive ∪ (where .Pages "Kind" "section")` (every leaf + collection landings). |
-| **D7**  | Keep root `home.html` as a thin delegator to `_partials/page/simple.html` + optional `_partials/article/featured.html`.                                                                                                                                        |
+| **D7**  | Root `home.html` mirrors the **`simple`** branch of [`page.html`](src/layouts/page.html). Latest posts use **`latest-posts`** in `content/_index.md` (same pool: `/posts/` children with `Kind` `page`).                                                       |
 | **D8**  | `all.html` is the ultimate fallback (catches taxonomy/term until/unless dedicated templates ship).                                                                                                                                                             |
 | **D9**  | Keep 4 archetypes selected by `-k`: `default`, `article`, `catalog`, `collection`. Names match `params.layout` values.                                                                                                                                         |
 | **D10** | Conservative archetype defaults: no `category` / `weight` in `article.md`; `description: ""` in `default.md` + `catalog.md`; `params.pattern: catalog` in `catalog.md`.                                                                                        |
 | **D11** | Single source of truth for valid `params.layout` (matrix above).                                                                                                                                                                                               |
-| **D12** | Dispatcher fallback guard via `templates.Exists` so unknown `params.layout` values render the safe default instead of erroring.                                                                                                                                |
+| **D12** | Normalize **`params.layout`** to an allowlist; unknown values fall back to **`simple`** / **`list`**.                                                                                                                                                          |
 
 Full design rationale + acceptance criteria live in `temp/hugo-web-refactor-blueprints/` (kept while the refactor is fresh; remove after the next release cycle).
 
@@ -188,7 +183,7 @@ moon run web:build
 2. `bunx @tailwindcss/cli -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css --minify`
 3. `go tool hugo --gc --minify` → **`dist/`**
 
-Production CSS is loaded from **`src/assets/css/bundle.css`** ([`src/layouts/_partials/head/css.html`](src/layouts/_partials/head/css.html)). If that file is missing, Hugo warns — run the Tailwind step first (Moon always runs it before `go tool hugo`).
+Production CSS is loaded from **`src/assets/css/bundle.css`** and linked from [`src/layouts/_partials/head.html`](src/layouts/_partials/head.html) (deferred fingerprint in production). If that file is missing, Hugo warns — run the Tailwind step first (Moon always runs it before `go tool hugo`).
 
 ### Why not Hugo’s `css.TailwindCSS` only?
 
@@ -207,7 +202,7 @@ Supported archetype kinds:
 - **`default`** -> [`default.md`](src/archetypes/default.md): generic pages. Example: `hugo new content about.md`
 - **`catalog`** -> [`catalog.md`](src/archetypes/catalog.md): section **catalog** index with search + pagination, like **`/posts/`**
 - **`article`** -> [`article.md`](src/archetypes/article.md): single **article** such as a post, legal policy, or page under a collection
-- **`collection`** -> [`collection.md`](src/archetypes/collection.md): **collection** `_index` with intro copy and **`cascade`** sidebar labels
+- **`collection`** -> [`collection.md`](src/archetypes/collection.md): **collection** `_index` **frontmatter** (including **`cascade`** sidebar labels); add intro and body in the scaffolded file under **`src/content/`**
 
 Tune **`cascade`** / **`toc`** / **`weight`** on real hubs after scaffolding. **`collection.md`** includes a starter **`cascade.params`** block—replace labels per section.
 
@@ -221,7 +216,7 @@ Tune **`cascade`** / **`toc`** / **`weight`** on real hubs after scaffolding. **
 
 ### Collection layout (article hubs: legal & list-example)
 
-**`legal`** and **`posts/list-example`** are **collections**: same navigation partial ([`article/collection.html`](src/layouts/_partials/article/collection.html)) with labels driven by **`cascade`** `params` on each section’s `_index.md` (`collection_sidebar_search_label`, `collection_nav_aria`). The **collection hub** is rendered by [`_partials/section/collection.html`](src/layouts/_partials/section/collection.html); child pages share the same shell via [`_partials/page/collection.html`](src/layouts/_partials/page/collection.html). Both partials follow the locked outer DOM (D4): outer `<aside>` (sidebar nav) → `<main>` with page header + `<article>` + optional inner `<aside>` (TOC) when **`toc: true`** (renders as **`aside[data-toc]`**).
+**`legal`** and **`posts/list-example`** are **collections**: same sidebar partial ([`collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html)) with labels driven by **`cascade`** `params` on each section’s `_index.md` (`collection_sidebar_search_label`, `collection_nav_aria`). The **collection hub** uses the **`collection`** branch in [`section.html`](src/layouts/section.html); child pages use the **`collection`** branch in [`page.html`](src/layouts/page.html). Both branches follow the locked outer DOM (D4): outer `<aside>` (sidebar nav) → `<main>` with page header + `<article>` + optional inner `<aside>` (TOC) when **`toc: true`** (renders as **`aside[data-toc]`**).
 
 - **Legal hub** — [`src/content/legal/_index.md`](src/content/legal/_index.md); policies as `src/content/legal/<slug>.md` with **`weight`** for sidebar order.
 - **List-example hub** — [`src/content/posts/list-example/_index.md`](src/content/posts/list-example/_index.md); new hubs: **`hugo new content …/_index.md -k collection`**. Pages inside the hub: **`hugo new content posts/list-example/<slug>.md -k article`** ([`article.md`](src/archetypes/article.md)).
@@ -243,7 +238,6 @@ Common front matter:
 - `params.layout`: **dispatcher key** for `page.html` / `section.html` (see [matrix](#valid-paramslayout-matrix)); also passed to `<body>` as `data-layout`
 - `params.pattern`: passed to `<body>` as `data-pattern` for **[@luna/ds article layout](../../packages/ds/src/layouts/article.css)** styling
 - `type`: Hugo native page type — **metadata only** post-D1/D2 (no template lookup depends on it; kept for future RSS-per-type or content filtering)
-- `latest_posts_title`: home-page featured section heading
 
 ---
 

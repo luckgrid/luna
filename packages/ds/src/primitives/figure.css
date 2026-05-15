@@ -1,6 +1,6 @@
 /* Figure */
 
-@scope (:is(figure, [role="figure"], [data-figure])) {
+@scope (:is(figure, [role="figure"])) {
   /* Figure Base */
   @layer base {
     :scope {

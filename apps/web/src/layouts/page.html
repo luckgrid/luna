@@ -1,5 +1,40 @@
 {{ define "main" }}
   {{- $layout := .Params.layout | default "simple" -}}
-  {{- if not (templates.Exists (printf "_partials/page/%s.html" $layout)) }}{{ $layout = "simple" }}{{ end -}}
-  {{- partial (printf "page/%s.html" $layout) . -}}
+  {{- if not (or (eq $layout "simple") (eq $layout "article") (eq $layout "collection")) }}{{ $layout = "simple" }}{{ end -}}
+  {{- if eq $layout "simple" -}}
+<main>
+  {{- partial "hero.html" . -}}
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+</main>
+  {{- else if eq $layout "article" -}}
+{{- partial "breadcrumbs.html" . -}}
+<main>
+  {{- partial "title-block.html" . -}}
+  <article>
+    {{ .Content }}
+  </article>
+  {{- if .Params.toc }}
+  <aside aria-label="In this article">
+    {{- partial "toc.html" . -}}
+  </aside>
+  {{- end }}
+</main>
+  {{- else -}}
+{{- partial "site-header.html" . -}}
+<aside aria-label="In this collection">{{ partial "collection-sidebar.html" . }}</aside>
+<main>
+  {{- partial "title-block.html" . -}}
+  <article>
+    {{ .Content }}
+    {{- partial "prev-next.html" . -}}
+  </article>
+  {{- if .Params.toc }}
+  <aside aria-label="In this article">
+    {{- partial "toc.html" . -}}
+  </aside>
+  {{- end }}
+</main>
+  {{- end -}}
 {{ end }}

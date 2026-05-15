@@ -10,9 +10,3 @@ params:
   layout: article
   pattern: post
 ---
-
-Lead paragraph.
-
-## Section
-
-Body content.

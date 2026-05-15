@@ -1,7 +1,8 @@
 {{ define "main" }}
-  {{- partial "page/simple.html" . -}}
-  {{- $latest := .Params.latest_posts_title | default "Latest posts" -}}
-  {{- $top := where site.RegularPages "CurrentSection.RelPermalink" "/posts/" -}}
-  {{- $sorted := sort $top "Date" "desc" -}}
-  {{- partial "article/featured.html" (dict "title" $latest "pages" (first 5 $sorted)) -}}
+<main>
+  {{- partial "hero.html" . -}}
+  {{- with .Content }}
+  <article>{{ . }}</article>
+  {{- end }}
+</main>
 {{ end }}

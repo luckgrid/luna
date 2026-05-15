@@ -3,16 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {{- partial "head/metadata.html" . -}}
-    {{- with (templates.Defer (dict "key" "global")) }}
-      {{- partial "head/css.html" . -}}
-    {{- end }}
+    {{- partial "head.html" . -}}
   </head>
   <body
     {{- with .Params.layout }} data-layout="{{ . }}"{{ end -}}
     {{- with .Params.pattern }} data-pattern="{{ . }}"{{ end -}}
   >
     {{- block "main" . }}{{ end -}}
-    {{- partial "layout/footer.html" . -}}
+    {{- partial "site-footer.html" . -}}
   </body>
 </html>

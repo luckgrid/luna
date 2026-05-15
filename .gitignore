@@ -24,6 +24,3 @@ node_modules/
 # misc
 .DS_Store
 Thumbs.db
-
-# temp
-temp/

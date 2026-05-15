@@ -24,3 +24,21 @@
 <meta property="og:image" content="{{ . | absURL }}" />
 {{- end -}}
 <meta name="twitter:card" content="summary_large_image" />
+{{- with (templates.Defer (dict "key" "global")) }}
+  {{- with resources.Get "css/bundle.css" -}}
+    {{- if hugo.IsDevelopment -}}
+<link rel="stylesheet" href="{{ .RelPermalink }}" />
+    {{- else -}}
+      {{- with . | fingerprint -}}
+<link
+  rel="stylesheet"
+  href="{{ .RelPermalink }}"
+  integrity="{{ .Data.Integrity }}"
+  crossorigin="anonymous"
+/>
+      {{- end -}}
+    {{- end -}}
+  {{- else -}}
+    {{- warnf "css/bundle.css missing — run Tailwind before hugo (moon run web:build)" -}}
+  {{- end -}}
+{{- end }}
