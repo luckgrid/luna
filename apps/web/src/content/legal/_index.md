@@ -1,19 +1,10 @@
 ---
 title: Legal & policies
 description: How we handle privacy, terms, cookies, and compliance for the Luna template site.
-type: collection
+layout: collection
 weight: 1
-toc: true
-params:
-  layout: collection
-  pattern: legal
 cascade:
-  type: collection
-  params:
-    layout: collection
-    pattern: legal
-    collection_sidebar_search_label: "Search legal docs"
-    collection_nav_aria: "Legal documents"
+  layout: collection
 ---
 
 Welcome to the legal hub. Use the **sidebar** to jump to a policy or filter pages by keyword. Each document has a **table of contents** on the right for in-page navigation.

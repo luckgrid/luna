@@ -3,7 +3,6 @@ title: First example article
 description: Sample entry for the list-example collection.
 date: 2026-05-01
 weight: 10
-toc: true
 category: list-example
 tags:
   - demo

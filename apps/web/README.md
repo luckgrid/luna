@@ -63,10 +63,10 @@ Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-
 src/layouts/_partials/
 ├── head.html              # document `<head>`: meta/OG tags + deferred `bundle.css` fingerprint
 ├── site-header.html, site-footer.html, nav-site.html, brand.html
-├── hero.html, title-block.html, breadcrumbs.html, metadata.html, toc.html
+├── hero.html, title-block.html, breadcrumbs.html, metadata.html, toc-sidebar.html
 ├── post-card.html, card-list.html, search-form.html, pagination.html
 ├── collection-sidebar.html, prev-next.html
-└── catalog-entries-json.html, catalog-script.html
+└── catalog.html
 ```
 
 Key pieces:
@@ -78,7 +78,7 @@ Key pieces:
 - [`title-block.html`](src/layouts/_partials/title-block.html): `<hgroup>` (category, title, description, optional [`metadata.html`](src/layouts/_partials/metadata.html) for `kind=page`)
 - [`breadcrumbs.html`](src/layouts/_partials/breadcrumbs.html): logo link + breadcrumbs (standalone articles)
 - [`collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): collection nav + filter search
-- [`toc.html`](src/layouts/_partials/toc.html): “On this page” block
+- [`toc-sidebar.html`](src/layouts/_partials/toc-sidebar.html): optional right-hand “On this page” TOC (renders nothing when disabled or empty)
 - [`post-card.html`](src/layouts/_partials/post-card.html): card link for list/catalog/home/collection shortcode
 - [`card-list.html`](src/layouts/_partials/card-list.html): `<section data-list>` wrapper; accepts `{ pages, aria, id? }`
 - [`search-form.html`](src/layouts/_partials/search-form.html): `<form role="search">`; accepts `{ id, label, placeholder?, … }`

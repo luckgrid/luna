@@ -3,7 +3,6 @@ title: Cookie policy
 description: Cookies and similar technologies, purposes, and how to control them.
 date: 2026-04-01
 weight: 30
-toc: true
 ---
 
 Replace this template with an accurate description of cookies and trackers on your properties.

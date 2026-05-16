@@ -2,13 +2,7 @@
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
 description: ""
 draft: false
-type: catalog
-params:
-  layout: catalog
-  pattern: catalog
+layout: catalog
 cascade:
-  type: article
-  params:
-    layout: article
-    pattern: post
+  layout: article
 ---

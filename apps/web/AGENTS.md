@@ -11,7 +11,7 @@ src/layouts/
 ├── baseof.html   # chrome — charset/viewport + partial head.html; body data hooks; site footer via site-footer.html
 ├── home.html     # kind=home  → same `<main>` as `page.html` simple branch (hero + article)
 ├── page.html     # kind=page  → `params.layout` branches (simple / article / collection) inlined
-├── section.html  # kind=section → `params.layout` branches (list / catalog / collection) inlined
+├── section.html  # kind=section → `params.layout` branches (list / collection inlined; `catalog` → `catalog.html` partial)
 └── all.html      # ultimate fallback (taxonomy/term + safety net)
 ```
 
@@ -29,7 +29,7 @@ Calling conventions worth knowing:
 
 - Document head: `partial "head.html" .` from [`baseof.html`](src/layouts/baseof.html) (meta tags + deferred CSS).
 - Site chrome: `partial "site-header.html" .`, `partial "site-footer.html" .` (footer is wired from [`baseof.html`](src/layouts/baseof.html)).
-- TOC: `partial "toc.html" .`
+- TOC: `partial "toc-sidebar.html" .`
 - Pagination: `partial "pagination.html" $paginator` (renders nothing when `TotalPages <= 1`).
 - Hero: `partial "hero.html" .` or `partial "hero.html" (dict "page" . "slot" $html)` (catalog injects search form into the hero slot).
 - Marketing strips from Markdown: shortcode [`latest-posts.html`](src/layouts/_shortcodes/latest-posts.html) (e.g. on the home page).

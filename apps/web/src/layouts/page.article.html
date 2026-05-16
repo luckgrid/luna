@@ -1,0 +1,11 @@
+{{ define "main" }}
+<header>
+  {{- partial "brand.html" (dict "page" . "showName" false) -}}
+  {{- partial "breadcrumbs.html" . -}}
+</header>
+<main>
+  {{- partial "title-block.html" . -}}
+  {{- partial "article.html" . -}}
+  {{- partial "toc-sidebar.html" . -}}
+</main>
+{{ end }}

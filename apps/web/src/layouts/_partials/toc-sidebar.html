@@ -1,0 +1,25 @@
+{{- $toc := .TableOfContents -}}
+{{- $showToc := false -}}
+{{- if in .Params "toc" -}}
+  {{- $showToc = .Params.toc -}}
+{{- else -}}
+  {{- $h2Count := 0 -}}
+  {{- range .Fragments.Headings -}}
+    {{- range (.Headings | default slice) -}}
+      {{- if eq .Level 2 -}}
+        {{- $h2Count = add $h2Count 1 -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $showToc = ge $h2Count 2 -}}
+{{- end -}}
+{{- if and $showToc $toc -}}
+<aside aria-label="In this article">
+  <header>
+    <hgroup>
+      <h2>On this page</h2>
+    </hgroup>
+  </header>
+  <section data-toc>{{ $toc }}</section>
+</aside>
+{{- end -}}

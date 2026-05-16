@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {{- partial "head.html" . -}}
   </head>
-  <body
-    {{- with .Params.layout }} data-layout="{{ . }}"{{ end -}}
-    {{- with .Params.pattern }} data-pattern="{{ . }}"{{ end -}}
-  >
+  <body{{- with .Layout }} data-layout="{{ . }}"{{ end -}}>
     {{- block "main" . }}{{ end -}}
     {{- partial "site-footer.html" . -}}
   </body>

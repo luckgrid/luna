@@ -3,7 +3,6 @@ title: Terms of service
 description: Rules for accessing and using this site or related services.
 date: 2026-04-01
 weight: 20
-toc: true
 ---
 
 These **terms of service** are placeholders. Have counsel adapt them for your entity, product, and regions.

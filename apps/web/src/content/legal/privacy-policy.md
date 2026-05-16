@@ -3,7 +3,6 @@ title: Privacy policy
 description: What data we process, why, retention, and your rights.
 date: 2026-04-01
 weight: 10
-toc: true
 ---
 
 This is a **template** privacy policy for the Luna static site. Replace every section with disclosures that match your real practices and jurisdictions.

@@ -3,7 +3,6 @@ title: Second example article
 description: Another sample page using the shared collection sidebar partial.
 date: 2026-05-02
 weight: 20
-toc: true
 category: list-example
 tags:
   - demo

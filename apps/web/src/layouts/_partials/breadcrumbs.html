@@ -1,12 +1,9 @@
 {{- $parent := .CurrentSection -}}
-<header>
-  {{- partial "brand.html" (dict "page" . "showName" false "isLink" true) -}}
-  <nav aria-label="Breadcrumb">
-    <ol data-breadcrumbs>
-      {{- with $parent }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-      {{- end }}
-      <li aria-current="page">{{ .Title }}</li>
-    </ol>
-  </nav>
-</header>
+<nav aria-label="Breadcrumb">
+  <ol data-breadcrumbs>
+    {{- with $parent }}
+    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{- end }}
+    <li aria-current="page">{{ .Title }}</li>
+  </ol>
+</nav>

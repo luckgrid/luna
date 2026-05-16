@@ -40,5 +40,5 @@ Shared markup lives as flat files under **`layouts/_partials/`** (e.g. `brand.ht
 - **New post** — `hugo new content posts/<slug>.md -k article`
 - **New legal policy** — `hugo new content legal/<slug>.md -k article`
 - **New page inside a collection hub** — `hugo new content posts/list-example/<slug>.md -k article`
-- **New collection** — `hugo new content <section>/_index.md -k collection`, then adjust `params.pattern` and copy in the generated front matter if needed.
-- **`toc`** — single flag for both collection pages (right **`aside[data-toc]`** inside the collection **`<main>`**) and article pages (TOC **`aside`** after **`<article>`** inside **`<main>`**). Body hooks come from front matter **`params.layout`** / **`params.pattern`** (the dispatcher key) rather than path-based conditions, and collection child pages keep the same two-sidebar shell.
+- **New collection** — `hugo new content <section>/_index.md -k collection`, then adjust cascade and copy in the generated front matter if needed.
+- **`toc`** — shown automatically when a page has at least two `##` headings (override with `toc: true` / `toc: false` in front matter). Applies to collection pages (right **`aside[data-toc]`** inside **`<main>`**) and article pages (TOC **`aside`** after **`<article>`**). Layout chrome is driven by **`type`** on the page (and cascade on section `_index` files).
