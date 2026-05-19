@@ -1,11 +1,12 @@
 {{ define "main" }}
 <header>
-  {{- partial "brand.html" (dict "page" . "showName" false) -}}
-  {{- partial "breadcrumbs.html" . -}}
+  <nav aria-label="Breadcrumb">
+    {{- partial "breadcrumbs.html" . -}}
+  </nav>
 </header>
 <main>
-  {{- partial "title-block.html" . -}}
+  {{- partial "article-header.html" . -}}
   {{- partial "article.html" . -}}
-  {{- partial "toc-sidebar.html" . -}}
+  {{- partial "article-toc.html" . -}}
 </main>
 {{ end }}

@@ -57,30 +57,29 @@ web/
     i18n/                Optional translation bundles
 ```
 
-Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-templatesystem-overview/)** (v0.146+) and use a **dispatcher pattern** (see [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern) and [`AGENTS.md`](AGENTS.md)). Root [`baseof.html`](src/layouts/baseof.html) is document chrome only; [`home.html`](src/layouts/home.html) handles kind=home with the same `<main>` as **`simple`** pages; root [`page.html`](src/layouts/page.html) and [`section.html`](src/layouts/section.html) branch on **`params.layout`** inline; [`all.html`](src/layouts/all.html) is the ultimate fallback (taxonomy/term + safety net). Body hooks come from front matter **`params.layout`** / **`params.pattern`**. Shared fragments live as flat files under **`layouts/_partials/`** (e.g. `hero.html`, `site-header.html`, `metadata.html` for article meta); shortcodes in **`layouts/_shortcodes/`**. References: [Hugo template types](https://gohugo.io/templates/types/), [template lookup order](https://gohugo.io/templates/lookup-order/), [introduction](https://gohugo.io/templates/introduction/).
+Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-templatesystem-overview/)** (v0.146+) and use a **dispatcher pattern** (see [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern) and [`AGENTS.md`](AGENTS.md)). Root [`baseof.html`](src/layouts/baseof.html) is document chrome only; [`home.html`](src/layouts/home.html) handles kind=home with the same `<main>` as **`simple`** pages; root [`page.html`](src/layouts/page.html) and [`section.html`](src/layouts/section.html) branch on **`params.layout`** inline; [`all.html`](src/layouts/all.html) is the ultimate fallback (taxonomy/term + safety net). Body hooks come from front matter **`params.layout`** / **`params.pattern`**. Shared fragments live as flat files under **`layouts/_partials/`** (e.g. `hero.html`, `header.html`, `metadata.html` for article meta); shortcodes in **`layouts/_shortcodes/`**. References: [Hugo template types](https://gohugo.io/templates/types/), [template lookup order](https://gohugo.io/templates/lookup-order/), [introduction](https://gohugo.io/templates/introduction/).
 
 ```text
 src/layouts/_partials/
 ├── head.html              # document `<head>`: meta/OG tags + deferred `bundle.css` fingerprint
-├── site-header.html, site-footer.html, nav-site.html, brand.html
-├── hero.html, title-block.html, breadcrumbs.html, metadata.html, toc-sidebar.html
-├── post-card.html, card-list.html, search-form.html, pagination.html
-├── collection-sidebar.html, prev-next.html
-└── catalog.html
+├── header.html, footer.html, navigation.html, brand.html
+├── hero.html, article-header.html, breadcrumbs.html, metadata.html, article-toc.html
+├── article-card.html, search-form.html, pagination.html
+└── collection-sidebar.html, article-footer.html
 ```
 
 Key pieces:
 
 - [`head.html`](src/layouts/_partials/head.html): `<title>`, description, canonical, Open Graph / Twitter, then deferred [`bundle.css`](src/assets/css/bundle.css) link (fingerprinted outside dev)
-- [`site-header.html`](src/layouts/_partials/site-header.html) / [`site-footer.html`](src/layouts/_partials/site-footer.html): brand + primary nav; footer nav (footer is included from [`baseof.html`](src/layouts/baseof.html))
-- [`nav-site.html`](src/layouts/_partials/nav-site.html): primary + footer navigation; accepts `{ page, label }`
+- [`header.html`](src/layouts/_partials/header.html) / [`footer.html`](src/layouts/_partials/footer.html): brand + primary nav; footer nav (footer is included from [`baseof.html`](src/layouts/baseof.html))
+- [`navigation.html`](src/layouts/_partials/navigation.html): link list for primary + footer navigation; accepts `{ page }` (wrapped in `<nav>` by `header.html` / `footer.html`)
 - [`hero.html`](src/layouts/_partials/hero.html): `<header data-hero>` — page context or `(dict "page" . "slot" $html)` (catalog injects search form)
-- [`title-block.html`](src/layouts/_partials/title-block.html): `<hgroup>` (category, title, description, optional [`metadata.html`](src/layouts/_partials/metadata.html) for `kind=page`)
+- [`article-header.html`](src/layouts/_partials/article-header.html): `<hgroup>` (category, title, description, optional [`metadata.html`](src/layouts/_partials/metadata.html) for `kind=page`)
 - [`breadcrumbs.html`](src/layouts/_partials/breadcrumbs.html): logo link + breadcrumbs (standalone articles)
 - [`collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): collection nav + filter search
-- [`toc-sidebar.html`](src/layouts/_partials/toc-sidebar.html): optional right-hand “On this page” TOC (renders nothing when disabled or empty)
-- [`post-card.html`](src/layouts/_partials/post-card.html): card link for list/catalog/home/collection shortcode
-- [`card-list.html`](src/layouts/_partials/card-list.html): `<section data-list>` wrapper; accepts `{ pages, aria, id? }`
+- [`article-toc.html`](src/layouts/_partials/article-toc.html): optional right-hand “On this page” TOC (renders nothing when disabled or empty)
+- [`article-card.html`](src/layouts/_partials/article-card.html): card link for list/catalog/home/collection shortcode
+- [`article-footer.html`](src/layouts/_partials/article-footer.html): collection prev/next nav inside article pages
 - [`search-form.html`](src/layouts/_partials/search-form.html): `<form role="search">`; accepts `{ id, label, placeholder?, … }`
 - [`pagination.html`](src/layouts/_partials/pagination.html): paginator nav; accepts `.Paginate` output
 
@@ -92,7 +91,7 @@ Key pieces:
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | `/`                                       | [`home.html`](src/layouts/home.html)                                                             | Inlined simple `<main>` + **`latest-posts`** shortcode in [`_index.md`](src/content/_index.md) |
 | `/about/` (or any simple page)            | [`page.html`](src/layouts/page.html) (`params.layout=simple` default)                            | **`simple`** branch in [`page.html`](src/layouts/page.html)                                    |
-| `/posts/`                                 | [`section.html`](src/layouts/section.html) (`params.layout=catalog`)                             | **`catalog`** branch in [`section.html`](src/layouts/section.html)                             |
+| `/posts/`                                 | [`section.catalog.html`](src/layouts/section.catalog.html) (`params.layout=catalog`)             | Inlined in [`section.catalog.html`](src/layouts/section.catalog.html)                          |
 | `/posts/<slug>/`                          | [`page.html`](src/layouts/page.html) (`params.layout=article` cascaded)                          | **`article`** branch in [`page.html`](src/layouts/page.html)                                   |
 | `/legal/`                                 | [`section.html`](src/layouts/section.html) (`params.layout=collection`)                          | **`collection`** branch in [`section.html`](src/layouts/section.html)                          |
 | `/legal/<policy>/`                        | [`page.html`](src/layouts/page.html) (`params.layout=collection` cascaded)                       | **`collection`** branch in [`page.html`](src/layouts/page.html)                                |

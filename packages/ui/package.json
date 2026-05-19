@@ -21,6 +21,6 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "solid-js": "^1.9.12"
+    "solid-js": "^1.9.13"
   }
 }

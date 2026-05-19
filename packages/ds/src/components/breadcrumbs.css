@@ -48,7 +48,7 @@
         margin: 0;
 
         /* Breadcrumb Item Separators */
-        & + :is(a, [role="link"], li, span, [data-breadcrumb], .breadcrumb)::before {
+        &:not(:first-child)::before {
           -webkit-mask-image: var(--icon-chevron);
           -webkit-mask-position: center;
           -webkit-mask-size: contain;

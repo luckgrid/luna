@@ -1,9 +1,9 @@
 {{ define "main" }}
-{{- partial "site-header.html" . -}}
+{{- partial "header.html" . -}}
 {{- partial "collection-sidebar.html" . -}}
 <main>
-  {{- partial "title-block.html" . -}}
+  {{- partial "article-header.html" . -}}
   {{- partial "article.html" . -}}
-  {{- partial "toc-sidebar.html" . -}}
+  {{- partial "article-toc.html" . -}}
 </main>
 {{ end }}

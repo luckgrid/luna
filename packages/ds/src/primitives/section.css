@@ -1,0 +1,14 @@
+/* Section */
+
+@scope (:is(section, [data-section])) {
+  /* Section Variants */
+  @layer variants {
+    /* List Section */
+    :scope:is([data-list], .list) {
+      & :is(ul, ol) {
+        padding: 0;
+        list-style: none;
+      }
+    }
+  }
+}

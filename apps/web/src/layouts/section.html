@@ -2,6 +2,14 @@
 <main>
   {{- partial "hero.html" . -}}
   {{- partial "article.html" . -}}
-  {{- partial "card-list.html" (dict "pages" .Pages "aria" .Title) -}}
+  {{- with .Pages }}
+  <section data-list aria-label="{{ $.Title }}">
+    <ul>
+      {{- range . }}
+      <li>{{ partial "article-card.html" . }}</li>
+      {{- end }}
+    </ul>
+  </section>
+  {{- end }}
 </main>
 {{ end }}

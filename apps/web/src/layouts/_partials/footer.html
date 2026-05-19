@@ -1,5 +1,7 @@
 <footer>
-  {{- partial "nav-site.html" (dict "page" . "label" "Footer navigation") -}}
+  <nav aria-label="Footer navigation">
+    {{- partial "navigation.html" (dict "page" .) -}}
+  </nav>
   <small>
     &copy; {{ now.Format "2006" }} {{ .Site.Title }} · <a href="https://gohugo.io/">Hugo</a> +
     <a href="https://tailwindcss.com/">Tailwind</a>

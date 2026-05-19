@@ -13,6 +13,11 @@
         align-items: center;
         gap: var(--spacing-tap);
       }
+
+      & > :is(ul, ol) {
+        padding: 0;
+        list-style: none;
+      }
     }
   }
 }
