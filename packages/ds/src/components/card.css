@@ -1,6 +1,7 @@
-/* Card — scoped root + nested layers (see packages/ds README). */
+/* Card */
 
 @scope (:is([data-card], .card)) {
+  /* Card Base */
   @layer base {
     :scope {
       display: flex;
@@ -29,6 +30,7 @@
     }
   }
 
+  /* Card Variants */
   @layer variants {
     /* Card Form Variant (scoped subtree) */
     @scope (:scope:is(form)) {
@@ -74,6 +76,7 @@
     }
   }
 
+  /* Card Patterns */
   @layer patterns {
     /* Card List Pattern (scoped subtree) */
     @scope (:scope :is([data-list])) {

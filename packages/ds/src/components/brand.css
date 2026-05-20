@@ -1,0 +1,19 @@
+/* Brand */
+
+@scope (:is([data-brand], .brand)) {
+  /* Brand Base */
+  @layer base {
+    :scope {
+      display: flex;
+      align-items: center;
+
+      &:is(a:not([role="button"]), [role="link"]) {
+        text-decoration: none;
+
+        &:is(:hover, :focus, :active, :focus-visible) {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

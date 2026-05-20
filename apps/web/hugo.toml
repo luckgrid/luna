@@ -10,6 +10,16 @@ staticDir = "public"
 
 disableKinds = []
 
+[build]
+[build.buildStats]
+enable = true
+[[build.cachebusters]]
+source = "assets/ds/.*\\.css"
+target = "css"
+[[build.cachebusters]]
+source = "(postcss|tailwind)\\.config\\.js"
+target = "css"
+
 [pagination]
 pagerSize = 10
 
@@ -32,6 +42,9 @@ target = "i18n"
 [[module.mounts]]
 source = "src/layouts"
 target = "layouts"
+[[module.mounts]]
+source = "../../packages/ds"
+target = "assets/ds"
 
 [params]
 description = "Luna template static site."

@@ -32,6 +32,11 @@
 
       display: grid;
       gap: var(--spacing-16-32) var(--spacing-8-16);
+
+      &:is([role="search"], [role="group"]) {
+        display: inline-flex;
+        gap: var(--spacing-8-16);
+      }
     }
   }
 }

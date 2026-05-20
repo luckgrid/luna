@@ -5,12 +5,13 @@
   @layer base {
     :scope {
       display: inline-flex;
-      align-items: baseline;
+      align-items: center;
+      gap: var(--spacing-6-12);
       color: currentColor;
       text-decoration: underline;
       text-decoration-color: currentColor;
       text-underline-offset: var(--spacing-3-5);
-      transition: var(--transition-link);
+      transition: var(--transition-action);
 
       &:hover,
       &:focus,

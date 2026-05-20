@@ -1,4 +1,3 @@
 # Outputs
 .hugo_build.lock
 resources/
-src/assets/css/bundle.css

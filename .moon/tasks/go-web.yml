@@ -50,7 +50,7 @@ tasks:
     command: sh
     args:
       - "-c"
-      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && mkdir -p src/assets/css && tailwindcss -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css --minify && exec go tool hugo --gc --minify'
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo --gc --minify'
     deps:
       - "~:install"
     inputs:
@@ -64,7 +64,7 @@ tasks:
     command: sh
     args:
       - "-c"
-      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && mkdir -p src/assets/css && tailwindcss -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css && ( tailwindcss -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css --watch & ) && exec go tool hugo server --bind 0.0.0.0 --port "${WEB_PORT:-3001}"'
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo server --bind 0.0.0.0 --port "${WEB_PORT:-3001}"'
     deps:
       - "~:install"
     options:

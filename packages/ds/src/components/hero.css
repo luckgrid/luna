@@ -1,6 +1,7 @@
-/* Hero — scoped root + nested layers (see packages/ds README). */
+/* Hero */
 
 @scope (:is([data-hero], .hero)) {
+  /* Hero Base */
   @layer base {
     :scope {
       position: relative;

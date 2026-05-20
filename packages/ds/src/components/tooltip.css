@@ -1,10 +1,11 @@
-/* Tooltip — scoped root + nested layers (see packages/ds README).
+/* Tooltip
  *
  * Tooltip motion: theme `fade-in-{top|bottom|left|right}` end at transform: translate(0, 0).
  * Resting placement uses `translate` so the slide runs on `transform` only.
  */
 
 @scope (:is([role="tooltip"], [data-tooltip], .tooltip)) {
+  /* Tooltip Base */
   @layer base {
     :scope {
       --space: var(--space, var(--spacing-6-12));
@@ -79,6 +80,7 @@
     }
   }
 
+  /* Tooltip Variants */
   @layer variants {
     /* Tooltip placement reset (before side-specific borders) */
     @scope (

@@ -1,6 +1,7 @@
-/* Breadcrumbs — scoped root + nested layers (see packages/ds README). */
+/* Breadcrumbs */
 
 @scope (:is([data-breadcrumbs], .breadcrumbs)) {
+  /* Breadcrumbs Base */
   @layer base {
     :scope {
       list-style: none;

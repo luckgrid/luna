@@ -1,4 +1,4 @@
-/* Accordion (scoped root + nested layers) */
+/* Accordion */
 
 @scope (:is([data-accordion], .accordion)) {
   /* Accordion Base */

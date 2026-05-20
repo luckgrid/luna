@@ -1,6 +1,7 @@
 @layer components.base, components.variants, components.patterns;
 
 @import "./components/accordion.css";
+@import "./components/brand.css";
 @import "./components/breadcrumbs.css";
 @import "./components/card.css";
 @import "./components/hero.css";
