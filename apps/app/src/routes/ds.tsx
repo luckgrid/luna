@@ -1,21 +1,16 @@
-import { Title } from "@solidjs/meta";
 import { Show, createSignal } from "solid-js";
+
+import { Hero } from "~/components/hero";
 
 export default function DesignSystemPage() {
   const [isModalOpen, setIsModalOpen] = createSignal(false);
 
   return (
     <main>
-      <Title>Design System | Luna</Title>
-      <header data-hero>
-        <hgroup>
-          <h1>Luna Design System</h1>
-          <p>
-            The design system provides class-less CSS-first primitives for building consistent UI
-            without dependencies, only HTML primitives.
-          </p>
-        </hgroup>
-      </header>
+      <Hero
+        title="Luna Design System"
+        description="A Moonrepo starter template using Bun, SolidStart, and Solid Router."
+      />
 
       <section id="preview">
         <h2>Preview</h2>

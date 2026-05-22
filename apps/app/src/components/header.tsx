@@ -2,8 +2,8 @@ import { Breadcrumbs } from "@luna/ui/breadcrumbs";
 import { useLocation } from "@solidjs/router";
 import { createMemo, Show } from "solid-js";
 
-import { Navigation } from "./navigation";
-import { normalizePathname, useBreadcrumbs } from "../utils/breadcrumbs";
+import { normalizePathname } from "~/utils/url";
+import { Navigation, useBreadcrumbs } from "./navigation";
 
 export function Header() {
   const location = useLocation();

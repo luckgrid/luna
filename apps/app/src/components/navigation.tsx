@@ -1,7 +1,11 @@
+import type { BreadcrumbItem } from "@luna/ui/breadcrumbs";
 import { Link, type LinkProps } from "@luna/ui/link";
-import { useHref, useLocation, useResolvedPath } from "@solidjs/router";
+import { useCurrentMatches, useHref, useLocation, useResolvedPath } from "@solidjs/router";
 import type { ParentProps } from "solid-js";
 import { createMemo, splitProps } from "solid-js";
+
+import { ROUTE_SEO } from "~/app.config";
+import { isNotFoundPath, normalizePathname, slugToLabel } from "~/utils/url";
 
 export type NavLinkProps = ParentProps<
   LinkProps & {
@@ -50,6 +54,51 @@ export type NavigationProps = ParentProps<{
   label: string;
   hideLinks?: boolean;
 }>;
+
+function breadcrumbLabel(segment: string, pathSoFar: string) {
+  return ROUTE_SEO[pathSoFar]?.title ?? slugToLabel(segment);
+}
+
+function itemsFromPathname(pathname: string): BreadcrumbItem[] {
+  const segments = normalizePathname(pathname).split("/").filter(Boolean);
+  if (segments.length === 0) {
+    return [];
+  }
+
+  let path = "";
+  return segments.map((segment, index) => {
+    path += `/${segment}`;
+    const isLast = index === segments.length - 1;
+
+    return {
+      label: breadcrumbLabel(segment, path),
+      href: isLast ? undefined : path,
+    };
+  });
+}
+
+/**
+ * Breadcrumb trail from the current URL path (Solid Router `useLocation`), with
+ * `useCurrentMatches` used only to detect the catch-all 404 route.
+ */
+export function useBreadcrumbs() {
+  const location = useLocation();
+  const matches = useCurrentMatches();
+
+  return createMemo(() => {
+    const pathname = normalizePathname(location.pathname);
+    if (pathname === "/") {
+      return [];
+    }
+
+    const leaf = matches().at(-1);
+    if (isNotFoundPath(pathname, leaf)) {
+      return [{ label: "Not Found" }];
+    }
+
+    return itemsFromPathname(pathname);
+  });
+}
 
 export function Navigation(props: NavigationProps) {
   const [{ children, label, hideLinks }] = splitProps(props, ["children", "label", "hideLinks"]);

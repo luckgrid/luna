@@ -1,16 +1,12 @@
-import { Title } from "@solidjs/meta";
 import { HttpStatusCode } from "@solidjs/start";
+
+import { Hero } from "~/components/hero";
 
 export default function NotFound() {
   return (
     <main>
-      <Title>Not Found</Title>
       <HttpStatusCode code={404} />
-      <header data-hero>
-        <hgroup>
-          <h1>Page Not Found</h1>
-        </hgroup>
-      </header>
+      <Hero title="Page Not Found" />
       <p>
         Visit{" "}
         <a href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">

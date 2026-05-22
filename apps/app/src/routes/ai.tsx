@@ -1,5 +1,6 @@
 import { createSignal, For } from "solid-js";
-import { Title } from "@solidjs/meta";
+
+import { Hero } from "~/components/hero";
 
 // Python FastAPI (`apps/api`, default API_PORT 8000); see vite.config.ts + root .env.local
 const API_BASE_URL = import.meta.env.NITRO_PUBLIC_API_BASE_URL || "http://localhost:8000";
@@ -91,13 +92,7 @@ export default function AI() {
 
   return (
     <main>
-      <Title>AI | Luna</Title>
-      <header data-hero>
-        <hgroup>
-          <h1>Luna AI</h1>
-          <p>Chat with AI powered by Pydantic AI + FastAPI.</p>
-        </hgroup>
-      </header>
+      <Hero title="Luna AI" description="Chat with AI powered by Pydantic AI + FastAPI." />
 
       <section class="chat-container">
         <div class="chat-messages">

@@ -2,19 +2,14 @@ import { Accordion } from "@luna/ui/accordion";
 import { Button } from "@luna/ui/button";
 import { Input } from "@luna/ui/input";
 import { Tooltip } from "@luna/ui/tooltip";
-import { Title } from "@solidjs/meta";
 import Counter from "~/components/counter";
+import { Hero } from "~/components/hero";
 
 export default function Home() {
   return (
     <main>
-      <Title>UI | Luna</Title>
-      <header data-hero>
-        <hgroup>
-          <h1>Luna UI</h1>
-          <p>Reusable Solid UI/UX patterns and component.</p>
-        </hgroup>
-        <div role="toolbar" aria-label="Button examples">
+      <Hero title="Luna UI" description="Reusable Solid UI/UX patterns and component.">
+        <div role="group" aria-label="Button examples">
           <Button>Default</Button>
           <Button class="button-primary">Primary</Button>
           <Button class="button-secondary">Secondary</Button>
@@ -24,7 +19,7 @@ export default function Home() {
           </Tooltip>
           <Button class="button-text">Text</Button>
         </div>
-      </header>
+      </Hero>
 
       <section>
         <Input aria-label="Email" placeholder="email@example.com" type="email" />

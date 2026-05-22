@@ -4,7 +4,10 @@ import { nitroV2Plugin } from "@solidjs/vite-plugin-nitro-2";
 import { defineConfig, mergeConfig } from "vite";
 
 /** Python FastAPI (`apps/api`); default `API_PORT` is 8000 (typical Uvicorn) — not Nitro. */
-const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:8000";
+const apiPort = process.env.API_PORT || "8000";
+const appPort = process.env.APP_PORT || "3000";
+const apiBaseUrl = process.env.API_BASE_URL || `http://localhost:${apiPort}`;
+const appBaseUrl = process.env.APP_BASE_URL || `http://localhost:${appPort}`;
 
 export default defineConfig(
   mergeConfig(dsConfig, {
@@ -14,7 +17,8 @@ export default defineConfig(
       nitroV2Plugin({
         runtimeConfig: {
           apiBaseUrl,
-          public: { apiBaseUrl },
+          appBaseUrl,
+          public: { apiBaseUrl, appBaseUrl },
         },
       }),
     ],
@@ -26,6 +30,7 @@ export default defineConfig(
     // Client bundle: Nitro `public`; browser calls FastAPI on API_PORT (default 8000).
     define: {
       "import.meta.env.NITRO_PUBLIC_API_BASE_URL": JSON.stringify(apiBaseUrl),
+      "import.meta.env.NITRO_PUBLIC_APP_BASE_URL": JSON.stringify(appBaseUrl),
     },
   }),
 );
