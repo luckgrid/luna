@@ -13,10 +13,9 @@
       text-underline-offset: var(--spacing-3-5);
       transition: var(--transition-action);
 
-      &:hover,
-      &:focus,
-      &:active {
+      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
         outline: none;
+        text-decoration: underline;
       }
 
       &:focus-visible {

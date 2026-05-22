@@ -1,0 +1,90 @@
+/* Loader */
+
+@property --loader-sweep {
+  syntax: "<angle>";
+  initial-value: 90deg;
+  inherits: false;
+}
+
+@scope (:is([data-loader], .loader, [aria-busy="true"])) {
+  @layer base {
+    :scope {
+      color: var(--color-fg);
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      inline-size: 1em;
+      block-size: 1em;
+    }
+
+    /* Track ring (background) */
+    :scope::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.2;
+      mask: radial-gradient(
+        circle,
+        transparent 38.9%,
+        currentColor 38.9%,
+        currentColor 50%,
+        transparent 50%
+      );
+      -webkit-mask: radial-gradient(
+        circle,
+        transparent 38.9%,
+        currentColor 38.9%,
+        currentColor 50%,
+        transparent 50%
+      );
+    }
+
+    /* Animated arc (foreground) */
+    :scope::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(
+        currentColor var(--loader-sweep, 90deg),
+        transparent var(--loader-sweep, 90deg)
+      );
+      mask: radial-gradient(
+        circle,
+        transparent 38.9%,
+        currentColor 38.9%,
+        currentColor 50%,
+        transparent 50%
+      );
+      -webkit-mask: radial-gradient(
+        circle,
+        transparent 38.9%,
+        currentColor 38.9%,
+        currentColor 50%,
+        transparent 50%
+      );
+      animation:
+        loader-spin 0.8s linear infinite,
+        loader-sweep 1.6s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes loader-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes loader-sweep {
+  0%,
+  100% {
+    --loader-sweep: 90deg;
+  }
+  50% {
+    --loader-sweep: 180deg;
+  }
+}

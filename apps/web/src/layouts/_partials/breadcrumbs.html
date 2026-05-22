@@ -1,12 +1,47 @@
-{{- $parent := .CurrentSection -}}
+{{- $kind := .Kind -}}
+{{- $layout := .Layout -}}
+{{- $parent := .Parent -}}
+{{- $firstSection := .FirstSection -}}
+
+{{- $isCatalogParent := and $parent (eq $parent.Params.layout "catalog") -}}
+{{- $isCatalogSection := and $firstSection (eq $firstSection.Params.layout "catalog") -}}
+
+{{- $isCatalog := eq $layout "catalog" -}}
+{{- $isCollection := and (eq $kind "section") (eq $layout "collection") (or (not $parent) (eq $parent.Kind "home") $isCatalogParent) -}}
+{{- $isCatalogArticle := and (eq $kind "page") $isCatalogSection -}}
+{{- $isCollectionArticle := and (eq $kind "page") (not $isCatalogSection) (not (or (not $parent) (eq $parent.Kind "home"))) -}}
+
 {{- $showName := true -}}
-{{- with $parent }}{{- $showName = false -}}{{- end -}}
+{{- $parentLink := $parent -}}
+{{- $parentLabel := "" -}}
+{{- $showParent := false -}}
+{{- $currentPage := "" -}}
+
+{{- if $isCatalog -}}
+  {{- $showName = true -}}
+{{- else if $isCollection -}}
+  {{- $showName = false -}}
+  {{- $showParent = $isCatalogParent -}}
+  {{- $parentLabel = $firstSection.RelPermalink | replaceRE "/$" "" | replaceRE "^.*/" "" | title -}}
+  {{- $slug := .RelPermalink | replaceRE "/$" "" | replaceRE "^.*/" "" -}}
+  {{- $currentPage = $slug | replaceRE "[-,&]" " " | replaceRE "\\s+" " " | strings.TrimSpace | title -}}
+{{- else if or $isCatalogArticle $isCollectionArticle -}}
+  {{- $showName = false -}}
+  {{- $showParent = true -}}
+  {{- if $isCatalogArticle }}{{ $parentLink = $firstSection }}{{ end -}}
+  {{- $parentLabel = $parentLink.RelPermalink | replaceRE "/$" "" | replaceRE "^.*/" "" | title -}}
+  {{- $slug := .RelPermalink | replaceRE "/$" "" | replaceRE "^.*/" "" -}}
+  {{- $currentPage = $slug | replaceRE "[-,&]" " " | replaceRE "\\s+" " " | strings.TrimSpace -}}
+{{- end -}}
+
 <ol data-breadcrumbs>
   <li>
     {{- partial "brand.html" (dict "page" . "showName" $showName) -}}
   </li>
-  {{- with $parent }}
-  <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+  {{- if $showParent }}
+  <li><a href="{{ $parentLink.RelPermalink }}">{{ $parentLabel }}</a></li>
   {{- end }}
-  <li aria-current="page">{{ .Title }}</li>
+  {{- if $currentPage }}
+  <li aria-current="page">{{ $currentPage }}</li>
+  {{- end }}
 </ol>

@@ -1,9 +1,5 @@
 {{ define "main" }}
-<header>
-  <nav aria-label="Breadcrumb">
-    {{- partial "breadcrumbs.html" . -}}
-  </nav>
-</header>
+{{- partial "header.html" . -}}
 <main>
   {{- partial "article-header.html" . -}}
   {{- partial "article.html" . -}}

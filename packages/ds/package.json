@@ -8,7 +8,8 @@
   ],
   "exports": {
     "./tailwind.css": "./tailwind.css",
-    "./vite.config": "./vite.config.ts"
+    "./vite.config": "./vite.config.ts",
+    "./icons/*": "./src/icons/*"
   },
   "dependencies": {},
   "devDependencies": {

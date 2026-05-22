@@ -6,6 +6,8 @@
     /* List Section */
     :scope:is([data-list], .list) {
       & :is(ul, ol) {
+        display: grid;
+        gap: var(--spacing-20-40);
         padding: 0;
         list-style: none;
       }

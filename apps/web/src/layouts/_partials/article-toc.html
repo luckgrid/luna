@@ -1,4 +1,4 @@
-{{- $toc := .TableOfContents | replace `id="TableOfContents"` `id="table-of-contents"` -}}
+{{- $toc := .TableOfContents -}}
 {{- $showToc := false -}}
 {{- if in .Params "toc" -}}
   {{- $showToc = .Params.toc -}}

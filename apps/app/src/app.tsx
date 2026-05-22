@@ -3,6 +3,7 @@ import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 
+import { Navigation } from "./components/navigation";
 import "./app.css";
 
 export default function App() {
@@ -12,14 +13,7 @@ export default function App() {
         <MetaProvider>
           <Title>SolidStart - Basic</Title>
           <header>
-            <nav>
-              <a href="/">Home</a>
-              <div aria-label="Header Navigation" role="navigation">
-                <a href="/design-system">Design System</a>
-                <a href="/ui">UI</a>
-                <a href="/ai">AI</a>
-              </div>
-            </nav>
+            <Navigation ariaLabel="Header navigation" />
           </header>
           <Suspense>{props.children}</Suspense>
         </MetaProvider>

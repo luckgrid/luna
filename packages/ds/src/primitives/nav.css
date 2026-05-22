@@ -22,7 +22,8 @@
       & :is(a:not([role="button"]), [role="link"]) {
         text-decoration: none;
 
-        &:is(:hover, :focus, :active, :focus-visible) {
+        &:is(:hover, :focus, :focus-visible, [aria-current]):not([aria-current="false"]),
+        &:is([data-active]):not([data-active="false"]) {
           text-decoration: underline;
         }
       }

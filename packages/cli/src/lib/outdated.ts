@@ -83,32 +83,32 @@ export function computeOutdatedFingerprint(repoRoot: string): string {
   return createHash("sha256").update(parts.join("|"), "utf8").digest("hex");
 }
 
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
 function isProtoReport(v: unknown): v is ProtoPinsOutdatedReport {
-  if (typeof v !== "object" || v === null) return false;
+  if (!isPlainObject(v)) return false;
   for (const row of Object.values(v)) {
-    if (typeof row !== "object" || row === null) return false;
-    const o = row as Record<string, unknown>;
-    if (typeof o.is_outdated !== "boolean") return false;
-    if (typeof o.current_version !== "string") return false;
+    if (!isPlainObject(row)) return false;
+    if (typeof Reflect.get(row, "is_outdated") !== "boolean") return false;
+    if (typeof Reflect.get(row, "current_version") !== "string") return false;
   }
   return true;
 }
 
 function isStoredSnapshot(v: unknown): v is StoredOutdatedSnapshot {
-  if (typeof v !== "object" || v === null) return false;
-  const o = v as Record<string, unknown>;
-  if (!isProtoReport(o.protoReport)) return false;
-  if (typeof o.bunOut !== "string") return false;
-  if (!Array.isArray(o.uvProjects) || !Array.isArray(o.goModules)) return false;
-  for (const u of o.uvProjects) {
-    if (typeof u !== "object" || u === null) return false;
-    const r = u as Record<string, unknown>;
-    if (typeof r.root !== "string" || typeof r.dryRunOut !== "string") return false;
+  if (!isPlainObject(v)) return false;
+  if (!isProtoReport(v.protoReport)) return false;
+  if (typeof v.bunOut !== "string") return false;
+  if (!Array.isArray(v.uvProjects) || !Array.isArray(v.goModules)) return false;
+  for (const u of v.uvProjects) {
+    if (!isPlainObject(u)) return false;
+    if (typeof u.root !== "string" || typeof u.dryRunOut !== "string") return false;
   }
-  for (const g of o.goModules) {
-    if (typeof g !== "object" || g === null) return false;
-    const r = g as Record<string, unknown>;
-    if (typeof r.root !== "string" || typeof r.goGetDryRunOut !== "string") return false;
+  for (const g of v.goModules) {
+    if (!isPlainObject(g)) return false;
+    if (typeof g.root !== "string" || typeof g.goGetDryRunOut !== "string") return false;
   }
   return true;
 }
@@ -139,8 +139,8 @@ export function tryReadOutdatedCache(repoRoot: string): StoredOutdatedSnapshot |
   } catch {
     return null;
   }
-  if (typeof raw !== "object" || raw === null) return null;
-  const o = raw as Record<string, unknown>;
+  if (!isPlainObject(raw)) return null;
+  const o = raw;
   if (o.lunaSchema !== CACHE_SCHEMA) return null;
   if (typeof o.fingerprint !== "string") return null;
   if (o.fingerprint !== computeOutdatedFingerprint(repoRoot)) return null;
@@ -232,7 +232,7 @@ const SPIN = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "�
 export function isOutdatedLiveStatusEnabled(): boolean {
   if (process.env.LUNA_OUTDATED_NO_LIVE === "1") return false;
   if (process.env.CI === "true" || process.env.CI === "1") return false;
-  return Boolean(process.stderr.isTTY && process.stderr.writable);
+  return process.stderr.isTTY && process.stderr.writable;
 }
 
 type TierCell = "pending" | "running" | { ok: boolean; ms: number };

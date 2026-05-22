@@ -19,13 +19,6 @@
       letter-spacing: var(--text-sm--letter-spacing);
       text-transform: uppercase;
 
-      /* Breadcrumb Images */
-      & :is(img, svg, figure, [role="figure"]) {
-        width: var(--spacing-24-32);
-        height: var(--spacing-24-32);
-        flex-shrink: 0;
-      }
-
       /* Breadcrumb Links */
       & :is(a, [role="link"]) {
         white-space: nowrap;

@@ -21,7 +21,7 @@
     <ul id="collection-nav-list-{{ $slug }}">{{- $introHay := printf "%s %s %s" $sec.Title ($sec.Description | default "") $sec.RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
       <li data-search="{{ $introHay }}">
         <a
-          href="{{ $sec.Permalink }}"
+          href="{{ $sec.RelPermalink }}"
           {{- if eq $.RelPermalink $sec.RelPermalink }} aria-current="page"{{ end }}
           >{{ $sec.Title }}</a
         >

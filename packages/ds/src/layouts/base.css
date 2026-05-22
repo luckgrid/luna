@@ -62,25 +62,6 @@
         & > :is(nav, [role="navigation"]) {
           justify-content: space-between;
         }
-
-        /* Sticky header: shadow after scrolling past 1px.
-         * TODO: prefer a Tailwind utility when extraction is convenient. */
-        &:is([data-sticky], .sticky) {
-          @supports (animation-timeline: scroll(root block)) {
-            animation: var(--animation-dropshadow);
-            animation-timeline: scroll(root block);
-            animation-range: 0 1px;
-
-            @media (prefers-reduced-motion: reduce) {
-              animation: none;
-              box-shadow: var(--shadow-1);
-            }
-          }
-
-          @supports not (animation-timeline: scroll(root block)) {
-            box-shadow: var(--shadow-1);
-          }
-        }
       }
 
       /* Body Layout Footer */
@@ -151,7 +132,17 @@
         gap: var(--spacing-container);
       }
 
-      :scope > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
+      :scope
+        > :is(
+          header,
+          [data-header],
+          footer,
+          [data-footer],
+          article,
+          [data-article],
+          section,
+          [data-section]
+        ) {
         padding-block: var(--spacing-layout);
         padding-inline: var(--spacing-container);
       }

@@ -91,7 +91,6 @@
     @scope (:is(main, [data-main]) :is(article, [data-article])) {
       :scope {
         min-inline-size: 0;
-        padding-inline: var(--spacing-container);
       }
 
       /* Article Details (faqs, collapsibles, accordions, etc.) */

@@ -40,6 +40,7 @@
     ],
     "classes": ["chroma", "highlight"],
     "ids": [
+      "TableOfContents",
       "acceptance",
       "add-another-announcement",
       "add-content",

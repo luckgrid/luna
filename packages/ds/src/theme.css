@@ -284,11 +284,13 @@
 
   /* Transition */
   --transition-action:
-    var(--transition-colors), var(--transition-opacity), var(--transition-shadow);
-  --transition-slider: inline-slide 150ms var(--ease-in-out);
+    color, background-color, border-color, outline-color, text-decoration-color, fill, stroke,
+    var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to), opacity,
+    box-shadow var(--default-transition-duration) var(--default-transition-timing-function);
+  --transition-slider: inline-slide var(--default-transition-duration)
+    var(--default-transition-timing-function);
 
   /* Animations */
-  --animation-dash: dash 1.5s var(--ease-in-out) infinite;
   --animation-dropshadow: dropshadow 0.5s linear both;
   --animation-fade-in-top: fade-in-top 0.2s var(--ease-in-out) forwards;
   --animation-fade-in-bottom: fade-in-bottom 0.2s var(--ease-in-out) forwards;
@@ -297,23 +299,6 @@
   --animation-slider: slider 1s linear infinite;
 
   /* Animation Keyframes */
-  @keyframes dash {
-    0% {
-      stroke-dasharray: 1, 100;
-      stroke-dashoffset: 0;
-    }
-
-    50% {
-      stroke-dasharray: 44.5, 100;
-      stroke-dashoffset: -17.5;
-    }
-
-    100% {
-      stroke-dasharray: 44.5, 100;
-      stroke-dashoffset: -62;
-    }
-  }
-
   @keyframes dropshadow {
     from {
       box-shadow: none;
@@ -396,11 +381,23 @@
   --letter-spacing: var(--text-base--letter-spacing);
   --underline-offset: var(--spacing-3-5);
 
-  /* SVG Icon Tokens (mask icons use opaque fills; stroke icons use currentColor for tint) */
-  --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='black' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
-  --icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9%2016.17L4.83%2012l-1.42%201.41L9%2019%2021%207l-1.41-1.41z'/%3E%3C/svg%3E");
-  --icon-minus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect fill='white' x='5' y='11' width='14' height='2' rx='1'/%3E%3C/svg%3E");
-  --icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
-  --icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='3.5' width='11' height='10' rx='1.5'/%3E%3Cpath d='M5 2.5v2M11 2.5v2M2.5 6.5h11'/%3E%3C/svg%3E");
-  --icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='5.5'/%3E%3Cpath d='M8 5v3l2 1.5'/%3E%3C/svg%3E");
+  /* SVG Icon Tokens (src/icons/*.svg — mask icons use opaque fills; stroke icons use currentColor for tint) */
+  --icon-arrow: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpolygon transform='translate(106.680107, 134.255147)' points='1.42108547e-14 143.073067 216.973013 143.073067 146.7232 213.32288 176.889813 243.489707 298.639787 121.739733 176.889813 0 146.7232 30.1668267 216.970453 100.4064 1.42108547e-14 100.4064'/%3E%3C/svg%3E");
+  --icon-box: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M384,0 L384,384 L0,384 L0,0 L384,0 Z M341.333333,42.6666667 L42.6666667,42.6666667 L42.6666667,341.333333 L341.333333,341.333333 L341.333333,42.6666667 Z'/%3E%3C/svg%3E");
+  --icon-box-check: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M384,0 L384,384 L0,384 L0,0 L384,0 Z M341.333333,42.6666667 L42.6666667,42.6666667 L42.6666667,341.333333 L341.333333,341.333333 L341.333333,42.6666667 Z M282.008132,104.106667 L315.325201,130.760322 L173.998374,296.75219 L82.6731733,217.292032 L109.326827,183.974955 L167.317333,236.793494 L282.008132,104.106667 Z'/%3E%3C/svg%3E");
+  --icon-check: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpolygon transform='translate(91.581722, 94.833062)' points='304.534538 0 340.035351 23.6672084 154.934008 301.319223 1.42108547e-14 146.385216 30.1698893 116.215326 148.290278 234.318938'/%3E%3C/svg%3E");
+  --icon-chevron: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpolygon transform='translate(80.915055, 157.44)' points='320 0 350.169889 30.1698893 175.084945 205.254834 0 30.1698893 30.1698893 0 175.084945 144.898278'/%3E%3C/svg%3E");
+  --icon-circle: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M192,0 C298.039168,0 384,85.9608324 384,192 C384,298.039168 298.039168,384 192,384 C85.9608324,384 0,298.039168 0,192 C0,85.9608324 85.9608324,0 192,0 Z M192,42.6666667 C109.60992,42.6666667 42.6666667,109.60992 42.6666667,192 C42.6666667,274.39008 109.60992,341.333333 192,341.333333 C274.39008,341.333333 341.333333,274.39008 341.333333,192 C341.333333,109.60992 274.39008,42.6666667 192,42.6666667 Z'/%3E%3C/svg%3E");
+  --icon-circle-dot: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M192,0 C298.039168,0 384,85.9608324 384,192 C384,298.039168 298.039168,384 192,384 C85.9608324,384 0,298.039168 0,192 C0,85.9608324 85.9608324,0 192,0 Z M192,42.6666667 C109.60992,42.6666667 42.6666667,109.60992 42.6666667,192 C42.6666667,274.39008 109.60992,341.333333 192,341.333333 C274.39008,341.333333 341.333333,274.39008 341.333333,192 C341.333333,109.60992 274.39008,42.6666667 192,42.6666667 Z M192,96 C245.019336,96 288,138.980664 288,192 C288,245.019336 245.019336,288 192,288 C138.980664,288 96,245.019336 96,192 C96,138.980664 138.980664,96 192,96 Z'/%3E%3C/svg%3E");
+  --icon-close: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(91.581722, 91.581722)' d='M298.666667,4.26325641e-14 L328.836556,30.1698893 L194.587,164.418 L328.836556,298.666667 L298.666667,328.836556 L164.418,194.587 L30.1698893,328.836556 L9.9475983e-14,298.666667 L134.248,164.418 L7.10542736e-14,30.1698893 L30.1698893,4.26325641e-14 L164.418,134.248 L298.666667,4.26325641e-14 Z'/%3E%3C/svg%3E");
+  --icon-link: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(42.666667, 128)' d='M298.666667,106.666667 L298.666667,149.333333 L128,149.333333 L128,106.666667 L298.666667,106.666667 Z M192,213.333333 L128,213.333333 C80.94656,213.333333 42.6666667,175.05344 42.6666667,128 C42.6666667,80.94656 80.94656,42.6666667 128,42.6666667 L192,42.6666667 L192,0 L128,0 C57.3073067,0 0,57.3073067 0,128 C0,198.692693 57.3073067,256 128,256 L192,256 L192,213.333333 Z M298.666667,0 L234.666667,0 L234.666667,42.6666667 L298.666667,42.6666667 C345.720107,42.6666667 384,80.94656 384,128 C384,175.05344 345.720107,213.333333 298.666667,213.333333 L234.666667,213.333333 L234.666667,256 L298.666667,256 C369.35936,256 426.666667,198.692693 426.666667,128 C426.666667,57.3073067 369.35936,0 298.666667,0 Z'/%3E%3C/svg%3E");
+  --icon-list: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M106.666667,0 L384,0 L384,42.6666667 L106.666667,42.6666667 Z M0,0 L64,0 L64,42.6666667 L0,42.6666667 Z M106.666667,106.666667 L384,106.666667 L384,149.333333 L106.666667,149.333333 Z M0,106.666667 L64,106.666667 L64,149.333333 L0,149.333333 Z M106.666667,213.333333 L384,213.333333 L384,256 L106.666667,256 Z M0,213.333333 L64,213.333333 L64,256 L0,256 Z M106.666667,320 L384,320 L384,362.666667 L106.666667,362.666667 Z M0,320 L64,320 L64,362.666667 L0,362.666667 Z'/%3E%3C/svg%3E");
+  --icon-menu: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(42.666667, 106.666667)' d='M0,0 L426.666667,0 L426.666667,42.6666667 L0,42.6666667 Z M0,128 L426.666667,128 L426.666667,170.666667 L0,170.666667 Z M0,256 L426.666667,256 L426.666667,298.666667 L0,298.666667 Z'/%3E%3C/svg%3E");
+  --icon-minus: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Crect transform='translate(64, 234.666667)' x='0' y='0' width='384' height='42.6666667'/%3E%3C/svg%3E");
+  --icon-plus: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M213.333333,0 L213.333,170.666 L384,170.666667 L384,213.333333 L213.333,213.333 L213.333333,384 L170.666667,384 L170.666,213.333 L0,213.333333 L0,170.666667 L170.666,170.666 L170.666667,0 L213.333333,0 Z'/%3E%3C/svg%3E");
+  --icon-reference: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpolygon transform='translate(106.666667, 64)' points='320 234.666667 192 362.666667 161.706667 332.373333 238.293333 256 0 256 0 0 42.6666667 0 42.6666667 213.333333 238.293333 213.333333 161.706667 136.96 192 106.666667'/%3E%3C/svg%3E");
+  --icon-search: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(42.666667, 42.666667)' d='M426.630187,396.463573 L305.314987,275.148373 C327.799467,246.239573 341.333333,210.04032 341.333333,170.666667 C341.333333,76.56256 264.770773,0 170.666667,0 C76.56256,0 0,76.56256 0,170.666667 C0,264.770773 76.56256,341.333333 170.666667,341.333333 C210.04032,341.333333 246.239573,327.799467 275.148373,305.3152 L396.463573,426.6304 L426.630187,396.463573 Z M170.666667,298.666667 C100.083413,298.666667 42.6666667,241.24992 42.6666667,170.666667 C42.6666667,100.083413 100.083413,42.6666667 170.666667,42.6666667 C241.24992,42.6666667 298.666667,100.083413 298.666667,170.666667 C298.666667,241.24992 241.24992,298.666667 170.666667,298.666667 Z'/%3E%3C/svg%3E");
+  --icon-spinner: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cg transform='translate(64, 64)'%3E%3Cpath fill-opacity='0.2' d='M192,0 C298.039168,0 384,85.9608324 384,192 C384,298.039168 298.039168,384 192,384 C85.9608324,384 0,298.039168 0,192 C0,85.9608324 85.9608324,0 192,0 Z M192,42.6666667 C109.60992,42.6666667 42.6666667,109.60992 42.6666667,192 C42.6666667,274.39008 109.60992,341.333333 192,341.333333 C274.39008,341.333333 341.333333,274.39008 341.333333,192 C341.333333,109.60992 274.39008,42.6666667 192,42.6666667 Z'/%3E%3Cpath d='M192,0 A192,192 0 0 1 384,192 L341.333333,192 A149.333333,149.333333 0 0 0 192,42.6666667 Z'/%3E%3C/g%3E%3C/svg%3E");
+  --icon-calendar: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M384,0 L384,384 L0,384 L0,0 L384,0 Z M341.333333,128 L42.6666667,128 L42.6666667,341.333333 L341.333333,341.333333 L341.333333,128 Z M128,256 L128,298.666667 L85.3333333,298.666667 L85.3333333,256 L128,256 Z M213.333333,256 L213.333333,298.666667 L170.666667,298.666667 L170.666667,256 L213.333333,256 Z M298.666667,256 L298.666667,298.666667 L256,298.666667 L256,256 L298.666667,256 Z M128,170.666667 L128,213.333333 L85.3333333,213.333333 L85.3333333,170.666667 L128,170.666667 Z M213.333333,170.666667 L213.333333,213.333333 L170.666667,213.333333 L170.666667,170.666667 L213.333333,170.666667 Z M298.666667,170.666667 L298.666667,213.333333 L256,213.333333 L256,170.666667 L298.666667,170.666667 Z M341.333333,42.6666667 L42.6666667,42.6666667 L42.6666667,85.3333333 L341.333333,85.3333333 L341.333333,42.6666667 Z'/%3E%3C/svg%3E");
+  --icon-clock: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpath transform='translate(64, 64)' d='M192,0 C298.039168,0 384,85.9608324 384,192 C384,298.039168 298.039168,384 192,384 C85.9608324,384 0,298.039168 0,192 C0,85.9608324 85.9608324,0 192,0 Z M192,42.6666667 C109.60992,42.6666667 42.6666667,109.60992 42.6666667,192 C42.6666667,274.39008 109.60992,341.333333 192,341.333333 C274.39008,341.333333 341.333333,274.39008 341.333333,192 C341.333333,109.60992 274.39008,42.6666667 192,42.6666667 Z M213.333333,106.666667 L213.333333,170.666667 L320,170.666667 L320,213.333333 L170.666667,213.333333 L170.666667,106.666667 Z'/%3E%3C/svg%3E");
 }

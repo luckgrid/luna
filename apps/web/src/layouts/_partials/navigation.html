@@ -5,6 +5,7 @@
       href='{{ "posts/" | relURL }}'
       {{- if or (eq $page.RelPermalink "/posts/") (eq $page.Section "posts") }}
       aria-current="page"
+      data-active
       {{- end }}
       >Posts</a
     >
@@ -14,6 +15,7 @@
       href='{{ "legal/" | relURL }}'
       {{- if eq $page.Section "legal" }}
       aria-current="page"
+      data-active
       {{- end }}
       >Legal</a
     >

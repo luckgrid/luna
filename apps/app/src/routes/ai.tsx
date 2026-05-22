@@ -112,7 +112,7 @@ export default function AI() {
           </For>
           {loading() && (
             <div class="message message-assistant">
-              <div class="message-content loading">Thinking...</div>
+              <div class="message-content loading">Thinking</div>
             </div>
           )}
           {error() && (

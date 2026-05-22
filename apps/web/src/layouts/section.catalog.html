@@ -30,22 +30,24 @@
 -}}
 <main>
   {{- partial "hero.html" (dict "page" . "slot" $searchForm) -}}
-  {{- partial "article.html" . -}}
   {{- if $hasPaginatorPages }}
   <section aria-label="{{ .Title }}" data-list>
     <ul id="catalog-list">{{- range $paginator.Pages -}}
       {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
-      <li data-search="{{ $hay }}">{{ partial "article-card.html" . }}</li>{{- end }}</ul>
-    <p id="catalog-search-status" hidden>No matching posts.</p>
+      <li data-search="{{ $hay }}">{{ partial "article-card.html" . }}</li>
+      {{- end }}
+    </ul>
+    <p id="catalog-search-status" hidden data-message>No matching posts.</p>
+    {{- if $showPagination }}
+    <footer aria-label="{{ .Title }}">
+      <div id="catalog-pagination">
+        {{- partial "pagination.html" $paginator -}}
+      </div>
+    </footer>
+    {{- end }}
   </section>
   {{- end }}
-  {{- if $showPagination }}
-  <footer aria-label="{{ .Title }}">
-    <div id="catalog-pagination">
-      {{- partial "pagination.html" $paginator -}}
-    </div>
-  </footer>
-  {{- end }}
+  {{- partial "article.html" . -}}
 </main>
 <script type="application/json" id="catalog-entries">
   {{- $entries | jsonify | safeJS -}}

@@ -1,6 +1,6 @@
-<header>
+<header data-sticky>
   <nav aria-label="Header navigation">
-    {{- partial "brand.html" (dict "page" . "showName" true) -}}
-    {{- partial "navigation.html" (dict "page" .) -}}
+    {{- partial "breadcrumbs.html" . -}}
   </nav>
+  {{- with .Params.slot }}{{- . }}{{ end -}}
 </header>
