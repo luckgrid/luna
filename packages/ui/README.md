@@ -8,8 +8,10 @@ Use flat subpath imports:
 
 - `@luna/ui/button`
 - `@luna/ui/accordion`
+- `@luna/ui/brand`
 - `@luna/ui/input`
 - `@luna/ui/link`
+- `@luna/ui/breadcrumbs`
 - `@luna/ui/tooltip`
 - `@luna/ui/utils`
 

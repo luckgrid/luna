@@ -57,13 +57,13 @@ web/
     i18n/                Optional translation bundles
 ```
 
-Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-templatesystem-overview/)** (v0.146+) and use a **dispatcher pattern** (see [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern) and [`AGENTS.md`](AGENTS.md)). Root [`baseof.html`](src/layouts/baseof.html) is document chrome only; [`home.html`](src/layouts/home.html) handles kind=home with the same `<main>` as **`simple`** pages; root [`page.html`](src/layouts/page.html) and [`section.html`](src/layouts/section.html) branch on **`params.layout`** inline; [`all.html`](src/layouts/all.html) is the ultimate fallback (taxonomy/term + safety net). Body hooks come from front matter **`params.layout`** / **`params.pattern`**. Shared fragments live as flat files under **`layouts/_partials/`** (e.g. `hero.html`, `header.html`, `metadata.html` for article meta); shortcodes in **`layouts/_shortcodes/`**. References: [Hugo template types](https://gohugo.io/templates/types/), [template lookup order](https://gohugo.io/templates/lookup-order/), [introduction](https://gohugo.io/templates/introduction/).
+Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-templatesystem-overview/)** (v0.146+) and use a **dispatcher pattern** (see [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern) and [`AGENTS.md`](AGENTS.md)). Root [`baseof.html`](src/layouts/baseof.html) is document chrome only; [`home.html`](src/layouts/home.html) handles kind=home with the same `<main>` as **`simple`** pages; root [`page.html`](src/layouts/page.html) and [`section.html`](src/layouts/section.html) branch on **`params.layout`** inline; [`all.html`](src/layouts/all.html) is the ultimate fallback (taxonomy/term + safety net). Body hooks come from front matter **`params.layout`** / **`params.pattern`**. Shared fragments live as flat files under **`layouts/_partials/`** (e.g. `hero.html`, `header.html`, `article-meta.html` for article meta); shortcodes in **`layouts/_shortcodes/`**. References: [Hugo template types](https://gohugo.io/templates/types/), [template lookup order](https://gohugo.io/templates/lookup-order/), [introduction](https://gohugo.io/templates/introduction/).
 
 ```text
 src/layouts/_partials/
 ├── head.html              # document `<head>`: meta/OG tags + deferred `bundle.css` fingerprint
 ├── header.html, footer.html, navigation.html, brand.html
-├── hero.html, article-header.html, breadcrumbs.html, metadata.html, article-toc.html
+├── hero.html, article-header.html, breadcrumbs.html, article-meta.html, article-toc.html
 ├── article-card.html, search-form.html, pagination.html
 └── collection-sidebar.html, article-footer.html
 ```
@@ -74,7 +74,7 @@ Key pieces:
 - [`header.html`](src/layouts/_partials/header.html) / [`footer.html`](src/layouts/_partials/footer.html): brand + primary nav; footer nav (footer is included from [`baseof.html`](src/layouts/baseof.html))
 - [`navigation.html`](src/layouts/_partials/navigation.html): link list for primary + footer navigation; accepts `{ page }` (wrapped in `<nav>` by `header.html` / `footer.html`)
 - [`hero.html`](src/layouts/_partials/hero.html): `<header data-hero>` — page context or `(dict "page" . "slot" $html)` (catalog injects search form)
-- [`article-header.html`](src/layouts/_partials/article-header.html): `<hgroup>` (category, title, description, optional [`metadata.html`](src/layouts/_partials/metadata.html) for `kind=page`)
+- [`article-header.html`](src/layouts/_partials/article-header.html): `<hgroup>` (category, title, description, optional [`article-meta.html`](src/layouts/_partials/article-meta.html) for `kind=page`)
 - [`breadcrumbs.html`](src/layouts/_partials/breadcrumbs.html): logo link + breadcrumbs (standalone articles)
 - [`collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): collection nav + filter search
 - [`article-toc.html`](src/layouts/_partials/article-toc.html): optional right-hand “On this page” TOC (renders nothing when disabled or empty)

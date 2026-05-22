@@ -6,7 +6,11 @@ export default function NotFound() {
     <main>
       <Title>Not Found</Title>
       <HttpStatusCode code={404} />
-      <h1>Page Not Found</h1>
+      <header data-hero>
+        <hgroup>
+          <h1>Page Not Found</h1>
+        </hgroup>
+      </header>
       <p>
         Visit{" "}
         <a href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">

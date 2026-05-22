@@ -47,20 +47,28 @@ export function NavLink(props: NavLinkProps) {
 }
 
 export type NavigationProps = ParentProps<{
-  ariaLabel?: string;
+  label: string;
+  hideLinks?: boolean;
 }>;
 
 export function Navigation(props: NavigationProps) {
-  const [{ ariaLabel = "Navigation", children }] = splitProps(props, ["ariaLabel", "children"]);
+  const [{ children, label, hideLinks }] = splitProps(props, ["children", "label", "hideLinks"]);
 
   return (
-    <nav aria-label={ariaLabel}>
-      <NavLink href="/" end>
-        Home
-      </NavLink>
-      <NavLink href="/design-system">Design System</NavLink>
-      <NavLink href="/ui">UI</NavLink>
-      <NavLink href="/ai">AI</NavLink>
+    <nav aria-label={label}>
+      {!hideLinks && (
+        <ul>
+          <li>
+            <NavLink href="/ds">DS</NavLink>
+          </li>
+          <li>
+            <NavLink href="/ui">UI</NavLink>
+          </li>
+          <li>
+            <NavLink href="/ai">AI</NavLink>
+          </li>
+        </ul>
+      )}
       {children}
     </nav>
   );

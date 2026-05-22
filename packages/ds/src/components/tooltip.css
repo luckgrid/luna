@@ -8,7 +8,7 @@
   /* Tooltip Base */
   @layer base {
     :scope {
-      --space: var(--space, var(--spacing-6-12));
+      --space: var(--spacing-6-12);
 
       position: relative;
 

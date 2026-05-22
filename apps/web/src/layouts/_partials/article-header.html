@@ -5,7 +5,7 @@
     {{- with .Description -}}
     <p>{{ . }}</p>
     {{- end -}} {{- $show := and (eq .Kind "page") (or .Date (not (eq (len .Params.tags) 0))) -}} {{- if $show -}}
-    {{- partial "metadata.html" . -}}
+    {{- partial "article-meta.html" . -}}
     {{- end -}}
   </hgroup>
 </header>

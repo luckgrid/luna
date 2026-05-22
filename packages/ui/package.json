@@ -7,8 +7,10 @@
   "exports": {
     "./button": "./src/action/button.tsx",
     "./accordion": "./src/display/accordion.tsx",
+    "./brand": "./src/display/brand.tsx",
     "./input": "./src/form/input.tsx",
     "./link": "./src/navigation/link.tsx",
+    "./breadcrumbs": "./src/navigation/breadcrumbs.tsx",
     "./tooltip": "./src/feedback/tooltip.tsx",
     "./utils": "./src/utils/core.ts",
     "./utils/*": "./src/utils/*.ts"

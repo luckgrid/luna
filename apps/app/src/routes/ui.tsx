@@ -1,7 +1,6 @@
 import { Accordion } from "@luna/ui/accordion";
 import { Button } from "@luna/ui/button";
 import { Input } from "@luna/ui/input";
-import { Link } from "@luna/ui/link";
 import { Tooltip } from "@luna/ui/tooltip";
 import { Title } from "@solidjs/meta";
 import Counter from "~/components/counter";
@@ -10,7 +9,7 @@ export default function Home() {
   return (
     <main>
       <Title>UI | Luna</Title>
-      <header>
+      <header data-hero>
         <hgroup>
           <h1>Luna UI</h1>
           <p>Reusable Solid UI/UX patterns and component.</p>
@@ -50,15 +49,6 @@ export default function Home() {
           <Counter />
         </div>
       </section>
-
-      <footer>
-        <p>
-          <Link href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">
-            SolidStart docs
-          </Link>{" "}
-          and shared packages now work together.
-        </p>
-      </footer>
     </main>
   );
 }

@@ -71,11 +71,19 @@
 
   /* Shadows */
   --shadow-*: initial;
-  --shadow-1: 0 1px 2px var(--color-shadow);
-  --shadow-2: 0 2px 4px -1px var(--color-shadow), 0 1px 2px -1px var(--color-shadow);
-  --shadow-3: 0 4px 8px -2px var(--color-shadow), 0 2px 4px -2px var(--color-shadow);
-  --shadow-4: 0 8px 16px -4px var(--color-shadow), 0 4px 8px -4px var(--color-shadow);
-  --shadow-5: 0 16px 32px -8px var(--color-shadow), 0 8px 16px -8px var(--color-shadow);
+  --shadow-1: 0 1px 2px color-mix(in oklab, var(--color-shadow) 40%, transparent);
+  --shadow-2:
+    0 2px 4px -1px color-mix(in oklab, var(--color-shadow) 45%, transparent),
+    0 1px 2px -1px color-mix(in oklab, var(--color-shadow) 45%, transparent);
+  --shadow-3:
+    0 4px 8px -2px color-mix(in oklab, var(--color-shadow) 50%, transparent),
+    0 2px 4px -2px color-mix(in oklab, var(--color-shadow) 50%, transparent);
+  --shadow-4:
+    0 8px 16px -4px color-mix(in oklab, var(--color-shadow) 55%, transparent),
+    0 4px 8px -4px color-mix(in oklab, var(--color-shadow) 55%, transparent);
+  --shadow-5:
+    0 16px 32px -8px color-mix(in oklab, var(--color-shadow) 40%, transparent),
+    0 8px 16px -8px color-mix(in oklab, var(--color-shadow) 60%, transparent);
   /* Inset Shadows */
   --inset-shadow-*: initial;
   --inset-shadow-1: inset 0 1px color-mix(in oklab, var(--color-shadow) 5%, transparent);

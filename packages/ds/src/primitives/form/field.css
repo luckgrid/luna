@@ -4,7 +4,7 @@
   /* Field Base */
   @layer base {
     :scope {
-      --space: var(--space, var(--spacing-8-16));
+      --space: var(--spacing-8-16);
 
       position: relative;
       flex: 1;

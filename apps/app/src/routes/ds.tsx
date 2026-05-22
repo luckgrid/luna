@@ -1,6 +1,5 @@
 import { Title } from "@solidjs/meta";
 import { Show, createSignal } from "solid-js";
-import { Link } from "@luna/ui/link";
 
 export default function DesignSystemPage() {
   const [isModalOpen, setIsModalOpen] = createSignal(false);
@@ -8,7 +7,7 @@ export default function DesignSystemPage() {
   return (
     <main>
       <Title>Design System | Luna</Title>
-      <header>
+      <header data-hero>
         <hgroup>
           <h1>Luna Design System</h1>
           <p>
@@ -337,15 +336,6 @@ export default function DesignSystemPage() {
           Please wait...
         </button>
       </section>
-
-      <footer>
-        <small>
-          Built with <Link href="https://github.com/luckgrid/luna">Luna</Link> •{" "}
-          <Link href="https://github.com/luckgrid/luna/blob/main/apps/web/src/routes/design-system.tsx">
-            Source code
-          </Link>
-        </small>
-      </footer>
 
       <Show when={isModalOpen()}>
         <dialog id="modalExample" open>

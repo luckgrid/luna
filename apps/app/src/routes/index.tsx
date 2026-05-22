@@ -1,12 +1,11 @@
 import { ButtonLink } from "@luna/ui/button";
-import { Link } from "@luna/ui/link";
 import { Title } from "@solidjs/meta";
 
 export default function Home() {
   return (
     <main>
       <Title>Monorepo Starter Template | Luna</Title>
-      <header>
+      <header data-hero>
         <hgroup>
           <h1>Luna</h1>
           <p>A Moonrepo starter template using Bun, SolidStart, and Solid Router.</p>
@@ -24,12 +23,6 @@ export default function Home() {
           and FastAPI.
         </p>
       </section>
-
-      <footer>
-        <small>
-          Built with <Link href="https://github.com/luckgrid/luna">Luna</Link>.
-        </small>
-      </footer>
     </main>
   );
 }

@@ -3,7 +3,9 @@ import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 
-import { Navigation } from "./components/navigation";
+import { Footer } from "./components/footer";
+import { Header } from "./components/header";
+
 import "./app.css";
 
 export default function App() {
@@ -12,10 +14,9 @@ export default function App() {
       root={(props) => (
         <MetaProvider>
           <Title>SolidStart - Basic</Title>
-          <header>
-            <Navigation ariaLabel="Header navigation" />
-          </header>
+          <Header />
           <Suspense>{props.children}</Suspense>
+          <Footer />
         </MetaProvider>
       )}
     >

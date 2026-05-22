@@ -92,7 +92,7 @@ export default function AI() {
   return (
     <main>
       <Title>AI | Luna</Title>
-      <header>
+      <header data-hero>
         <hgroup>
           <h1>Luna AI</h1>
           <p>Chat with AI powered by Pydantic AI + FastAPI.</p>

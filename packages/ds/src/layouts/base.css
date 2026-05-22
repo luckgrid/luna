@@ -62,6 +62,24 @@
         & > :is(nav, [role="navigation"]) {
           justify-content: space-between;
         }
+
+        /* Sticky Header - Show shadow after scrolling past 1px */
+        &:is([data-sticky], .sticky) {
+          @supports (animation-timeline: scroll(root block)) {
+            animation: dropshadow linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0 1px;
+
+            @media (prefers-reduced-motion: reduce) {
+              animation: none;
+              box-shadow: var(--shadow-2);
+            }
+          }
+
+          @supports not (animation-timeline: scroll(root block)) {
+            box-shadow: var(--shadow-2);
+          }
+        }
       }
 
       /* Body Layout Footer */
