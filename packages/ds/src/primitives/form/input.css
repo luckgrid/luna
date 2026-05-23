@@ -110,9 +110,9 @@
     :scope:is(input):is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"])
   ) {
       :scope {
-        padding-inline-end: calc(1.25em + var(--spacing-6-12));
+        padding-inline-end: calc(1.25em + var(--spacing-8-16));
         background-image: var(--icon-calendar);
-        background-position: center right var(--spacing-6-12);
+        background-position: center right var(--spacing-8-16);
         background-size: 1.25em auto;
         background-repeat: no-repeat;
 
@@ -125,14 +125,14 @@
         }
 
         @-moz-document url-prefix() {
-          padding-inline-end: var(--spacing-6-12) !important;
+          padding-inline-end: var(--spacing-8-16) !important;
           background-image: none !important;
         }
 
         &::-webkit-calendar-picker-indicator {
           width: 1.25em;
           margin-inline-end: -1.25em;
-          margin-inline-start: var(--spacing-6-12);
+          margin-inline-start: var(--spacing-8-16);
           opacity: 0;
         }
       }
@@ -144,14 +144,20 @@
         appearance: none;
         -webkit-appearance: none;
         width: 100%;
-        height: 1.5rem;
-        background: none;
+        height: var(--border-width-3);
+        padding: 0;
+        background-color: var(--color-fg);
+
+        &:is(:hover, :focus, :active, :focus-visible) {
+          background-color: var(--color-fg);
+          border-color: var(--color-fg);
+        }
 
         &::-webkit-slider-runnable-track,
         &::-moz-range-track,
         &::-ms-track {
           width: 100%;
-          height: var(--border-width-2);
+          height: var(--border-width-3);
           border-radius: 0;
           background-color: var(--color-fg);
           transition:
@@ -165,10 +171,9 @@
           appearance: none;
           width: 0.75rem;
           height: 1.5rem;
-          margin-top: calc((var(--border-width-2) - 1.5rem) / 2);
-          border: var(--border-width-2) solid var(--color-accent);
+          border: var(--border-width-3) solid var(--color-fg);
           border-radius: 0;
-          background-color: var(--color-accent);
+          background-color: var(--color-fg);
           cursor: pointer;
           transition:
             background-color 150ms ease,
@@ -176,17 +181,11 @@
         }
 
         &:is(:active, :focus-within) {
-          &::-webkit-slider-runnable-track,
-          &::-moz-range-track,
-          &::-ms-track {
-            background-color: color-mix(in oklab, var(--color-fg) 88%, var(--color-accent));
-          }
-
           &::-webkit-slider-thumb,
           &::-moz-range-thumb,
           &::-ms-thumb {
-            background-color: color-mix(in oklab, var(--color-accent) 88%, var(--color-fg));
-            border-color: color-mix(in oklab, var(--color-accent) 88%, var(--color-fg));
+            background-color: var(--color-fg);
+            border-color: var(--color-fg);
           }
         }
 
@@ -194,7 +193,7 @@
           &::-webkit-slider-thumb,
           &::-moz-range-thumb,
           &::-ms-thumb {
-            transform: scale(1.25);
+            transform: scale(1.5);
           }
         }
       }
@@ -205,7 +204,6 @@
       :scope {
         appearance: textfield;
         -webkit-appearance: textfield;
-        padding-inline-start: calc(var(--space) * 2 + 1.25em);
 
         &::-webkit-search-decoration,
         &::-webkit-search-results-decoration,
@@ -244,17 +242,38 @@
         text-transform: none;
         cursor: pointer;
 
+        &::-ms-expand {
+          border: 0;
+          background-color: transparent;
+        }
+
+        &[multiple] option:checked {
+          background: color-mix(
+            in oklab,
+            var(--color-accent) 20%,
+            var(--background-color, var(--color-light))
+          );
+          color: var(--color, var(--color-dark));
+        }
+
         @supports (appearance: base-select) {
           &,
           &::picker(select) {
             appearance: base-select;
           }
 
+          &:not([multiple], [size]) {
+            align-items: center;
+          }
+
           &::picker-icon {
+            flex-shrink: 0;
+            align-self: center;
             display: block;
             width: 1.25em;
             height: 1.25em;
-            background-color: color-mix(in oklab, currentColor 55%, transparent);
+            margin: 0;
+            background-color: currentColor;
             -webkit-mask-image: var(--icon-chevron);
             -webkit-mask-size: contain;
             -webkit-mask-repeat: no-repeat;
@@ -273,8 +292,7 @@
           &::picker(select) {
             margin: 0;
             padding: 0;
-            border: var(--border-width-2) solid var(--color-fg);
-            border-radius: var(--radius-1);
+            border: var(--border-width-2) solid var(--color-light);
             background-color: var(--background-color, var(--color-light));
             box-shadow: var(--shadow-2);
             opacity: 0;
@@ -291,42 +309,59 @@
             }
           }
 
+          /* Reset select styles if it has a button (to align select with button styles) */
+          &:has(button, [type="submit"], [type="reset"], [type="button"], [role="button"]) {
+            min-width: var(--container-3xs);
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-8-16) var(--spacing-24-48);
+            background-color: var(--color-fg);
+            color: var(--color-bg);
+            text-align: center;
+
+            & :is(button, [type="submit"], [type="reset"], [type="button"], [role="button"]) {
+              padding: 0;
+            }
+          }
+
+          /* Select Option */
           & option {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: var(--spacing-4-6);
             padding: var(--spacing-4-6) var(--space);
             border: 0;
+            border-radius: 0;
             background-color: var(--background-color, var(--color-light));
             color: var(--color, var(--color-dark));
             transition: var(--transition-action);
-          }
 
-          & option:nth-of-type(odd) {
-            background-color: color-mix(
-              in oklab,
-              var(--background-color, var(--color-light)) 92%,
-              var(--color-fg)
-            );
-          }
+            &:nth-of-type(odd) {
+              background-color: color-mix(
+                in oklab,
+                var(--background-color, var(--color-light)) 98%,
+                var(--color-light)
+              );
+            }
 
-          & option:is(:hover, :focus) {
-            background-color: color-mix(
-              in oklab,
-              var(--color-accent) 14%,
-              var(--background-color, var(--color-light))
-            );
-          }
+            &:is(:hover, :focus) {
+              background-color: color-mix(
+                in oklab,
+                var(--color-accent) 12%,
+                var(--background-color, var(--color-light))
+              );
+            }
 
-          & option:checked {
-            font-weight: var(--text-base--font-weight, 600);
-          }
+            &:checked {
+              font-weight: var(--text-base--font-weight, 600);
+            }
 
-          & option::checkmark {
-            order: 1;
-            margin-inline-start: auto;
-            color: var(--color-accent);
-            content: "✓";
+            &::checkmark {
+              order: 1;
+              color: var(--color-accent);
+              content: "✓";
+            }
           }
         }
 
@@ -344,20 +379,6 @@
             }
           }
         }
-
-        &::-ms-expand {
-          border: 0;
-          background-color: transparent;
-        }
-
-        &[multiple] option:checked {
-          background: color-mix(
-            in oklab,
-            var(--color-accent) 20%,
-            var(--background-color, var(--color-light))
-          );
-          color: var(--color, var(--color-dark));
-        }
       }
     }
 
@@ -367,7 +388,10 @@
         -webkit-appearance: none;
         appearance: none;
         cursor: pointer;
-        border-width: var(--border-width-1);
+        min-height: var(--spacing-38-76);
+        padding: 0;
+        border-width: var(--border-width-2);
+        background-color: var(--color-fg);
 
         &::-moz-focus-inner,
         &::-webkit-color-swatch-wrapper {
@@ -385,21 +409,21 @@
     /* File Input */
     @scope (:scope:is(input):is([type="file"])) {
       :scope {
-        margin-left: calc(var(--outline-width-1) * -1);
+        margin-left: calc(var(--outline-width-2) * -1);
         padding: var(--spacing-3-5) 0;
-        padding-left: var(--outline-width-1);
+        padding-left: var(--outline-width-2);
         border: 0;
         border-radius: 0;
         background: none;
 
         &::file-selector-button {
           margin-inline-end: calc(var(--spacing-8-16) / 2);
-          padding: var(--spacing-4-6) var(--spacing-6-12);
+          padding: var(--spacing-4-6) var(--spacing-8-16);
 
           &:is(:hover, :active, :focus) {
             background-color: color-mix(
               in oklab,
-              var(--color-accent) 14%,
+              var(--color-accent) 12%,
               var(--background-color, var(--color-light))
             );
           }
@@ -407,7 +431,7 @@
           &:focus {
             box-shadow:
               var(--shadow-1),
-              0 0 0 var(--outline-width-1) var(--color-bg),
+              0 0 0 var(--outline-width-2) var(--color-fg),
               0 0 0 var(--outline-width-2) color-mix(in oklab, var(--color-accent) 60%, transparent);
           }
         }
@@ -484,6 +508,61 @@
           opacity: 0.6;
           cursor: not-allowed;
         }
+      }
+    }
+  }
+}
+
+/* Search Group */
+@scope ([role="search"]) {
+  @layer base {
+    /* Search Group Base */
+    :scope {
+      position: relative;
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: var(--spacing-12-24);
+
+      /* Search Icon (inputs can't have pseudo-elements; the wrapper owns it) */
+      &::before {
+        position: absolute;
+        top: 50%;
+        left: calc(var(--spacing-8-16) * 2);
+        z-index: 4;
+        inline-size: 1.25em;
+        block-size: 1.25em;
+        opacity: 0.6;
+        background-color: var(--color-fg);
+        -webkit-mask-image: var(--icon-search);
+        -webkit-mask-position: center;
+        -webkit-mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-image: var(--icon-search);
+        mask-position: center;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        content: "";
+        pointer-events: none;
+        transform: translateY(-50%);
+      }
+
+      /* Search Icon State Modifiers */
+      &:is(:hover, :focus-within)::before {
+        opacity: 0.8;
+      }
+
+      /* Search Input */
+      & :is(input[type="search"], input:not([type])) {
+        flex: 1 1 12rem;
+        min-width: 0;
+        width: auto;
+        padding-inline-start: calc(var(--spacing-8-16) * 3 + 1.25em);
+      }
+
+      & > select {
+        flex: 0 1 auto;
+        width: auto;
       }
     }
   }
