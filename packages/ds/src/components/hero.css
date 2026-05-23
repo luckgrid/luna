@@ -7,7 +7,7 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: var(--spacing-container);
+      justify-content: end;
       gap: var(--spacing-container);
       font-family: var(--font-sans);
 

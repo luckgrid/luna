@@ -64,7 +64,7 @@ src/layouts/_partials/
 ├── head.html              # document `<head>`: meta/OG tags + deferred `bundle.css` fingerprint
 ├── header.html, footer.html, navigation.html, brand.html
 ├── hero.html, article-header.html, breadcrumbs.html, article-meta.html, article-toc.html
-├── article-card.html, search-form.html, pagination.html
+├── article-card.html, search-filter.html, pagination.html
 └── collection-sidebar.html, article-footer.html
 ```
 
@@ -80,7 +80,7 @@ Key pieces:
 - [`article-toc.html`](src/layouts/_partials/article-toc.html): optional right-hand “On this page” TOC (renders nothing when disabled or empty)
 - [`article-card.html`](src/layouts/_partials/article-card.html): card link for list/catalog/home/collection shortcode
 - [`article-footer.html`](src/layouts/_partials/article-footer.html): collection prev/next nav inside article pages
-- [`search-form.html`](src/layouts/_partials/search-form.html): `<form role="search">`; accepts `{ id, label, placeholder?, … }`
+- [`search-filter.html`](src/layouts/_partials/search-filter.html): `<form role="search">` with search input + category `<select>`; accepts `{ id, label, placeholder?, categories?, … }`
 - [`pagination.html`](src/layouts/_partials/pagination.html): paginator nav; accepts `.Paginate` output
 
 **Scaling:** add another **collection** subtree under `content/` by creating its `_index.md` with **`type: collection`** + **`params.layout: collection`** and a **`cascade`** block for child articles. Add another searchable article index with **`params.layout: catalog`**. Add a new design by extending the **`if` / `else if`** branches in [`page.html`](src/layouts/page.html) or [`section.html`](src/layouts/section.html) plus **`params.layout: <name>`** in front matter or cascade; add shared markup as a new partial next to the existing flat **`_partials/*.html`** files.

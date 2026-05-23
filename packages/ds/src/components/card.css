@@ -14,7 +14,7 @@
       border-style: solid;
       border-width: var(--border-width-2);
       border-color: var(--color-bg-4);
-      background-color: var(--color-bg-2);
+      background-color: var(--color-bg-1);
       color: var(--color-fg);
       font-family: var(--font-sans);
 
@@ -44,7 +44,7 @@
         bottom: calc(-1 * var(--spacing-surface));
         margin: calc(-1 * var(--spacing-surface));
         padding: var(--spacing-surface);
-        background-color: var(--color-bg-2);
+        background-color: var(--color-bg-1);
       }
     }
 
@@ -69,7 +69,7 @@
       :scope:focus-visible {
         box-shadow: none;
         outline-style: solid;
-        outline-width: var(--border-width-1);
+        outline-width: var(--border-width-2);
         outline-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
         outline-offset: var(--border-width-2);
       }

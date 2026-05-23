@@ -5,9 +5,11 @@
   @layer variants {
     /* List Section */
     :scope:is([data-list], .list) {
+      padding-block-start: var(--spacing-24-48);
+
       & :is(ul, ol) {
         display: grid;
-        gap: var(--spacing-20-40);
+        gap: var(--spacing-24-48);
         padding: 0;
         list-style: none;
       }

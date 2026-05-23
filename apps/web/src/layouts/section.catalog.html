@@ -7,6 +7,15 @@
 {{- range where .Pages "Kind" "section" -}}
   {{- $indexed = $indexed | append . -}}
 {{- end -}}
+{{- $categories := slice -}}
+{{- range $indexed }}
+  {{- with .Params.category }}
+    {{- if not (in $categories .) }}
+      {{- $categories = $categories | append . -}}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $categories = sort $categories -}}
 {{- $entries := slice -}}
 {{- range $indexed }}
   {{- $entry := dict
@@ -17,24 +26,29 @@
     "dateLabel" (cond (and .Date (eq .Kind "page")) (.Date.Format "Jan 2, 2006") "")
     "kind" .Kind
     "metaLabel" (cond (eq .Kind "section") "Collection" "")
+    "category" (.Params.category | default "")
     "search" (printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower)
   -}}
   {{- $entries = $entries | append $entry -}}
 {{- end -}}
 {{- $hasPaginatorPages := gt (len $paginator.Pages) 0 -}}
 {{- $showPagination := gt $paginator.TotalPages 1 -}}
-{{- $searchForm := partial "search-form.html" (dict
+{{- $searchFilter := partial "search-filter.html" (dict
   "id" "catalog-search"
   "label" "Search posts"
-  "placeholder" "Search posts")
+  "placeholder" "Search posts"
+  "filterId" "catalog-category-filter"
+  "filterLabel" "Filter posts by category"
+  "categories" $categories)
 -}}
 <main>
-  {{- partial "hero.html" (dict "page" . "slot" $searchForm) -}}
+  {{- partial "hero.html" (dict "page" . "slot" $searchFilter) -}}
   {{- if $hasPaginatorPages }}
   <section aria-label="{{ .Title }}" data-list>
     <ul id="catalog-list">{{- range $paginator.Pages -}}
       {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
-      <li data-search="{{ $hay }}">{{ partial "article-card.html" . }}</li>
+      {{- $category := .Params.category | default "" -}}
+      <li data-search="{{ $hay }}" data-category="{{ $category }}">{{ partial "article-card.html" . }}</li>
       {{- end }}
     </ul>
     <p id="catalog-search-status" hidden data-message>No matching posts.</p>
@@ -56,6 +70,7 @@
   (function () {
     var form = document.querySelector('form[role="search"]');
     var input = document.getElementById("catalog-search");
+    var categoryFilter = document.getElementById("catalog-category-filter");
     var list = document.getElementById("catalog-list");
     var status = document.getElementById("catalog-search-status");
     var pager = document.getElementById("catalog-pagination");
@@ -75,7 +90,11 @@
 
     function renderEntry(entry) {
       var parts = [
-        '<li data-search="' + escapeHTML(entry.search) + '">',
+        '<li data-search="' +
+          escapeHTML(entry.search) +
+          '" data-category="' +
+          escapeHTML(entry.category || "") +
+          '">',
         '<a href="' + escapeHTML(entry.url) + '" data-card>',
         "<hgroup>",
         "<h3>" + escapeHTML(entry.title) + "</h3>"
@@ -103,7 +122,8 @@
 
     function filter() {
       var q = (input.value || "").toLowerCase().trim();
-      if (!q) {
+      var category = categoryFilter ? (categoryFilter.value || "").trim() : "";
+      if (!q && !category) {
         list.innerHTML = initial;
         if (pager) pager.hidden = false;
         if (status) status.hidden = true;
@@ -111,7 +131,9 @@
       }
 
       var matches = entries.filter(function (entry) {
-        return entry.search.indexOf(q) !== -1;
+        var matchesQuery = !q || entry.search.indexOf(q) !== -1;
+        var matchesCategory = !category || entry.category === category;
+        return matchesQuery && matchesCategory;
       });
 
       list.innerHTML = matches.map(renderEntry).join("");
@@ -129,6 +151,7 @@
 
     input.addEventListener("input", filter);
     input.addEventListener("search", filter);
+    if (categoryFilter) categoryFilter.addEventListener("change", filter);
   })();
 </script>
 {{ end }}

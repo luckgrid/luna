@@ -1,6 +1,6 @@
 {{ define "main" }}
 <main>
-  {{- partial "hero.html" . -}}
+  {{- partial "hero.html" (dict "page" . "class" "min-h-svh") -}}
   {{- partial "article.html" . -}}
 </main>
 {{ end }}

@@ -35,7 +35,21 @@
 
       &:is([role="search"], [role="group"]) {
         display: inline-flex;
-        gap: var(--spacing-8-16);
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: var(--spacing-12-24);
+
+        & > :is(input[type="search"], input:not([type])) {
+          flex: 1 1 12rem;
+          min-width: 0;
+          width: auto;
+        }
+
+        & > select {
+          flex: 0 1 auto;
+          width: auto;
+          min-width: 12ch;
+        }
       }
     }
   }

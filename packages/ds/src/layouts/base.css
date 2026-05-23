@@ -172,6 +172,10 @@
     /* Catalog Layout Pattern */
     /* TODO: make this into a utility that can be applied to any layout pattern. */
     &[data-layout="catalog"] {
+      & > :is(main, [data-main]) > :is(header, [data-header]) {
+        padding-block-end: 0;
+      }
+
       @supports (timeline-scope: --scroll-over-target) {
         timeline-scope: --scroll-over-target;
 

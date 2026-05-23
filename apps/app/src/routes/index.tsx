@@ -8,6 +8,7 @@ export default function Home() {
       <Hero
         title="Luna"
         description="A Moonrepo starter template using Bun, SolidStart, and Solid Router."
+        class="min-h-svh"
       >
         <div role="toolbar" aria-label="Button examples">
           <ButtonLink href="https://github.com/luckgrid/luna">Get Started</ButtonLink>
