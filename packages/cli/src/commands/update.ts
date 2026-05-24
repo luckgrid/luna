@@ -1,27 +1,30 @@
 import {
-  findRepoRoot,
-  formatProjectDirLabel,
-  listBunWorkspacePackageDirs,
-  listGoModuleRoots,
-  listUvProjectRoots,
-  readGoModToolPaths,
-  syncRootPackageManagerBun,
-  verifyGoModuleAfterDependencyUpdate,
-} from "../lib/repo";
-import { tryReadOutdatedCache } from "../lib/outdated";
-import { gatherOutdatedSnapshotAsync, printOutdatedCheckSummary } from "./outdated";
-import { requireCmd, runOrExit, spawnExit } from "../lib/process";
-import { section } from "../lib/terminal";
-import {
   bunWorkspaceOutdatedFromOutput,
   captureBunOutdatedRecursive,
   collectInRangeMinorBumps,
   collectPrereleaseBumps,
-  installAllProtoPinnedTools,
-  protoOutdatedUpdateArgs,
-  protoRunOpts,
+  listBunWorkspacePackageDirs,
   runPrereleaseBumps,
-} from "../lib/toolchains";
+  syncRootPackageManagerBun,
+} from "../lib/bun";
+import {
+  findRepoRoot,
+  requireCmd,
+  runOrExit,
+  section,
+  spawnExit,
+  tryReadOutdatedCache,
+} from "../lib/commands";
+import {
+  goFullGraphOutdatedEnabled,
+  isGoModuleToolOnly,
+  readGoModToolPaths,
+  verifyGoModuleAfterDependencyUpdate,
+} from "../lib/go";
+import { listGoModuleRoots, listUvProjectRoots } from "../lib/moon";
+import { installAllProtoPinnedTools, protoOutdatedUpdateArgs, protoRunOpts } from "../lib/proto";
+import { formatProjectDirLabel } from "../lib/utils";
+import { gatherOutdatedSnapshotAsync, printOutdatedCheckSummary } from "./outdated";
 
 export type RunUpdateOptions = {
   /** When true, allow major-version bumps for proto pins and Bun deps and run the prerelease catch-up step. */
@@ -137,24 +140,51 @@ export async function runUpdate(opts: RunUpdateOptions): Promise<number> {
     requireCmd("go");
     for (const root of goRoots) {
       const label = formatProjectDirLabel(repoRoot, root);
-      section(
-        major
-          ? `Go — ${label} (go get go@latest + tool@latest + -u all && go mod tidy && verify)`
-          : `Go — ${label} (go get -u all && go mod tidy && verify)`,
-      );
-      if (major) {
-        runOrExit(
-          spawnExit(["go", "get", "go@latest"], { cwd: root }),
-          `go get go@latest (${label})`,
+      const toolOnly = isGoModuleToolOnly(root) && !goFullGraphOutdatedEnabled();
+      const tools = readGoModToolPaths(root);
+
+      if (toolOnly) {
+        section(
+          major
+            ? `Go — ${label} (go get -tool @latest per tool && go mod tidy && verify)`
+            : `Go — ${label} (go get -u=patch per tool && go mod tidy && verify)`,
         );
-        for (const tool of readGoModToolPaths(root)) {
-          runOrExit(
-            spawnExit(["go", "get", `${tool}@latest`], { cwd: root }),
-            `go get ${tool}@latest (${label})`,
-          );
+        if (major) {
+          for (const tool of tools) {
+            runOrExit(
+              spawnExit(["go", "get", "-tool", `${tool}@latest`], { cwd: root }),
+              `go get -tool ${tool}@latest (${label})`,
+            );
+          }
+        } else {
+          for (const tool of tools) {
+            runOrExit(
+              spawnExit(["go", "get", "-u=patch", tool], { cwd: root }),
+              `go get -u=patch ${tool} (${label})`,
+            );
+          }
         }
+      } else {
+        section(
+          major
+            ? `Go — ${label} (go get go@latest + tool@latest + -u all && go mod tidy && verify)`
+            : `Go — ${label} (go get -u all && go mod tidy && verify)`,
+        );
+        if (major) {
+          runOrExit(
+            spawnExit(["go", "get", "go@latest"], { cwd: root }),
+            `go get go@latest (${label})`,
+          );
+          for (const tool of tools) {
+            runOrExit(
+              spawnExit(["go", "get", `${tool}@latest`], { cwd: root }),
+              `go get ${tool}@latest (${label})`,
+            );
+          }
+        }
+        runOrExit(spawnExit(["go", "get", "-u", "all"], { cwd: root }), `go get -u all (${label})`);
       }
-      runOrExit(spawnExit(["go", "get", "-u", "all"], { cwd: root }), `go get -u all (${label})`);
+
       runOrExit(spawnExit(["go", "mod", "tidy"], { cwd: root }), `go mod tidy (${label})`);
       const verify = verifyGoModuleAfterDependencyUpdate(root);
       if (!verify.ok) {

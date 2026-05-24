@@ -157,7 +157,7 @@ moon run ui:typecheck
 
 Repo-wide **outdated checks** and **upgrades** go through the **`luna` CLI** so every toolchain stays in sync:
 
-The internal CLI [`@luna/cli`](packages/cli) (`luna`) reports outdated **proto pins**, **Bun workspace** packages, and **Python / uv** lockfile upgrades (dry-run) (`luna outdated`). Python targets are **Moon projects** with `language: python` (plus a filesystem fallback and optional `UV_PROJECT_ROOT` for an extra dir). `luna outdated` **always** exits **1** if any tier or project has upgrades (CI-friendly). `luna update` refreshes each discovered project. After `bun run update`, review diffs and run `bun run check` before committing.
+The internal CLI [`@luna/cli`](packages/cli) (`luna`) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules (`language: go` + `go.mod`, plus optional `GO_MODULE_ROOT`) (`luna outdated`). Tool-only Go modules (e.g. Hugo via `go tool` in `apps/web`) are checked with fast `go list -m -u` on `tool` lines; modules with local Go code use `go get -n -u all`. `luna outdated` **always** exits **1** if any tier or project has upgrades (CI-friendly). `luna update` refreshes each discovered project. After `bun run update`, review diffs and run `bun run check` before committing.
 
 ```sh
 luna outdated      # same as below; report + summary; exit 1 if anything is outdated
@@ -170,7 +170,7 @@ bun run update     # wraps `luna update`; then review and run bun run check
 **Per stack (manual add / remove)** — use these when you are changing one project, not refreshing everything:
 
 - **Toolchain (proto)** — edit [`.prototools`](.prototools), then `bun run setup` or `proto install` individually. Removing a tool line drops it from proto’s install set for this repo.
-- **Hugo (`apps/web`)** — bump the CLI with Go: `cd apps/web` then `go get -tool github.com/gohugoio/hugo@vX.Y.Z` (updates [`apps/web/go.mod`](apps/web/go.mod) / `go.sum`); `luna outdated` does not scan Go modules today.
+- **Hugo (`apps/web`)** — `luna update` bumps the `tool` line with `go get -u=patch` (or `go get -tool …@latest` with `luna update --major`). To pin a specific release manually: `cd apps/web` then `go get -tool github.com/gohugoio/hugo@vX.Y.Z` (updates [`apps/web/go.mod`](apps/web/go.mod) / `go.sum`). Set `LUNA_GO_FULL_GRAPH=1` to restore slow full-graph `go get -u all` on tool-only modules.
 - **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
 - **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
 

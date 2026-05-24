@@ -24,7 +24,7 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 - Toolchain pins: [`.prototools`](.prototools)
 - Root scripts/workspaces: [`package.json`](package.json)
-- Repo-wide outdated / update: [`packages/cli`](packages/cli) — `luna outdated` / `luna update` (router in `packages/cli/src/main.ts`; Python roots from Moon + `lib/repo.ts`; Hugo is **`go tool`** in `apps/web`, not a proto pin)
+- Repo-wide outdated / update: [`packages/cli`](packages/cli) — `luna outdated` / `luna update` (router in `packages/cli/src/main.ts`; Python roots via `lib/moon.ts` + `lib/py.ts`; Hugo is **`go tool`** in `apps/web`, not a proto pin)
 - Moon workspace/toolchains/tasks: [`.moon/`](.moon/)
 - TypeScript project references: [`tsconfig.json`](tsconfig.json), [`tsconfig.options.json`](tsconfig.options.json)
 - OXC config: [`.oxlintrc.json`](.oxlintrc.json), [`.oxfmtrc.json`](.oxfmtrc.json)

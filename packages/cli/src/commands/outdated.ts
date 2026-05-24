@@ -1,22 +1,13 @@
 import { join } from "node:path";
 import {
-  findRepoRoot,
-  formatProjectDirLabel,
-  listGoModuleRoots,
-  listUvProjectRoots,
-} from "../lib/repo";
-import {
   computeOutdatedSummaryState,
+  findRepoRoot,
   isOutdatedLiveStatusEnabled,
   outdatedTierMessages,
   OutdatedLiveStatus,
-  tryReadOutdatedCache,
-  type StoredOutdatedSnapshot,
-  writeOutdatedCache,
-} from "../lib/outdated";
-import {
   printOutdatedTable,
   printProtoOutdatedTableFromReport,
+  requireCmd,
   section,
   strictAllPassed,
   strictHint,
@@ -24,24 +15,27 @@ import {
   strictOk,
   strictSummaryBullet,
   strictSummaryFailTitle,
-} from "../lib/terminal";
-import { requireCmd } from "../lib/process";
-import {
-  bunWorkspaceOutdatedFromOutput,
-  captureBunOutdatedRecursiveAsync,
-  captureGoGetNDryRunUAllAsync,
-  captureProtoPinsOutdatedJsonAsync,
-  captureUvLockDryRunAsync,
-  goGetDryRunHasModuleChanges,
-  protoPinsAnyOutdated,
-  uvLockHasUpgradesFromOutput,
-} from "../lib/toolchains";
+  tryReadOutdatedCache,
+  type StoredOutdatedSnapshot,
+  writeOutdatedCache,
+} from "../lib/commands";
+import { bunWorkspaceOutdatedFromOutput, captureBunOutdatedRecursiveAsync } from "../lib/bun";
+import { captureGoModuleOutdatedAsync, goModuleOutdatedHasChanges } from "../lib/go";
+import type { GoOutdatedProbe } from "../lib/go";
+import { listGoModuleRoots, listUvProjectRoots } from "../lib/moon";
+import { captureProtoPinsOutdatedJsonAsync, protoPinsAnyOutdated } from "../lib/proto";
+import { captureUvLockDryRunAsync, uvLockHasUpgradesFromOutput } from "../lib/py";
+import { formatProjectDirLabel } from "../lib/utils";
 
 export type OutdatedSnapshot = StoredOutdatedSnapshot;
 
 export type UvProjectSnap = { root: string; dryRunOut: string };
 
-export type GoModuleSnap = { root: string; goGetDryRunOut: string };
+export type GoModuleSnap = {
+  root: string;
+  goGetDryRunOut: string;
+  probe?: GoOutdatedProbe;
+};
 
 function outdatedProgressTimingsEnabled(): boolean {
   return process.env.LUNA_OUTDATED_PROGRESS === "1";
@@ -97,12 +91,8 @@ export async function gatherOutdatedSnapshotAsync(
     ),
     runTier(
       "go",
-      (rows) => rows.every((g) => !goGetDryRunHasModuleChanges(g.goGetDryRunOut)),
-      Promise.all(
-        goRoots.map((root) =>
-          captureGoGetNDryRunUAllAsync(root).then((goGetDryRunOut) => ({ root, goGetDryRunOut })),
-        ),
-      ),
+      (rows) => rows.every((g) => !goModuleOutdatedHasChanges(g.goGetDryRunOut, g.probe)),
+      Promise.all(goRoots.map((root) => captureGoModuleOutdatedAsync(root))),
       live ?? null,
     ),
   ]);
@@ -133,12 +123,17 @@ export function printOutdatedReport(repoRoot: string, snap: OutdatedSnapshot): v
   }
 
   for (const g of snap.goModules) {
-    if (!goGetDryRunHasModuleChanges(g.goGetDryRunOut)) continue;
+    if (!goModuleOutdatedHasChanges(g.goGetDryRunOut, g.probe)) continue;
     const label = formatProjectDirLabel(repoRoot, g.root);
-    section(`Go (${label} — go.mod + go.sum; go get -n -u all)`);
+    const goSection =
+      g.probe === "tool-list"
+        ? `Go (${label} — go.mod tools; go list -m -u)`
+        : `Go (${label} — go.mod + go.sum; go get -n -u all)`;
+    section(goSection);
     printOutdatedTable("go", g.goGetDryRunOut, {
       repoRoot,
       goModPath: join(g.root, "go.mod"),
+      goProbe: g.probe,
     });
   }
 }

@@ -2,7 +2,7 @@
 /**
  * Luna CLI — **Bun** only. This file is the `package.json` `bin` entry (native binary: `bun run build` in this package).
  *
- * Uses `Bun.argv`, `Bun.spawnSync` in toolchains/commands, and prefix-only global flags
+ * Uses `Bun.argv`, `Bun.spawnSync` in `lib/commands` and toolchain modules, and prefix-only global flags
  * (see [How to Build CLI Applications with Bun](https://oneuptime.com/blog/post/2026-01-31-bun-cli-applications/view)).
  */
 import { printRootHelp } from "./commands/help";

@@ -61,7 +61,7 @@ require (
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bep/golocales v0.1.0 // indirect
 	github.com/bep/goportabletext v0.2.0 // indirect
-	github.com/bep/helpers v0.8.0 // indirect
+	github.com/bep/helpers v0.12.0 // indirect
 	github.com/bep/imagemeta v0.17.2 // indirect
 	github.com/bep/lazycache v0.8.1 // indirect
 	github.com/bep/logg v0.4.0 // indirect
@@ -185,9 +185,9 @@ require (
 	golang.org/x/tools v0.45.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.280.0 // indirect
-	google.golang.org/genproto v0.0.0-20260522162733-96412231522c // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260522204824-7f3bc5b78da9 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260522162733-96412231522c // indirect
+	google.golang.org/genproto v0.0.0-20260523011958-0a33c5d7ca68 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260523011958-0a33c5d7ca68 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260523011958-0a33c5d7ca68 // indirect
 	google.golang.org/grpc v1.81.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	howett.net/plist v1.0.1 // indirect
