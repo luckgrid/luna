@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {{- partial "head.html" . -}}
+    {{- partial "metadata.html" . -}}
+    {{- with (templates.Defer (dict "key" "global")) -}}
+      {{- partial "css.html" . -}}
+    {{- end -}}
   </head>
   <body{{- with .Layout }} data-layout="{{ . }}"{{ end -}}>
     {{- block "main" . }}{{ end -}}

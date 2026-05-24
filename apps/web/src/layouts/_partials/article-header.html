@@ -1,11 +1,14 @@
 <header>
   <hgroup>
-    {{- with .Params.category }}<small>{{ . }}</small>{{ end -}}
+    {{- if .Date -}}
+    {{- partial "article-meta.html" . -}}
+    {{- end -}}
     <h1>{{ .Title }}</h1>
     {{- with .Description -}}
     <p>{{ . }}</p>
-    {{- end -}} {{- $show := and (eq .Kind "page") (or .Date (not (eq (len .Params.tags) 0))) -}} {{- if $show -}}
-    {{- partial "article-meta.html" . -}}
     {{- end -}}
   </hgroup>
+  {{- with .Params.tags -}}
+  <ul aria-label="Tags" data-group>{{- range . -}}<li data-tag>#{{ . }}</li> {{ end -}}</ul>
+  {{- end -}}
 </header>

@@ -412,8 +412,6 @@
         margin-left: calc(var(--outline-width-2) * -1);
         padding: var(--spacing-3-5) 0;
         padding-left: var(--outline-width-2);
-        border: 0;
-        border-radius: 0;
         background: none;
 
         &::file-selector-button {

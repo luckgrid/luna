@@ -1,8 +1,1 @@
-<div data-meta>
-  {{- if .Date -}}
-  <time datetime='{{ .Date.Format "2006-01-02" }}'>{{ .Date.Format "Jan 2, 2006" }}</time>
-  {{- end -}}
-  {{- with .Params.tags -}}
-  <ul aria-label="Tags">{{- range . -}}<li>{{ . }}</li>{{- end -}}</ul>
-  {{- end -}}
-</div>
+<small data-meta>Posted to <strong>{{- with .Params.category }}{{ replace . "-" " " | title }}{{ else }}Catalog{{ end -}}</strong> on <time datetime='{{ .Date.Format "2006-01-02" }}'>{{ .Date.Format "January 2, 2006" }}</time></small>

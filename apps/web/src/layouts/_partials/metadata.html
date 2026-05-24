@@ -24,24 +24,3 @@
 <meta property="og:image" content="{{ . | absURL }}" />
 {{- end -}}
 <meta name="twitter:card" content="summary_large_image" />
-{{- with (templates.Defer (dict "key" "global")) }}
-  {{- with resources.Get "css/main.css" -}}
-    {{- $opts := dict "minify" hugo.IsProduction "optimize" hugo.IsProduction "skipInlineImportsNotFound" true -}}
-    {{- with . | css.TailwindCSS $opts -}}
-      {{- if hugo.IsDevelopment -}}
-<link rel="stylesheet" href="{{ .RelPermalink }}" />
-      {{- else -}}
-        {{- with . | fingerprint -}}
-<link
-  rel="stylesheet"
-  href="{{ .RelPermalink }}"
-  integrity="{{ .Data.Integrity }}"
-  crossorigin="anonymous"
-/>
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
-  {{- else -}}
-    {{- warnf "css/main.css missing — check src/assets/css/main.css" -}}
-  {{- end -}}
-{{- end }}

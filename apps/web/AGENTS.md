@@ -8,7 +8,7 @@ Four root templates live directly under `src/layouts/`:
 
 ```text
 src/layouts/
-├── baseof.html   # chrome — charset/viewport + partial head.html; body data hooks; footer via footer.html
+├── baseof.html   # chrome — charset/viewport + partial metadata.html; body data hooks; footer via footer.html
 ├── home.html     # kind=home  → same `<main>` as `page.html` simple branch (hero + article)
 ├── page.html     # kind=page  → `params.layout` branches (simple / article / collection) inlined
 ├── section.html  # kind=section default (`list`); `section.catalog.html` / `section.collection.html` for other layouts
@@ -21,13 +21,14 @@ src/layouts/
 
 ```text
 src/layouts/_partials/
-├── head.html    # <head>: meta/OG + deferred fingerprinted bundle.css
+├── metadata.html        # meta/OG tags
+├── css.html             # deferred fingerprinted stylesheet link
 └── *.html       # flat fragments (header, hero, article-header, article-toc, …)
 ```
 
 Calling conventions worth knowing:
 
-- Document head: `partial "head.html" .` from [`baseof.html`](src/layouts/baseof.html) (meta tags + deferred CSS).
+- Document head: `partial "metadata.html" .` from [`baseof.html`](src/layouts/baseof.html) (meta tags + deferred CSS).
 - Site chrome: `partial "header.html" .`, `partial "footer.html" .` (footer is wired from [`baseof.html`](src/layouts/baseof.html)).
 - TOC: `partial "article-toc.html" .`
 - Pagination: `partial "pagination.html" $paginator` (renders nothing when `TotalPages <= 1`).
@@ -56,7 +57,7 @@ Unknown `params.layout` values fall back to `simple` / `list` via the **D12** al
 
 ## Editing checklist (run before committing layout/archetype changes)
 
-1. `cd apps/web && hugo --gc --minify` exits 0; `--templateMetrics` should show **`page.html`** / **`section.html`** / **`home.html`** + **`head.html`** and other **`_partials/*.html`** hits for the expected URLs.
+1. `cd apps/web && hugo --gc --minify` exits 0; `--templateMetrics` should show **`page.html`** / **`section.html`** / **`home.html`** + **`metadata.html`** and other **`_partials/*.html`** hits for the expected URLs.
 2. Smoke-test the URL matrix:
    - `/` (home) → `home.html` (simple `<main>`) + `latest-posts` shortcode in content
    - `/posts/` → `section.catalog.html`

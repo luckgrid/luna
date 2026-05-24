@@ -30,6 +30,18 @@
       gap: var(--spacing-24-48);
     }
 
+    /* Maub Header (main > header: scoped subtree) */
+    @scope (:is(main, [data-main]) > :is(header, [data-header])) {
+      :scope :is([aria-label="Tags"], [data-tags]) {
+        gap: var(--spacing-6-12);
+
+        &:is(ol, ul) {
+          list-style: none;
+          padding-inline-start: 0;
+        }
+      }
+    }
+
     /* Main Aside (main > aside: scoped subtree) */
     @scope (:is(main, [data-main]) > :is(aside, [data-aside])) {
       :scope {

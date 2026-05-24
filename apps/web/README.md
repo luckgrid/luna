@@ -29,7 +29,7 @@ This document is the **single entry point** for this app. Monorepo orchestration
 - **Collection sections** — [`legal/`](src/content/legal/) and [`posts/list-example/`](src/content/posts/list-example/) share [`src/layouts/_partials/collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): filter-as-you-type sidebar listing every page in the section, optional right **TOC** via [`TableOfContents`](https://gohugo.io/methods/page/tableofcontents/) when **`toc: true`** on the page. Collection routes carry **`data-layout="collection"`** and a section-specific **`data-pattern`** on `<body>` (see [`main.css`](src/assets/css/main.css)).
 - **[Archetypes](https://gohugo.io/content-management/archetypes/)** — four starters (**`default`**, **`catalog`**, **`article`**, **`collection`**) with **`-k`**; see [Archetypes](#archetypes-hugo-new) below.
 - **Dispatcher layouts** — [`baseof.html`](src/layouts/baseof.html) plus [`home.html`](src/layouts/home.html), [`page.html`](src/layouts/page.html), [`section.html`](src/layouts/section.html), [`all.html`](src/layouts/all.html). **`page.html`** and **`section.html`** branch on **`params.layout`** inline (each branch composes flat **`_partials/*.html`** fragments). See [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern).
-- **SEO**: meta description, canonical URL, minimal Open Graph / Twitter tags in [`src/layouts/_partials/head.html`](src/layouts/_partials/head.html) (with deferred CSS link); [sitemap](https://gohugo.io/templates/sitemap-template/), [RSS](https://gohugo.io/templates/rss/).
+- **SEO**: meta description, canonical URL, minimal Open Graph / Twitter tags in [`src/layouts/_partials/metadata.html`](src/layouts/_partials/metadata.html) (with deferred CSS link); [sitemap](https://gohugo.io/templates/sitemap-template/), [RSS](https://gohugo.io/templates/rss/).
 - **Shortcodes** — e.g. [`alert.html`](src/layouts/_shortcodes/alert.html), [`latest-posts.html`](src/layouts/_shortcodes/latest-posts.html).
 - **Markdown render hooks** — [`src/layouts/_markup/`](src/layouts/_markup/) overrides Goldmark's default rendering for links, images, headings, blockquotes, and code blocks (generic Chroma + Mermaid + KaTeX) ([Hugo render hooks](https://gohugo.io/render-hooks/)). See [Render hooks](#render-hooks) below.
 - **Taxonomies enabled** — default `tags` and `categories` resolve to `/tags/` and `/categories/`, rendered by the catch-all [`all.html`](src/layouts/all.html) until a dedicated `taxonomy.html` / `term.html` ships ([`hugo.toml`](hugo.toml) sets `disableKinds = []`).
@@ -61,7 +61,8 @@ Layouts follow Hugo’s **[new template system](https://gohugo.io/templates/new-
 
 ```text
 src/layouts/_partials/
-├── head.html              # document `<head>`: meta/OG tags + deferred `bundle.css` fingerprint
+├── metadata.html              # meta/OG tags
+├── css.html                   # deferred fingerprinted stylesheet link
 ├── header.html, footer.html, navigation.html, brand.html
 ├── hero.html, article-header.html, breadcrumbs.html, article-meta.html, article-toc.html
 ├── article-card.html, search-filter.html, pagination.html
@@ -70,7 +71,8 @@ src/layouts/_partials/
 
 Key pieces:
 
-- [`head.html`](src/layouts/_partials/head.html): `<title>`, description, canonical, Open Graph / Twitter, then deferred [`bundle.css`](src/assets/css/bundle.css) link (fingerprinted outside dev)
+- [`metadata.html`](src/layouts/_partials/metadata.html): `<title>`, description, canonical, Open Graph / Twitter
+- [`css.html`](src/layouts/_partials/css.html): deferred [`bundle.css`](src/assets/css/bundle.css) link (fingerprinted outside dev; wired from [`baseof.html`](src/layouts/baseof.html))
 - [`header.html`](src/layouts/_partials/header.html) / [`footer.html`](src/layouts/_partials/footer.html): brand + primary nav; footer nav (footer is included from [`baseof.html`](src/layouts/baseof.html))
 - [`navigation.html`](src/layouts/_partials/navigation.html): link list for primary + footer navigation; accepts `{ page }` (wrapped in `<nav>` by `header.html` / `footer.html`)
 - [`hero.html`](src/layouts/_partials/hero.html): `<header data-hero>` — page context or `(dict "page" . "slot" $html)` (catalog injects search form)
@@ -182,7 +184,7 @@ moon run web:build
 2. `bunx @tailwindcss/cli -i ./src/assets/css/main.css -o ./src/assets/css/bundle.css --minify`
 3. `go tool hugo --gc --minify` → **`dist/`**
 
-Production CSS is loaded from **`src/assets/css/bundle.css`** and linked from [`src/layouts/_partials/head.html`](src/layouts/_partials/head.html) (deferred fingerprint in production). If that file is missing, Hugo warns — run the Tailwind step first (Moon always runs it before `go tool hugo`).
+Production CSS is loaded from **`src/assets/css/bundle.css`** and linked from [`src/layouts/_partials/css.html`](src/layouts/_partials/css.html) (deferred fingerprint in production). If that file is missing, Hugo warns — run the Tailwind step first (Moon always runs it before `go tool hugo`).
 
 ### Why not Hugo’s `css.TailwindCSS` only?
 

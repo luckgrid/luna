@@ -1,0 +1,46 @@
+/* Tag */
+
+@scope (:is([data-tag], .tag)) {
+  /* Tag Base */
+  @layer base {
+    :scope {
+      display: inline-flex;
+      align-items: center;
+      padding-block: var(--spacing-2-4);
+      padding-inline: var(--spacing-8-16);
+      background-color: color-mix(in oklab, var(--color-accent) 10%, transparent);
+      color: var(--color-accent);
+      font-size: var(--text-xs);
+      font-weight: var(--text-xs--font-weight);
+      line-height: var(--text-xs--line-height);
+      letter-spacing: var(--text-xs--letter-spacing);
+      text-decoration: none;
+      text-transform: uppercase;
+
+      &:is(li) {
+        list-style-type: none;
+      }
+    }
+  }
+
+  /* Tag Variants */
+  @layer variants {
+    /* Tag Action Variant (scoped subtree) */
+    @scope (:scope:is(a, button, [role="button"], [role="link"])) {
+      :scope {
+        transition: var(--transition-action);
+      }
+
+      :scope:is(:hover, :focus-visible) {
+        background-color: color-mix(in oklab, var(--color-accent) 20%, transparent);
+      }
+
+      :scope:focus-visible {
+        outline-style: solid;
+        outline-width: var(--border-width-1);
+        outline-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
+        outline-offset: var(--border-width-1);
+      }
+    }
+  }
+}
