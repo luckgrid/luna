@@ -15,18 +15,14 @@ export type BreadcrumbsProps = {
 };
 
 export function Breadcrumbs(props: BreadcrumbsProps) {
-  const [{ items, brand, showBrandName = false }] = splitProps(props, [
-    "items",
-    "brand",
-    "showBrandName",
-  ]);
+  const [local] = splitProps(props, ["brand", "showBrandName"]);
 
   return (
     <ol data-breadcrumbs>
       <li>
-        <Brand showName={showBrandName} {...brand} />
+        <Brand showName={local.showBrandName ?? false} {...local.brand} />
       </li>
-      <For each={items}>
+      <For each={props.items}>
         {(item) => (
           <li aria-current={item.href ? undefined : "page"}>
             <Show when={item.href} fallback={item.label}>
