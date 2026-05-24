@@ -14,14 +14,14 @@ Commands:
                 \`go list -m -u\` on \`tool\` lines; code modules use \`go get -n -u all\` dry-run. Set
                 \`LUNA_GO_FULL_GRAPH=1\` to force the full-graph dry-run on tool-only modules.
       Exits 1 if anything is outdated (CI).
-      Writes a best-effort snapshot to \`.cache/outdated-snapshot.json\` for \`luna update --use-outdated-cache\`.
+      Writes a best-effort snapshot to \`.cache/outdated-snapshot.json\` for \`luna update\` (cache-first precheck).
       On an interactive terminal, shows a live status line while probes run, then per-tier ✓/✗ lines before tables.
       \`outdated --use-cache\` reuses the cache when the fingerprint still matches (fast; not for CI).
       Set \`LUNA_OUTDATED_PROGRESS=1\` for per-probe timing lines (when live UI is off or non-TTY).
       Set \`LUNA_OUTDATED_NO_LIVE=1\` to disable the live spinner block (CI-friendly logs).
 
   update
-      Refreshes those toolsets in order:
+      Refreshes toolsets that have actionable upgrades under the current policy (skips tiers already up to date):
         Proto (\`proto outdated --update\`, then per-pin \`proto install\` from \`.proto/logs/\` so failure logs stay out of the repo root; Python may fall back to \`--build\` if no pre-built exists);
         Bun (\`bun update --recursive\` and per-workspace manifests, then \`bun add pkg@latest\` per workspace for non-major bumps that caret semver leaves stuck — e.g. 0.x → 0.x+1);
         uv (\`uv lock --upgrade\` + \`uv sync\`) per Python project;
@@ -29,7 +29,7 @@ Commands:
           \`go mod tidy\` + \`go tool\` smoke-test; code modules (\`go get -u all\` + tidy + \`go build ./...\` when packages exist);
         then \`bun run setup\` (root \`package.json\` script: proto, workspaces, \`moon run web:setup\`, api build).
       Only true major bumps (leading non-zero version digit changing, e.g. 1.x → 2.x) are blocked — use \`--major\` to apply them.
-      Precheck uses an in-process snapshot (no nested \`luna outdated\`). Optional \`--use-outdated-cache\` (or \`LUNA_UPDATE_USE_OUTDATED_CACHE=1\`) skips live precheck when \`.cache/outdated-snapshot.json\` matches the current fingerprint.
+      Precheck reuses \`.cache/outdated-snapshot.json\` when the fingerprint matches (run \`luna outdated\` first). Pass \`--refresh-outdated\` (or \`LUNA_UPDATE_REFRESH_OUTDATED=1\`) to rescan live. Exits early when nothing is actionable (e.g. only major bumps remain).
 
   update --major
       Same pipeline with Proto \`--latest\`, Bun \`update --latest\`, plus Bun prerelease catch-up where needed;
@@ -58,7 +58,7 @@ Optional env (add a path Moon does not list, e.g. outside apps/packages):
   GO_MODULE_ROOT               Extra Go module dir (absolute or relative to repo root)
   LUNA_OUTDATED_PROGRESS       Set to \`1\` to print per-toolchain probe timings during \`luna outdated\` (non-TTY or with \`LUNA_OUTDATED_NO_LIVE=1\`)
   LUNA_OUTDATED_NO_LIVE        Set to \`1\` to disable the TTY live spinner + early ✓/✗ block (cleaner CI logs)
-  LUNA_UPDATE_USE_OUTDATED_CACHE   Set to \`1\` to use \`.cache/outdated-snapshot.json\` during \`luna update\` precheck (same as \`--use-outdated-cache\`)
+  LUNA_UPDATE_REFRESH_OUTDATED   Set to \`1\` to force a live outdated precheck during \`luna update\` (same as \`--refresh-outdated\`)
   LUNA_GO_FULL_GRAPH               Set to \`1\` to use \`go get -n -u all\` / \`go get -u all\` on tool-only modules (slow; legacy)
 `);
 }

@@ -79,6 +79,17 @@ export function protoPinsAnyOutdated(report: ProtoPinsOutdatedReport): boolean {
   return Object.values(report).some((x) => x.is_outdated);
 }
 
+/** True when `luna update` would rewrite `.prototools` (respects `--major` policy). */
+export function protoPinsHasActionableUpdates(
+  report: ProtoPinsOutdatedReport,
+  major: boolean,
+): boolean {
+  if (major) {
+    return Object.values(report).some((x) => !x.is_latest || x.is_outdated);
+  }
+  return protoPinsAnyOutdated(report);
+}
+
 /** Parse stdout of `proto outdated --json` (combined stdout+stderr also ok). */
 export function parseProtoPinsOutdatedJson(text: string): ProtoPinsOutdatedReport {
   const trimmed = text.trim();

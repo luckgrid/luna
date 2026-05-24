@@ -124,6 +124,27 @@ export function isRealMajorBump(from: string, to: string): boolean {
   return fMajor !== tMajor && fMajor >= 1;
 }
 
+/**
+ * True when `luna update` would change Bun workspace deps (respects `--major` policy).
+ * Differs from {@link bunWorkspaceOutdatedFromOutput}: rows where Current === Update and
+ * only Latest differs on a real major bump are not actionable without `--major`.
+ */
+export function bunWorkspaceHasActionableUpdates(out: string, major: boolean): boolean {
+  if (!bunWorkspaceOutdatedFromOutput(out)) return false;
+  if (major) return true;
+  for (const row of parseBunOutdatedRows(out)) {
+    if (row.current !== row.update) return true;
+    if (
+      row.current === row.update &&
+      row.latest !== row.current &&
+      !isRealMajorBump(row.current, row.latest)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /** Rows where Current === Update but Latest differs — needs `bun add pkg@latest` per workspace. */
 export function collectPrereleaseBumps(stdin: string, repoRoot: string): PrereleaseBumpRow[] {
   const rows: PrereleaseBumpRow[] = [];

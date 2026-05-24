@@ -3,6 +3,7 @@ import { join } from "node:path";
 import {
   envFlagEnabled,
   nonEmptyLines,
+  semverCoreParts,
   spawnSyncCaptured,
   spawnText,
   spawnTextAsync,
@@ -132,6 +133,33 @@ export function goModuleOutdatedHasChanges(
 ): boolean {
   if (probe === "tool-list") return goListModuleUpgradesHasChanges(out);
   return goGetDryRunHasModuleChanges(out);
+}
+
+function isPatchOnlyBump(from: string, to: string): boolean {
+  const [fMaj, fMin] = semverCoreParts(from);
+  const [tMaj, tMin, tPat] = semverCoreParts(to);
+  const [, , fPat] = semverCoreParts(from);
+  return fMaj === tMaj && fMin === tMin && tPat > fPat;
+}
+
+/**
+ * True when `luna update` would change this module (respects `--major` and tool-only patch policy).
+ */
+export function goModuleHasActionableUpdates(
+  out: string,
+  probe: GoOutdatedProbe | undefined,
+  major: boolean,
+): boolean {
+  if (!goModuleOutdatedHasChanges(out, probe)) return false;
+  if (major || probe !== "tool-list") return true;
+  for (const line of out.split("\n")) {
+    const m = /^(\S+)\s+(\S+)\s+\[(\S+)\]/.exec(line.trim());
+    if (!m) continue;
+    const current = m[2];
+    const newest = m[3];
+    if (current && newest && isPatchOnlyBump(current, newest)) return true;
+  }
+  return false;
 }
 
 /** Parse `go list -m -u` lines with `[v…]` upgrade hints (tool-only modules). */

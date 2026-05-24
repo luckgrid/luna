@@ -1,6 +1,6 @@
 # `@luna/cli`
 
-`luna` is a Bun-native monorepo CLI: a single [`src/main.ts`](src/main.ts) is both the **`bin` entry** (shebang + `import.meta.main`) and the router. Shared code under [`src/lib/`](src/lib): toolchain modules [`proto.ts`](src/lib/proto.ts), [`bun.ts`](src/lib/bun.ts), [`py.ts`](src/lib/py.ts), [`go.ts`](src/lib/go.ts), [`moon.ts`](src/lib/moon.ts); CLI infrastructure in [`commands.ts`](src/lib/commands.ts) (process spawn, terminal UI, outdated cache); helpers in [`utils.ts`](src/lib/utils.ts). Subcommand handlers live in [`src/commands/`](src/commands/). [`.prototools`](../../.prototools) pins **proto**, **moon**, **bun**, **python**, and **go**; `luna outdated` / `luna update` refresh those pins through `proto`. The **Hugo** CLI for `apps/web` is versioned in [`apps/web/go.mod`](../../apps/web/go.mod) as a **`go tool`**, not as a proto pin.
+`luna` is a Bun-native monorepo CLI: a single [`src/main.ts`](src/main.ts) is both the **`bin` entry** (shebang + `import.meta.main`) and the router. Shared code under [`src/lib/`](src/lib): toolchain modules [`proto.ts`](src/lib/proto.ts), [`bun.ts`](src/lib/bun.ts), [`py.ts`](src/lib/py.ts), [`go.ts`](src/lib/go.ts), [`moon.ts`](src/lib/moon.ts), and [`utils.ts`](src/lib/utils.ts) (process spawn, repo root, terminal UI). Command implementations live in [`src/commands/`](src/commands/) (`outdated/*`, `update/*`, `help.ts`, `version.ts`). [`.prototools`](../../.prototools) pins **proto**, **moon**, **bun**, **python**, and **go**; `luna outdated` / `luna update` refresh those pins through `proto`. The **Hugo** CLI for `apps/web` is versioned in [`apps/web/go.mod`](../../apps/web/go.mod) as a **`go tool`**, not as a proto pin.
 
 ## Commands
 
@@ -36,4 +36,4 @@ From this package: `bun run build` → standalone binary under `dist/` (ignored 
 ## Roadmap
 
 - **More top-level commands** — e.g. `clean`, `add`, `run`, `build`, `dev` (thin wrappers over moon/bun/proto as needed).
-- **`--quiet` for `outdated` / `update`** — Less banner noise or machine-readable output; needs a shared verbosity flag through `src/commands/*` and `lib/commands.ts`.
+- **`--quiet` for `outdated` / `update`** — Less banner noise or machine-readable output; needs a shared verbosity flag through `src/commands/*` and `lib/utils.ts`.

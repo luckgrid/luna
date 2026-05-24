@@ -2,7 +2,7 @@
 /**
  * Luna CLI — **Bun** only. This file is the `package.json` `bin` entry (native binary: `bun run build` in this package).
  *
- * Uses `Bun.argv`, `Bun.spawnSync` in `lib/commands` and toolchain modules, and prefix-only global flags
+ * Uses `Bun.argv`, `Bun.spawnSync` in `lib/` and `commands/`, and prefix-only global flags
  * (see [How to Build CLI Applications with Bun](https://oneuptime.com/blog/post/2026-01-31-bun-cli-applications/view)).
  */
 import { printRootHelp } from "./commands/help";
@@ -108,27 +108,29 @@ export async function main(): Promise<void> {
           process.exit(2);
         }
       }
-      const { runOutdated } = await import("./commands/outdated");
+      const { runOutdated } = await import("./commands/outdated/run");
       code = await runOutdated({ useCache });
       break;
     }
     case "update": {
       let major = false;
-      let useOutdatedCache = false;
+      let refreshOutdated = false;
       for (const a of cmdArgs) {
         if (a === "--major") {
           major = true;
+        } else if (a === "--refresh-outdated") {
+          refreshOutdated = true;
         } else if (a === "--use-outdated-cache") {
-          useOutdatedCache = true;
+          /* default since cache-first; kept for backward compatibility */
         } else {
           console.error(`error: unknown argument for update: ${a}`);
           printRootHelp();
           process.exit(2);
         }
       }
-      if (process.env.LUNA_UPDATE_USE_OUTDATED_CACHE === "1") useOutdatedCache = true;
-      const { runUpdate } = await import("./commands/update");
-      code = await runUpdate({ major, useOutdatedCache });
+      if (process.env.LUNA_UPDATE_REFRESH_OUTDATED === "1") refreshOutdated = true;
+      const { runUpdate } = await import("./commands/update/run");
+      code = await runUpdate({ major, refreshOutdated });
       break;
     }
     default:

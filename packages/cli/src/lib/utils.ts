@@ -88,6 +88,21 @@ export function die(msg: string): never {
   process.exit(1);
 }
 
+export function requireCmd(name: string): void {
+  const r = Bun.spawnSync(["/bin/sh", "-c", `command -v "${name.replace(/"/g, '\\"')}"`], {
+    stdout: "ignore",
+    stderr: "ignore",
+  });
+  if (r.exitCode !== 0) die(`missing required command: ${name}`);
+}
+
+export function runOrExit(code: number, step: string): void {
+  if (code !== 0) {
+    console.error(`error: ${step} (exit ${code})`);
+    process.exit(code);
+  }
+}
+
 /** True when `process.env[name]` is `1`, `true`, or `yes` (case-insensitive). */
 export function envFlagEnabled(name: string): boolean {
   const v = process.env[name]?.trim().toLowerCase();
@@ -146,6 +161,23 @@ export function formatProjectDirLabel(repoRoot: string, dir: string): string {
     return r && !r.startsWith("..") ? r : resolve(dir);
   } catch {
     return dir;
+  }
+}
+
+/** Walk parents from `start` until `.prototools` + `package.json` exist (monorepo root). */
+export function findRepoRoot(start = process.cwd()): string {
+  let dir = resolve(start);
+  for (;;) {
+    if (existsSync(join(dir, ".prototools")) && existsSync(join(dir, "package.json"))) {
+      return dir;
+    }
+    const parent = resolve(dir, "..");
+    if (parent === dir) {
+      throw new Error(
+        "Could not find monorepo root (no .prototools + package.json in any parent of cwd). Run from inside the repo.",
+      );
+    }
+    dir = parent;
   }
 }
 
@@ -225,4 +257,51 @@ export function terminalHyperlinksSupported(): boolean {
     process.stdout.isTTY &&
     process.env.TERM !== "dumb"
   );
+}
+
+// --------------------
+// CLI terminal output
+// --------------------
+
+function stderrColors(): { red: string; green: string; bold: string; dim: string; reset: string } {
+  if (!terminalAnsiStderr()) {
+    return { red: "", green: "", bold: "", dim: "", reset: "" };
+  }
+  return {
+    red: "\x1b[0;31m",
+    green: "\x1b[0;32m",
+    bold: "\x1b[1m",
+    dim: "\x1b[2m",
+    reset: "\x1b[0m",
+  };
+}
+
+const C = stderrColors();
+
+export function section(title: string): void {
+  console.log(`\n${C.bold}== ${title} ==${C.reset}`);
+}
+
+export function strictOk(msg: string): void {
+  console.error(`${C.green}✓${C.reset} ${msg}`);
+}
+
+export function strictNeed(msg: string): void {
+  console.error(`${C.red}✗${C.reset} ${msg}`);
+}
+
+export function strictSummaryFailTitle(msg: string): void {
+  console.error(`${C.bold}${C.red}${msg}${C.reset}`);
+}
+
+export function strictSummaryBullet(msg: string): void {
+  console.error(`  ${C.red}•${C.reset} ${msg}`);
+}
+
+export function strictHint(msg: string): void {
+  console.error(`${C.dim}${msg}${C.reset}`);
+}
+
+export function strictAllPassed(msg: string): void {
+  console.log(`${C.green}${msg}${C.reset}`);
 }
