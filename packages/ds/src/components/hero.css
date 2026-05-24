@@ -7,6 +7,7 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      align-items: start;
       justify-content: end;
       gap: var(--spacing-container);
       font-family: var(--font-sans);
@@ -47,6 +48,11 @@
         font-weight: var(--text-base--font-weight);
         line-height: var(--text-base--line-height);
         letter-spacing: var(--text-base--letter-spacing);
+      }
+
+      & [role="group"] {
+        width: auto;
+        gap: var(--spacing-24-48);
       }
     }
   }

@@ -27,7 +27,48 @@
 
     /* Article Layout Main */
     :scope :is(main, [data-main]) {
+      --grid-cols: 12;
+
+      container-type: inline-size;
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
       gap: var(--spacing-24-48);
+      align-content: start;
+
+      @container (min-width: 90rem) {
+        --grid-cols: 16;
+      }
+
+      & > * {
+        grid-column: 1 / -1;
+      }
+
+      @container (min-width: 48rem) {
+        &:has(> :is(aside, [data-aside])) {
+          & > :is(header, [data-header]),
+          & > :is(article, [data-article]) {
+            grid-column: 1 / 9;
+          }
+
+          & > :is(aside, [data-aside]) {
+            grid-column: 9 / -1;
+            grid-row: 1 / -1;
+          }
+        }
+      }
+
+      @container (min-width: 90rem) {
+        &:has(> :is(aside, [data-aside])) {
+          & > :is(header, [data-header]),
+          & > :is(article, [data-article]) {
+            grid-column: 1 / 13;
+          }
+
+          & > :is(aside, [data-aside]) {
+            grid-column: 13 / -1;
+          }
+        }
+      }
     }
 
     /* Maub Header (main > header: scoped subtree) */
@@ -47,28 +88,23 @@
       :scope {
         padding: 0;
         background-color: var(--color-bg);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+
+        @container (min-width: 48rem) {
+          top: calc(var(--spacing-toolbar) + var(--spacing-layout));
+          background-color: transparent;
+        }
       }
 
       @container (min-width: 48rem) {
         :scope {
           display: flex;
           overflow: auto;
-          position: sticky;
-          top: var(--spacing-toolbar);
-          inline-size: min(24rem, 100vi);
           max-block-size: calc(100svh - var(--spacing-toolbar) - var(--spacing-container) * 2);
-          z-index: auto;
           block-size: auto;
           padding-block: var(--spacing-surface);
           padding-inline: var(--spacing-container);
-          border: none;
-          background-color: transparent;
-          box-shadow: none;
-          transform: none;
-          opacity: 1;
-          visibility: visible;
-          pointer-events: auto;
-          transition: none;
         }
       }
 

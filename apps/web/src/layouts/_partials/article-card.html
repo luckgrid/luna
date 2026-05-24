@@ -1,11 +1,8 @@
-{{- $isCollection := eq .Kind "section" -}}
 <a href="{{ .RelPermalink }}" data-card>
   <hgroup>
     <h3>{{ .Title }}</h3>
-    {{- if $isCollection -}}
-    <p>Collection</p>
-    {{- else if .Date -}}
-    <p><time datetime='{{ .Date.Format "2006-01-02" }}'>{{ .Date.Format "Jan 2, 2006" }}</time></p>
+    {{- if .Date -}}
+    {{- partial "article-meta.html" . -}}
     {{- end -}}
     {{- with .Description -}}
     <p>{{ . }}</p>

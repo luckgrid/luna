@@ -41,11 +41,7 @@
       "title",
       "ul"
     ],
-    "classes": [
-      "chroma",
-      "highlight",
-      "min-h-svh"
-    ],
+    "classes": ["chroma", "highlight", "min-h-svh"],
     "ids": [
       "TableOfContents",
       "acceptance",

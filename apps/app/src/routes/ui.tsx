@@ -1,7 +1,6 @@
 import { Accordion } from "@luna/ui/accordion";
 import { Button } from "@luna/ui/button";
 import { Input } from "@luna/ui/input";
-import { Tooltip } from "@luna/ui/tooltip";
 import Counter from "~/components/counter";
 import { Hero } from "~/components/hero";
 
@@ -11,13 +10,14 @@ export default function Home() {
       <Hero title="Luna UI" description="Reusable Solid UI/UX patterns and component.">
         <div role="group" aria-label="Button examples">
           <Button>Default</Button>
-          <Button class="button-primary">Primary</Button>
-          <Button class="button-secondary">Secondary</Button>
-          <Button class="button-alert">Alert</Button>
-          <Tooltip content="This is a custom tooltip from @luna/ui">
-            <Button class="button-ghost">Ghost</Button>
-          </Tooltip>
-          <Button class="button-text">Text</Button>
+          <Button data-button="hollow">Hollow</Button>
+          <Button data-button="ghost">Ghost</Button>
+          <Button data-button="text">Text</Button>
+          <Button data-button="alert">Alert</Button>
+          <Button data-button="icon">
+            <i data-icon="menu" />
+          </Button>
+          <Button data-button="wrapper">Wrapper</Button>
         </div>
       </Hero>
 

@@ -14,7 +14,7 @@
   {{- $showToc = ge $h2Count 2 -}}
 {{- end -}}
 {{- if and $showToc $toc -}}
-<aside aria-label="In this article" data-toc>
+<aside aria-label="In this article" data-toc data-sticky>
   <header>
     <hgroup>
       <h2>On this page</h2>

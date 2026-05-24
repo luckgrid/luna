@@ -1,6 +1,21 @@
 {{ define "main" }}
 <main>
-  {{- partial "hero.html" (dict "page" . "class" "min-h-svh") -}}
+  <header data-hero class="min-h-svh">
+    <hgroup>
+      <h1>{{ .Title }}</h1>
+      {{- with .Description }}
+      <p>{{ . }}</p>
+      {{- end }}
+    </hgroup>
+    <div role="group" aria-label="Explore Luna">
+      {{- with site.GetPage "/legal" -}}
+      <a href="{{ .RelPermalink }}" role="button" data-button="hollow">{{ .LinkTitle }}</a>
+      {{- end -}}
+      {{- with site.GetPage "/posts" -}}
+      <a href="{{ .RelPermalink }}" role="button">{{ .LinkTitle }}</a>
+      {{- end -}}
+    </div>
+  </header>
   {{- partial "article.html" . -}}
 </main>
 {{ end }}
