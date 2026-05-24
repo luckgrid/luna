@@ -6,7 +6,8 @@
     "**/.moon/cache/**",
     "**/.output/**",
     "**/.vinxi/**",
-    "**/templates/**/*.html",
-    "**/layouts/**/*.html"
+    "**/hugo_stats.json",
+    "**/layouts/**/*.html",
+    "**/templates/**/*.html"
   ]
 }

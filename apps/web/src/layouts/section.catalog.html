@@ -18,16 +18,16 @@
 {{- $categories = sort $categories -}}
 {{- $entries := slice -}}
 {{- range $indexed }}
+  {{- $card := partial "article-card.html" . -}}
   {{- $entry := dict
     "title" .Title
     "url" .RelPermalink
-    "description" (.Description | default "")
-    "dateISO" (cond (and .Date (eq .Kind "page")) (.Date.Format "2006-01-02") "")
-    "dateLabel" (cond (and .Date (eq .Kind "page")) (.Date.Format "Jan 2, 2006") "")
     "kind" .Kind
-    "metaLabel" (cond (eq .Kind "section") "Collection" "")
+    "weight" .Weight
+    "sortDate" (cond .Date (.Date.Unix) 0)
     "category" (.Params.category | default "")
     "search" (printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower)
+    "card" $card
   -}}
   {{- $entries = $entries | append $entry -}}
 {{- end -}}
@@ -89,35 +89,28 @@
     }
 
     function renderEntry(entry) {
-      var parts = [
+      return (
         '<li data-search="' +
-          escapeHTML(entry.search) +
-          '" data-category="' +
-          escapeHTML(entry.category || "") +
-          '">',
-        '<a href="' + escapeHTML(entry.url) + '" data-card>',
-        "<hgroup>",
-        "<h3>" + escapeHTML(entry.title) + "</h3>"
-      ];
+        escapeHTML(entry.search) +
+        '" data-category="' +
+        escapeHTML(entry.category || "") +
+        '">' +
+        entry.card +
+        "</li>"
+      );
+    }
 
-      if (entry.metaLabel) {
-        parts.push("<p>" + escapeHTML(entry.metaLabel) + "</p>");
-      } else if (entry.dateISO && entry.dateLabel) {
-        parts.push(
-          '<p><time datetime="' +
-            escapeHTML(entry.dateISO) +
-            '">' +
-            escapeHTML(entry.dateLabel) +
-            "</time></p>"
-        );
-      }
-
-      if (entry.description) {
-        parts.push("<p>" + escapeHTML(entry.description) + "</p>");
-      }
-
-      parts.push("</hgroup>", "</a>", "</li>");
-      return parts.join("");
+    function sortMatches(matches, category) {
+      if (!category) return matches;
+      return matches.slice().sort(function (a, b) {
+        if (category === "post-collection") {
+          return (a.weight || 0) - (b.weight || 0);
+        }
+        var aSection = a.kind === "section" ? 0 : 1;
+        var bSection = b.kind === "section" ? 0 : 1;
+        if (aSection !== bSection) return aSection - bSection;
+        return (b.sortDate || 0) - (a.sortDate || 0);
+      });
     }
 
     function filter() {
@@ -135,6 +128,8 @@
         var matchesCategory = !category || entry.category === category;
         return matchesQuery && matchesCategory;
       });
+
+      matches = sortMatches(matches, category);
 
       list.innerHTML = matches.map(renderEntry).join("");
 

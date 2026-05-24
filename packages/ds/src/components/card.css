@@ -23,6 +23,10 @@
         color: var(--color-fg-3);
       }
 
+      & hgroup {
+        gap: var(--spacing-12-24);
+      }
+
       /* Card Layout */
       & :is(header, footer, aside, section) {
         gap: var(--spacing-surface);

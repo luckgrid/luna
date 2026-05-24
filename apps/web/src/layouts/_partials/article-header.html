@@ -1,14 +1,12 @@
 <header>
   <hgroup>
-    {{- if .Date -}}
     {{- partial "article-meta.html" . -}}
-    {{- end -}}
     <h1>{{ .Title }}</h1>
     {{- with .Description -}}
     <p>{{ . }}</p>
     {{- end -}}
   </hgroup>
   {{- with .Params.tags -}}
-  <ul aria-label="Tags" data-group>{{- range . -}}<li data-tag>#{{ . }}</li> {{ end -}}</ul>
+  <ul aria-label="Tags" data-group>{{- range . -}}<li data-tag>#{{ replaceRE "[-/_]" " " . | replaceRE "\\s+" " " | strings.TrimSpace | title }}</li> {{ end -}}</ul>
   {{- end -}}
 </header>

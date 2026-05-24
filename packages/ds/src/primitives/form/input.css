@@ -322,6 +322,17 @@
             & :is(button, [type="submit"], [type="reset"], [type="button"], [role="button"]) {
               padding: 0;
             }
+
+            &:is(:hover, :focus, :active, :focus-visible) {
+              background-color: var(--color-accent);
+
+              & :is(button, [type="submit"], [type="reset"], [type="button"], [role="button"]) {
+                box-shadow: none;
+                border-color: var(--color-accent);
+                background-color: var(--color-accent);
+                color: var(--color-bg);
+              }
+            }
           }
 
           /* Select Option */
@@ -335,6 +346,7 @@
             border-radius: 0;
             background-color: var(--background-color, var(--color-light));
             color: var(--color, var(--color-dark));
+            text-transform: uppercase;
             transition: var(--transition-action);
 
             &:nth-of-type(odd) {
@@ -531,7 +543,7 @@
         inline-size: 1.25em;
         block-size: 1.25em;
         opacity: 0.6;
-        background-color: var(--color-fg);
+        background-color: var(--color, var(--color-dark));
         -webkit-mask-image: var(--icon-search);
         -webkit-mask-position: center;
         -webkit-mask-size: contain;

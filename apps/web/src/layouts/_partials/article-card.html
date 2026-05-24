@@ -1,11 +1,9 @@
 <a href="{{ .RelPermalink }}" data-card>
   <hgroup>
     <h3>{{ .Title }}</h3>
-    {{- if .Date -}}
     {{- partial "article-meta.html" . -}}
-    {{- end -}}
-    {{- with .Description -}}
-    <p>{{ . }}</p>
-    {{- end -}}
   </hgroup>
+  {{- with .Description -}}
+  <p>{{ . }}</p>
+  {{- end -}}
 </a>

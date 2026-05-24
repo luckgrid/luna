@@ -5,6 +5,7 @@ date: 2026-04-02
 category: guides
 tags:
   - guide
+  - dev setup
 ---
 
 The `web` app is a **Hugo** static site. Markdown uses [Goldmark](https://github.com/yuin/goldmark/); templates live in `src/layouts/` (mounted as Hugo’s `layouts/`).

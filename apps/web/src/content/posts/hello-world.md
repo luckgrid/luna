@@ -5,6 +5,7 @@ date: 2026-04-01
 category: announcements
 tags:
   - intro
+  - hello world
 ---
 
 Welcome to the Luna static site template. This page is rendered from Markdown via [Goldmark](https://gohugo.io/getting-started/configuration-markup/) and composed with Go templates under `src/layouts/`.
