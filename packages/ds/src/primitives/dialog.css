@@ -281,6 +281,109 @@
           }
         }
       }
+
+      /* Panel Variant
+       *
+       * Side panel / off-canvas drawer driven by the HTML popover API
+       * (`<dialog popover="auto">` + `<button popovertarget="…">`), no JS required.
+       * Wrap an <aside> (or any content) inside to keep complementary-landmark
+       * semantics — the dialog handles open/close + animation.
+       *
+       *   1. Mobile closed (default): fixed off-canvas, translated off-screen.
+       *      Popover UA stylesheet sets `display: none` until `:popover-open`.
+       *   2. Mobile open: `:popover-open` slides the panel into view + fades backdrop.
+       *   3. ≥`--breakpoint-lg` (64rem): forced visible and in-flow regardless of
+       *      open/closed state. Popovers can hoist into the top layer when opened,
+       *      so we mirror the reset under `@media` and `@container` for robustness.
+       *
+       * Slide direction defaults to inline-end; `[data-side="start"] / .left` flips.
+       */
+      &:is([data-panel], .panel) {
+        --panel-size: min(20rem, 100svw);
+        --panel-offscreen: 100%;
+
+        align-items: stretch;
+        justify-content: flex-start;
+        flex-direction: column;
+        inset-block: 0;
+        inset-inline-start: auto;
+        inset-inline-end: 0;
+        width: var(--panel-size);
+        max-width: 100svw;
+        min-width: 0;
+        height: 100svh;
+        max-height: 100svh;
+        min-height: 0;
+        margin: 0;
+        overflow: hidden auto;
+        background-color: var(--color-bg);
+        box-shadow: var(--shadow-2);
+        transform: translateX(var(--panel-offscreen));
+        transition:
+          transform var(--transition-action),
+          overlay 0.3s allow-discrete,
+          display 0.3s allow-discrete;
+
+        &::backdrop {
+          background-color: var(--color-backdrop);
+          -webkit-backdrop-filter: var(--filter-backdrop);
+          backdrop-filter: var(--filter-backdrop);
+        }
+
+        &:is([data-side="start"], .left) {
+          --panel-offscreen: -100%;
+
+          inset-inline-start: 0;
+          inset-inline-end: auto;
+        }
+
+        &:is(:popover-open, [open], [open="true"]) {
+          transform: translateX(0);
+        }
+
+        @starting-style {
+          &:is(:popover-open, [open], [open="true"]) {
+            transform: translateX(var(--panel-offscreen));
+          }
+        }
+
+        /* Large screens — `@media` only. A `<dialog popover>` is hoisted into the
+         * top layer when opened, which detaches it from the body's container
+         * containment chain; matching against the viewport via `@media` stays
+         * stable across that hoist (and across an open→resize hand-off).
+         *
+         * Resets all overlay/off-canvas styles so the panel renders as a regular
+         * in-flow sticky sidebar. The backdrop is fully suppressed (hidden,
+         * transparent, non-interactive, no filter). A matchMedia listener in
+         * the template closes any open popover at this breakpoint to prevent
+         * top-layer hoisting from breaking the grid layout. */
+        @media (min-width: 64rem) {
+          display: flex !important;
+          position: sticky !important;
+          inset: auto !important;
+          top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
+          z-index: auto !important;
+          width: auto !important;
+          max-width: none !important;
+          min-width: 0 !important;
+          height: auto !important;
+          max-height: calc(100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2) !important;
+          min-height: 0 !important;
+          overflow: auto !important;
+          background-color: transparent !important;
+          box-shadow: none !important;
+          transform: none !important;
+          transition: none !important;
+
+          &::backdrop {
+            display: none !important;
+            background: transparent !important;
+            pointer-events: none !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+          }
+        }
+      }
     }
   }
 }

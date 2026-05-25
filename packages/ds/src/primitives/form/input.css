@@ -239,8 +239,9 @@
     /* Select Input */
     @scope (:scope:is(select)) {
       :scope {
-        text-transform: none;
         cursor: pointer;
+        justify-content: space-between;
+        text-transform: none;
 
         &::-ms-expand {
           border: 0;

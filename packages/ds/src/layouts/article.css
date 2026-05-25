@@ -1,31 +1,56 @@
-/* Article Layout — layouts.base, @scope per MDN (:scope for roots, nested scopes).
+/* Article + Collection Layouts — layouts.base, @scope per MDN.
  * See :scope within @scope:
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@scope
  *
- * Scope root [data-layout="article"] is the long-form <body>. Inner scope is main > article (prose shell + scroll targets).
- * Use `to (figure)` donut scopes only for edge layouts (e.g. figures beside prose), not here. */
+ * Two scopes share this file because the collection layout is an article variant:
+ *   - [data-layout="article"]: long-form body with prose <article> + optional inner TOC dialog.
+ *   - [data-layout="collection"]: same prose shell plus an outer collection-sidebar dialog
+ *     placed beside <main>, with site header on top and site footer on the bottom row.
+ *
+ * Sidebars use a single markup: <dialog popover="auto" data-panel> wrapping an <aside>.
+ * The dialog primitive owns off-canvas + sticky behavior (primitives/dialog.css panel
+ * variant); the aside primitive owns content + TOC styling (primitives/aside.css).
+ *
+ * Mobile-first: defaults assume a single-column stack; the layout reflows into a
+ * sidebar+main grid at `--breakpoint-lg` (64rem). Toggle buttons in the site header
+ * are hidden at the same breakpoint regardless of panel open/closed state.
+ *
+ * Queries: `<body>` declares `container-type: inline-size` (see layouts/base.css), so
+ * `@container (min-width: …)` on body descendants matches whenever the equivalent
+ * `@media` query would. Article + main grid placement uses `@container` only; `@media`
+ * is reserved for elements that can be hoisted into the top layer (the dialog panel
+ * itself, the mobile close bar, the TOC scroll reset — see primitives/dialog.css +
+ * primitives/aside.css).
+ *
+ * Layer order from tailwind.css is `theme, base, layouts, primitives, components,
+ * utilities` — meaning primitives override layouts. Rules that need to override a
+ * primitive declaration (e.g. hiding the trigger button) use `!important`.
+ */
 
-@scope ([data-layout="article"]) {
-  /* Article Layout Base */
+/* Shared Article Layout — applies to both article + collection layouts. */
+@scope (:is([data-layout="article"], [data-layout="collection"])) {
   @layer base {
-    /* Article Layout Resets (reset max-width of header hgroup) */
+    /* Layout Resets (reset max-width of header hgroup) */
     :scope :is(main, [data-main], article, [data-article]) > :is(header, [data-header]) hgroup {
       max-width: none;
     }
 
-    /* Article Layout Header */
-    :scope > :is(header, [data-header]) {
-      /* Header Navigation Button */
-      & > :is(nav, [role="navigation"]) > :is(button, [role="button"]) {
-        min-inline-size: max-content;
+    /* Layout Header — Panel Trigger Buttons.
+     * Default (mobile): visible. ≥lg: hidden via !important to overcome the
+     * higher-priority `display: inline-flex` declared in primitives/button.css.
+     */
+    :scope
+      > :is(header, [data-header])
+      > :is(nav, [role="navigation"])
+      > :is(button, [role="button"]) {
+      min-inline-size: max-content;
 
-        @container (min-width: 48rem) {
-          display: none;
-        }
+      @container (min-width: 64rem) {
+        display: none !important;
       }
     }
 
-    /* Article Layout Main */
+    /* Layout Main — 12/16-col grid with optional inner TOC dialog placement (right column). */
     :scope :is(main, [data-main]) {
       --grid-cols: 12;
 
@@ -43,14 +68,14 @@
         grid-column: 1 / -1;
       }
 
-      @container (min-width: 48rem) {
-        &:has(> :is(aside, [data-aside])) {
+      @container (min-width: 64rem) {
+        &:has(> :is(dialog[data-panel], aside, [data-aside])) {
           & > :is(header, [data-header]),
           & > :is(article, [data-article]) {
             grid-column: 1 / 9;
           }
 
-          & > :is(aside, [data-aside]) {
+          & > :is(dialog[data-panel], aside, [data-aside]) {
             grid-column: 9 / -1;
             grid-row: 1 / -1;
           }
@@ -58,20 +83,20 @@
       }
 
       @container (min-width: 90rem) {
-        &:has(> :is(aside, [data-aside])) {
+        &:has(> :is(dialog[data-panel], aside, [data-aside])) {
           & > :is(header, [data-header]),
           & > :is(article, [data-article]) {
             grid-column: 1 / 13;
           }
 
-          & > :is(aside, [data-aside]) {
+          & > :is(dialog[data-panel], aside, [data-aside]) {
             grid-column: 13 / -1;
           }
         }
       }
     }
 
-    /* Maub Header (main > header: scoped subtree) */
+    /* Main Header (main > header: scoped subtree) */
     @scope (:is(main, [data-main]) > :is(header, [data-header])) {
       :scope :is([aria-label="Tags"], [data-tags]) {
         gap: var(--spacing-6-12);
@@ -79,58 +104,6 @@
         &:is(ol, ul) {
           list-style: none;
           padding-inline-start: 0;
-        }
-      }
-    }
-
-    /* Main Aside (main > aside: scoped subtree) */
-    @scope (:is(main, [data-main]) > :is(aside, [data-aside])) {
-      :scope {
-        padding: 0;
-        background-color: var(--color-bg);
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
-
-        @container (min-width: 48rem) {
-          top: calc(var(--spacing-toolbar) + var(--spacing-layout));
-          background-color: transparent;
-        }
-      }
-
-      @container (min-width: 48rem) {
-        :scope {
-          display: flex;
-          overflow: auto;
-          max-block-size: calc(100svh - var(--spacing-toolbar) - var(--spacing-container) * 2);
-          block-size: auto;
-          padding-block: var(--spacing-surface);
-          padding-inline: var(--spacing-container);
-        }
-      }
-
-      /* Aside Header */
-      :scope > :is(header, [data-header]) {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        min-block-size: var(--spacing-toolbar);
-        padding-block: var(--spacing-panel);
-        padding-inline: var(--spacing-container);
-        gap: var(--spacing-6-12);
-        box-shadow: var(--shadow-1);
-
-        @container (min-width: 48rem) {
-          display: none;
-        }
-
-        /* Aside Header Headings */
-        & :is(h1, h2, h3, h4, h5, h6) {
-          font-size: var(--text-xs);
-          font-weight: var(--font-weight-medium);
-          line-height: var(--text-xs--line-height);
-          letter-spacing: var(--text-xs--letter-spacing);
-          text-transform: uppercase;
         }
       }
     }
@@ -146,10 +119,26 @@
         scroll-margin-top: var(--spacing-toolbar);
       }
     }
+  }
 
+  @layer components {
+    /* Main Article */
+    @scope (:is(main, [data-main]) :is(article, [data-article])) {
+      /* Article Footnote Reference Components */
+      :is([data-footnote-ref], .footnote-ref) {
+        scroll-margin-top: calc(
+          var(--spacing-toolbar) + var(--spacing-8-16) + var(--border-width-2)
+        );
+      }
+    }
+  }
+}
+
+/* Article-only — post pattern. */
+@scope ([data-layout="article"]) {
+  @layer base {
     /* Article Post Pattern */
     &[data-pattern="post"] {
-      /* Post Main Article */
       @scope (:is(main, [data-main]) :is(article, [data-article])) {
         /* Article Header (add breathing room around article header) */
         :scope > :is(header, [data-header]) {
@@ -159,16 +148,58 @@
       }
     }
   }
+}
 
-  /* Article Layout Components */
-  @layer components {
-    /* Main Article */
-    @scope (:is(main, [data-main]) :is(article, [data-article])) {
-      /* Article Footnote Reference Components */
-      :is([data-footnote-ref], .footnote-ref) {
-        scroll-margin-top: calc(
-          var(--spacing-toolbar) + var(--spacing-8-16) + var(--border-width-2)
-        );
+/* Collection-only — on mobile the body stays flex-column (from base.css), matching
+ * the article layout pattern: a toggle button opens the collection-sidebar as an
+ * off-canvas panel (~60svw, right side), and the article-toc opens as a separate
+ * off-canvas panel if present. At ≥lg the body becomes a grid: collection-sidebar
+ * pins to the left (small column), main takes the right (larger column), and main's
+ * own inner grid places the article-toc on the far right — matching how the article
+ * layout's TOC sidebar works.
+ *
+ * `@media` (not `@container`): the grid rule targets :scope (the body) itself,
+ * which has no container ancestor to query against; the viewport-level @media
+ * matches the same width. Descendant rules (main grid, header buttons) still
+ * use @container because they DO have the body as their container ancestor. */
+@scope ([data-layout="collection"]) {
+  @layer base {
+    :scope {
+      /* Collection-sidebar — wider right-side off-canvas panel on mobile. */
+      & > :is(dialog[data-panel]) {
+        --panel-size: 60svw;
+      }
+
+      @media (min-width: 64rem) {
+        display: grid;
+        grid-template-columns: min(16rem, 25%) 1fr;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+          "header header"
+          "aside main"
+          "footer footer";
+        align-items: start;
+        column-gap: var(--spacing-container);
+
+        & > :is(header, [data-header]) {
+          grid-area: header;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+
+        & > :is(dialog[data-panel], aside, [data-aside]) {
+          grid-area: aside;
+        }
+
+        & > :is(main, [data-main]) {
+          grid-area: main;
+          min-inline-size: 0;
+        }
+
+        & > :is(footer, [data-footer]) {
+          grid-area: footer;
+        }
       }
     }
   }

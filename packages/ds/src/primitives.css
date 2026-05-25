@@ -1,6 +1,7 @@
 @layer primitives.base, primitives.variants;
 
 @import "./primitives/article.css";
+@import "./primitives/aside.css";
 @import "./primitives/button.css";
 @import "./primitives/details.css";
 @import "./primitives/dialog.css";
