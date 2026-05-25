@@ -200,10 +200,8 @@ pre {
 }
 
 kbd {
-  background-color: color-mix(in oklab, var(--color-terminal) 80%, inherit);
-  border-width: var(--border-width-2);
-  border-style: dotted;
-  border-color: color-mix(in oklab, var(--color-terminal) 60%, transparent);
+  border: var(--border-width-2) dotted
+    color-mix(in oklab, var(--color-terminal) 80%, var(--color-light));
   vertical-align: baseline;
   font-weight: var(--font-weight-bolder);
 }

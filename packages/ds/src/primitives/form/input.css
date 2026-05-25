@@ -37,12 +37,24 @@
           color-mix(in oklab, var(--color-accent) 80%, transparent);
         outline-offset: var(--outline-offset-2);
       }
+    }
 
-      /* Invalid Input */
-      &:is(:user-invalid, [aria-invalid="true"], [data-invalid]) {
-        border-color: var(--color-alert);
-        color: var(--color-alert);
+    /* Invalid Input */
+    :scope:is(:user-invalid, [aria-invalid="true"], [data-invalid]) {
+      border-color: var(--color-alert);
+      color: var(--color-alert);
+
+      &:focus-visible {
+        outline-color: color-mix(in oklab, var(--color-alert) 80%, transparent);
       }
+    }
+
+    /* Disabled Input */
+    :scope:is(:disabled, [disabled]) {
+      cursor: not-allowed;
+      box-shadow: none;
+      border-color: color-mix(in oklab, var(--color-fg) 60%, transparent);
+      color: color-mix(in oklab, var(--color, var(--color-dark)) 60%, transparent);
     }
 
     /* Checkbox / Radio Inputs */
