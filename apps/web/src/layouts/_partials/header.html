@@ -22,12 +22,12 @@
   <nav aria-label="Header navigation">
     {{- partial "breadcrumbs.html" . -}}
     {{- if $isCollection -}}
-    <button type="button" popovertarget="collection-sidebar" aria-label="Open navigation">
-      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" width="16" height="16"><path transform="translate(42.666667, 106.666667)" d="M0,0 L426.666667,0 L426.666667,42.6666667 L0,42.6666667 L0,0 Z M0,128 L426.666667,128 L426.666667,170.666667 L0,170.666667 L0,128 Z M0,256 L426.666667,256 L426.666667,298.666667 L0,298.666667 L0,256 Z"/></svg>
+    <button type="button" data-button="icon" popovertarget="collection-sidebar" aria-label="Open collection navigation panel">
+      <i data-icon="menu" aria-hidden="true"></i>
     </button>
     {{- else if $hasToc -}}
-    <button type="button" popovertarget="article-toc" aria-label="Open table of contents">
-      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" width="16" height="16"><path transform="translate(42.666667, 106.666667)" d="M0,0 L106.666667,0 L106.666667,42.6666667 L0,42.6666667 L0,0 Z M170.666667,0 L426.666667,0 L426.666667,42.6666667 L170.666667,42.6666667 L170.666667,0 Z M0,128 L106.666667,128 L106.666667,170.666667 L0,170.666667 L0,128 Z M170.666667,128 L426.666667,128 L426.666667,170.666667 L170.666667,170.666667 L170.666667,128 Z M0,256 L106.666667,256 L106.666667,298.666667 L0,298.666667 L0,256 Z M170.666667,256 L426.666667,256 L426.666667,298.666667 L170.666667,298.666667 L170.666667,256 Z"/></svg>
+    <button type="button" data-button="icon" popovertarget="article-toc" aria-label="Open article table of contents panel">
+      <i data-icon="list" aria-hidden="true"></i>
     </button>
     {{- end -}}
   </nav>

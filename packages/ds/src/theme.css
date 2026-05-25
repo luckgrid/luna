@@ -290,13 +290,11 @@
   --text-9xl--letter-spacing: var(--tracking-normal);
   --text-9xl--font-weight: var(--font-weight-black);
 
-  /* Transition */
-  --transition-action:
+  /* Transition (property lists — duration/timing from --default-transition-*) */
+  --transition-property-action:
     color, background-color, border-color, outline-color, text-decoration-color, fill, stroke,
-    var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to), opacity,
-    box-shadow var(--default-transition-duration) var(--default-transition-timing-function);
-  --transition-slider: inline-slide var(--default-transition-duration)
-    var(--default-transition-timing-function);
+    --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform;
+  --transition-property-slider: inline-slide;
 
   /* Animations */
   --animation-dropshadow: dropshadow 0.5s linear both;
@@ -388,6 +386,12 @@
   --line-height: var(--text-base--line-height);
   --letter-spacing: var(--text-base--letter-spacing);
   --underline-offset: var(--spacing-3-5);
+
+  /* Transitions */
+  --transition-action: var(--transition-property-action) var(--default-transition-duration)
+    var(--default-transition-timing-function);
+  --transition-slider: var(--transition-property-slider) var(--default-transition-duration)
+    var(--default-transition-timing-function);
 
   /* SVG Icon Tokens (src/icons/*.svg — mask icons use opaque fills; stroke icons use currentColor for tint) */
   --icon-arrow: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpolygon transform='translate(106.680107, 134.255147)' points='1.42108547e-14 143.073067 216.973013 143.073067 146.7232 213.32288 176.889813 243.489707 298.639787 121.739733 176.889813 0 146.7232 30.1668267 216.970453 100.4064 1.42108547e-14 100.4064'/%3E%3C/svg%3E");

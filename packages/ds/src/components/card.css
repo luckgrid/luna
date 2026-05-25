@@ -10,11 +10,11 @@
       justify-content: end;
       gap: var(--spacing-surface);
       padding: var(--spacing-surface);
-      box-shadow: var(--shadow-4);
+      box-shadow: var(--shadow-3);
       border-style: solid;
       border-width: var(--border-width-2);
-      border-color: var(--color-bg-4);
-      background-color: var(--color-bg-1);
+      border-color: var(--color-fg);
+      background-color: color-mix(in oklab, var(--color-bg-1) 2%, transparent);
       color: var(--color-fg);
       font-family: var(--font-sans);
 
@@ -57,32 +57,53 @@
       :scope {
         text-decoration: none;
         transition: var(--transition-action);
-      }
 
-      :scope:is(:hover, :focus, :active, :focus-visible) {
-        border-color: var(--color-accent);
-        background-color: color-mix(in oklab, var(--color-accent) 2%, transparent);
-        box-shadow: var(--shadow-3);
-        text-decoration: none;
-      }
+        &:is(:hover, :focus, :active, :focus-visible) {
+          border-color: var(--color-accent);
+          background-color: color-mix(in oklab, var(--color-accent) 2%, transparent);
+          box-shadow: var(--shadow-2);
+          text-decoration: none;
+        }
 
-      :scope:is(:focus, :active) {
-        box-shadow: var(--shadow-2);
-      }
+        &:is(:focus, :active) {
+          box-shadow: var(--shadow-1);
+        }
 
-      :scope:focus-visible {
-        box-shadow: none;
-        outline-style: solid;
-        outline-width: var(--border-width-2);
-        outline-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
-        outline-offset: var(--border-width-2);
+        &:focus-visible {
+          box-shadow: none;
+          outline: var(--outline-width-2) solid
+            color-mix(in oklab, var(--color-accent) 80%, transparent);
+          outline-offset: var(--outline-offset-2);
+        }
       }
     }
   }
 
   /* Card Patterns */
   @layer patterns {
-    /* Card List Pattern (scoped subtree) */
+    /* Card Action Pattern */
+    @scope (:scope:is(a, button, [role="button"], [role="link"])) {
+      :scope {
+        position: relative;
+
+        & [data-icon="arrow"] {
+          opacity: 0;
+          pointer-events: none;
+          position: absolute;
+          right: var(--spacing-surface);
+          top: 50%;
+          transform: translate(-0.5em, -50%);
+          transition: var(--transition-action);
+        }
+
+        &:is(:hover, :focus, :active, :focus-visible) [data-icon="arrow"] {
+          opacity: 0.5;
+          transform: translate(0.5em, -50%);
+        }
+      }
+    }
+
+    /* Card List Pattern */
     @scope (:scope :is([data-list])) {
       :scope {
         flex-flow: row nowrap;
@@ -91,22 +112,6 @@
 
         & hgroup {
           gap: var(--spacing-8-16);
-        }
-      }
-
-      /* List Pattern Action State (icons) */
-      @scope (:scope:is(a, button, [role="button"])) {
-        :scope :is(i, svg, [data-icon]) {
-          opacity: 0;
-          pointer-events: none;
-          transform: translateX(-0.35em);
-          transition: var(--transition-action), var(--transition-transform);
-
-          :is(:hover, :focus, :active, :focus-visible) & {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(0);
-          }
         }
       }
     }

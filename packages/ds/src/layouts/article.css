@@ -27,7 +27,7 @@
  * primitive declaration (e.g. hiding the trigger button) use `!important`.
  */
 
-/* Shared Article Layout — applies to both article + collection layouts. */
+/* Shared Article Layout (applies to both article & collection layouts). */
 @scope (:is([data-layout="article"], [data-layout="collection"])) {
   @layer base {
     /* Layout Resets (reset max-width of header hgroup) */
@@ -35,7 +35,7 @@
       max-width: none;
     }
 
-    /* Layout Header — Panel Trigger Buttons.
+    /* Layout Header Navigation Buttons
      * Default (mobile): visible. ≥lg: hidden via !important to overcome the
      * higher-priority `display: inline-flex` declared in primitives/button.css.
      */
@@ -70,8 +70,7 @@
 
       @container (min-width: 64rem) {
         &:has(> :is(dialog[data-panel], aside, [data-aside])) {
-          & > :is(header, [data-header]),
-          & > :is(article, [data-article]) {
+          & > :is(header, [data-header], article, [data-article]) {
             grid-column: 1 / 9;
           }
 
@@ -84,8 +83,7 @@
 
       @container (min-width: 90rem) {
         &:has(> :is(dialog[data-panel], aside, [data-aside])) {
-          & > :is(header, [data-header]),
-          & > :is(article, [data-article]) {
+          & > :is(header, [data-header], article, [data-article]) {
             grid-column: 1 / 13;
           }
 
@@ -96,7 +94,7 @@
       }
     }
 
-    /* Main Header (main > header: scoped subtree) */
+    /* Main Header */
     @scope (:is(main, [data-main]) > :is(header, [data-header])) {
       :scope :is([aria-label="Tags"], [data-tags]) {
         gap: var(--spacing-6-12);
@@ -108,7 +106,7 @@
       }
     }
 
-    /* Main Article (main > article: shell on :scope; footnote / details scroll-margin for in-flow prose). */
+    /* Main Article */
     @scope (:is(main, [data-main]) :is(article, [data-article])) {
       :scope {
         min-inline-size: 0;
@@ -134,7 +132,7 @@
   }
 }
 
-/* Article-only — post pattern. */
+/* Article Layout */
 @scope ([data-layout="article"]) {
   @layer base {
     /* Article Post Pattern */
@@ -150,26 +148,10 @@
   }
 }
 
-/* Collection-only — on mobile the body stays flex-column (from base.css), matching
- * the article layout pattern: a toggle button opens the collection-sidebar as an
- * off-canvas panel (~60svw, right side), and the article-toc opens as a separate
- * off-canvas panel if present. At ≥lg the body becomes a grid: collection-sidebar
- * pins to the left (small column), main takes the right (larger column), and main's
- * own inner grid places the article-toc on the far right — matching how the article
- * layout's TOC sidebar works.
- *
- * `@media` (not `@container`): the grid rule targets :scope (the body) itself,
- * which has no container ancestor to query against; the viewport-level @media
- * matches the same width. Descendant rules (main grid, header buttons) still
- * use @container because they DO have the body as their container ancestor. */
+/* Article Collection Layout */
 @scope ([data-layout="collection"]) {
   @layer base {
     :scope {
-      /* Collection-sidebar — wider right-side off-canvas panel on mobile. */
-      & > :is(dialog[data-panel]) {
-        --panel-size: 60svw;
-      }
-
       @media (min-width: 64rem) {
         display: grid;
         grid-template-columns: min(16rem, 25%) 1fr;

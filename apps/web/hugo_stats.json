@@ -19,6 +19,7 @@
       "header",
       "hgroup",
       "html",
+      "i",
       "img",
       "input",
       "label",
@@ -30,7 +31,6 @@
       "ol",
       "option",
       "p",
-      "path",
       "pre",
       "script",
       "section",
@@ -39,7 +39,6 @@
       "small",
       "span",
       "strong",
-      "svg",
       "time",
       "title",
       "ul"

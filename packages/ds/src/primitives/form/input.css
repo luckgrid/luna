@@ -33,7 +33,8 @@
 
       &:focus-visible {
         box-shadow: none;
-        outline: var(--outline-width-2) solid var(--color-accent);
+        outline: var(--outline-width-2) solid
+          color-mix(in oklab, var(--color-accent) 80%, transparent);
         outline-offset: var(--outline-offset-2);
       }
 
@@ -500,10 +501,10 @@
           outline-offset: var(--outline-offset-2);
 
           &:not(:checked) {
-            border-color: color-mix(in oklab, var(--color-accent) 48%, var(--switch-border-color));
+            border-color: color-mix(in oklab, var(--color-accent) 50%, var(--switch-border-color));
             background-color: color-mix(
               in oklab,
-              var(--color-accent) 18%,
+              var(--color-accent) 20%,
               var(--switch-background-color)
             );
           }

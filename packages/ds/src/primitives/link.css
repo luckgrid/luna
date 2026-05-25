@@ -19,7 +19,8 @@
       }
 
       &:focus-visible {
-        outline: var(--outline-width-2) dashed var(--color-accent);
+        outline: var(--outline-width-2) dashed
+          color-mix(in oklab, var(--color-accent) 80%, transparent);
         outline-offset: var(--outline-offset-2);
       }
     }

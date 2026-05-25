@@ -64,7 +64,7 @@
             mask-size: 1em auto;
             mask-repeat: no-repeat;
             content: "";
-            transition: var(--transition-colors), var(--transition-transform);
+            transition: var(--transition-action);
           }
         }
 

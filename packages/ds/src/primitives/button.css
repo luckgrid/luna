@@ -113,6 +113,7 @@
           border-color: var(--color-accent);
           background-color: transparent;
           color: var(--color-accent);
+          text-decoration: none;
         }
 
         &:focus-visible {

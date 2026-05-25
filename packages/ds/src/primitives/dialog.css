@@ -41,15 +41,16 @@
         }
       }
 
-      & > :is(article, [data-surface], .surface, [data-card], .card) {
+      & > :is(article, [data-article], [data-card], .card) {
         --size: var(--spacing-container);
 
+        overflow: auto;
         position: relative;
         width: 100%;
         max-width: calc(100svw - var(--size) * 2);
         max-height: calc(100svh - var(--size) * 2);
         margin: var(--size);
-        overflow: auto;
+        background-color: var(--color-bg);
 
         /* Close Button */
         & :is(button, [role="button"])[rel="prev"] {
@@ -67,11 +68,11 @@
         }
 
         /* Layout Slots */
-        & > :is(aside, header, section) {
+        & > :is(aside, [data-aside], header, [data-header], section, [data-section]) {
           gap: var(--spacing-surface);
         }
 
-        & > footer {
+        & > :is(footer, [data-footer]) {
           gap: var(--spacing-8-16);
 
           & :is([data-button="outline"], [data-button="ghost"], [data-button="text"]) {
@@ -134,7 +135,7 @@
               pointer-events: none;
             }
 
-            & > :is(article, [data-surface], .surface, [data-card], .card) {
+            & > :is(article, [data-article], [data-card], .card) {
               pointer-events: auto;
             }
           }
@@ -150,7 +151,7 @@
           overflow-wrap: normal;
         }
 
-        & > :is(article, [data-surface], .surface, [data-card], .card) {
+        & > :is(article, [data-article], [data-card], .card) {
           position: relative;
           display: flex;
           flex: 0 1 auto;
@@ -164,11 +165,6 @@
           overflow-y: auto;
           overflow-wrap: anywhere;
           color: var(--color-fg-1);
-
-          /* Override article gap defaults */
-          & > article {
-            gap: var(--spacing-16-32);
-          }
 
           & :is(a:not([role="button"])) {
             pointer-events: none;
@@ -185,7 +181,7 @@
         }
 
         /* Dialog popover footer (sibling of card, not inside) */
-        & > footer {
+        & > :is(footer, [data-footer]) {
           position: relative;
           inline-size: 100%;
           min-inline-size: 0;
@@ -212,7 +208,7 @@
             background: transparent;
           }
 
-          & > :is(article, [data-surface], .surface, [data-card], .card) {
+          & > :is(article, [data-article], [data-card], .card) {
             inline-size: fit-content;
             min-inline-size: min(100%, 20rem);
             max-inline-size: calc(100svw - var(--size) * 2);
@@ -233,13 +229,13 @@
             justify-content: unset;
             align-items: unset;
 
-            & > :is(footer) {
+            & > :is(footer, [data-footer]) {
               display: none;
               pointer-events: none;
             }
 
             &[data-preview-mode="hover"] {
-              & > :is(article, [data-surface], .surface, [data-card], .card) {
+              & > :is(article, [data-article], [data-card], .card) {
                 position: fixed;
                 inset: auto auto max(var(--size), 10svh) 50%;
                 translate: -50% 0;
@@ -320,7 +316,7 @@
         box-shadow: var(--shadow-2);
         transform: translateX(var(--panel-offscreen));
         transition:
-          transform var(--transition-action),
+          transform var(--default-transition-duration) var(--default-transition-timing-function),
           overlay 0.3s allow-discrete,
           display 0.3s allow-discrete;
 
