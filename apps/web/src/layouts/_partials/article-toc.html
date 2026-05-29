@@ -1,78 +1,28 @@
 {{- /*
-  Article TOC — single markup that serves both mobile and large-screen layouts.
-  The <dialog popover="auto" data-panel> is the off-canvas panel on mobile and
-  the in-flow sticky sidebar at ≥lg (forced visible regardless of [open] state
-  by primitives/dialog.css `data-panel` variant). The inner <aside> keeps the
-  complementary landmark semantics + close bar; the recursive nav builds
-  <details data-toc-item> for nested heading groups, <a data-toc-item> for leaves.
+  Article TOC — nav tree only. Layouts own chrome (<aside>, headers, dialog shells).
+  Recursive nav builds <details data-toc-item> for nested heading groups,
+  <a data-toc-item> for leaves.
 */ -}}
 
-{{- $showToc := false -}}
-{{- if in .Params "toc" -}}
-  {{- $showToc = .Params.toc -}}
-{{- else -}}
-  {{- $h2Count := 0 -}}
-  {{- range .Fragments.Headings -}}
-    {{- if eq .Level 2 -}}{{- $h2Count = add $h2Count 1 -}}{{- end -}}
-    {{- range (.Headings | default slice) -}}
-      {{- if eq .Level 2 -}}{{- $h2Count = add $h2Count 1 -}}{{- end -}}
-    {{- end -}}
-  {{- end -}}
-  {{- $showToc = ge $h2Count 2 -}}
-{{- end -}}
-
-{{- $roots := slice -}}
-{{- range .Fragments.Headings -}}
-  {{- if eq .Level 2 -}}
-    {{- $roots = $roots | append . -}}
-  {{- else -}}
-    {{- range (.Headings | default slice) -}}
-      {{- if eq .Level 2 -}}{{- $roots = $roots | append . -}}{{- end -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{- if and $showToc (gt (len $roots) 0) -}}
-<dialog id="article-toc" popover="auto" data-panel data-side="end">
-  <aside aria-label="In this article">
-    <header>
-      <hgroup><h2>On this page</h2></hgroup>
-      <button type="button" data-button="icon" popovertarget="article-toc" popovertargetaction="hide" aria-label="Close">
-        <i data-icon="close" aria-hidden="true"></i>
-      </button>
-    </header>
-    <nav data-toc aria-label="Table of contents">
-      {{- template "_partials/toc-tree-items" $roots -}}
-    </nav>
-  </aside>
-  <script>
-    (function () {
-      /* Close panel popovers at ≥lg so they return to the normal flow
-       * as sticky sidebars. See collection-sidebar.html for rationale. */
-      var mq = window.matchMedia("(min-width: 64rem)");
-      function closeOnDesktop() {
-        if (!mq.matches) return;
-        var panels = document.querySelectorAll("dialog[data-panel]");
-        panels.forEach(function (p) {
-          if (p.open || p.matches(":popover-open")) p.hidePopover();
-        });
-      }
-      mq.addEventListener("change", closeOnDesktop);
-      closeOnDesktop();
-    })();
-  </script>
-</dialog>
+{{- $toc := partial "toc-visibility.html" . -}}
+{{- if $toc.show -}}
+<nav data-toc aria-label="Table of contents">
+  {{- template "_partials/toc-tree-items" $toc.roots -}}
+</nav>
 {{- end -}}
 
 {{- define "_partials/toc-tree-items" -}}
   {{- range . -}}
     {{- $kids := .Headings | default slice -}}
     {{- if gt (len $kids) 0 -}}
-<details data-toc-item><summary><a href="#{{ .ID }}">{{ .Title }}</a></summary><div data-content>
+    <details data-toc-item>
+      <summary><a href="#{{ .ID }}">{{ .Title }}</a></summary>
+      <div data-content>
       {{- template "_partials/toc-tree-items" $kids -}}
-</div></details>
+      </div>
+    </details>
     {{- else -}}
-<a data-toc-item href="#{{ .ID }}">{{ .Title }}</a>
+    <a data-toc-item href="#{{ .ID }}">{{ .Title }}</a>
     {{- end -}}
   {{- end -}}
 {{- end -}}

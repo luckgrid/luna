@@ -159,10 +159,29 @@
         }
       }
 
+      /* Alert Button Variant */
+      &:is([data-button="alert"]) {
+        box-shadow: none;
+        border-color: var(--color-alert);
+        background-color: var(--color-alert);
+
+        &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+          border-color: transparent;
+          background-color: color-mix(in oklab, var(--color-alert) 90%, transparent);
+        }
+
+        &:focus-visible {
+          outline: var(--outline-width-2) solid
+            color-mix(in oklab, var(--color-alert) 80%, transparent);
+          background-color: var(--color-alert);
+        }
+      }
+
       /* Wrapper Button Variant */
       &:is([data-button="wrapper"]) {
         cursor: default;
         user-select: auto;
+        text-transform: none;
 
         &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
           color: currentColor;

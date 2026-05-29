@@ -19,6 +19,11 @@
         flex-direction: row;
         gap: var(--space);
       }
+
+      &:is([role="group"], [role="search"]) {
+        display: inline-flex;
+        flex-direction: row;
+      }
     }
   }
 }

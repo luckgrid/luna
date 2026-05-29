@@ -31,8 +31,9 @@
         backdrop-filter: var(--filter-backdrop);
       }
 
-      /* Hidden when neither dialog `[open]` nor popover showing (`:popover-open`). */
-      &:not(:is(:popover-open, [open])),
+      /* Hidden when neither dialog `[open]` nor popover showing (`:popover-open`).
+       * `[data-panel]` is excluded — popover UA + panel variant own show/hide. */
+      &:not(:is(:popover-open, [open])):not(:is([data-panel], .panel)),
       &[open="false"] {
         display: none;
 
@@ -285,16 +286,17 @@
        * Wrap an <aside> (or any content) inside to keep complementary-landmark
        * semantics — the dialog handles open/close + animation.
        *
-       *   1. Mobile closed (default): fixed off-canvas, translated off-screen.
-       *      Popover UA stylesheet sets `display: none` until `:popover-open`.
-       *   2. Mobile open: `:popover-open` slides the panel into view + fades backdrop.
-       *   3. ≥`--breakpoint-lg` (64rem): forced visible and in-flow regardless of
-       *      open/closed state. Popovers can hoist into the top layer when opened,
-       *      so we mirror the reset under `@media` and `@container` for robustness.
+       *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
+       *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade.
+       *   3. ≥64rem `@container`: always in-flow sticky sidebar; backdrop suppressed;
+       *      header `popovertarget` buttons hidden in article.css. If still `:popover-open`
+       *      (e.g. resize), layout scopes pin hoisted panels with `position: fixed`.
        *
        * Slide direction defaults to inline-end; `[data-side="start"] / .left` flips.
        */
       &:is([data-panel], .panel) {
+        --panel-duration: var(--default-transition-duration);
+        --panel-ease: var(--default-transition-timing-function);
         --panel-size: min(20rem, 100svw);
         --panel-offscreen: 100%;
 
@@ -314,16 +316,22 @@
         overflow: hidden auto;
         background-color: var(--color-bg);
         box-shadow: var(--shadow-2);
+        opacity: 0;
         transform: translateX(var(--panel-offscreen));
         transition:
-          transform var(--default-transition-duration) var(--default-transition-timing-function),
-          overlay 0.3s allow-discrete,
-          display 0.3s allow-discrete;
+          opacity var(--panel-duration) var(--panel-ease),
+          transform var(--panel-duration) var(--panel-ease),
+          overlay var(--panel-duration) allow-discrete,
+          display var(--panel-duration) allow-discrete;
 
         &::backdrop {
-          background-color: var(--color-backdrop);
-          -webkit-backdrop-filter: var(--filter-backdrop);
-          backdrop-filter: var(--filter-backdrop);
+          background-color: transparent;
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+          transition:
+            background-color var(--panel-duration) var(--panel-ease),
+            overlay var(--panel-duration) allow-discrete,
+            display var(--panel-duration) allow-discrete;
         }
 
         &:is([data-side="start"], .left) {
@@ -334,26 +342,30 @@
         }
 
         &:is(:popover-open, [open], [open="true"]) {
+          opacity: 1;
           transform: translateX(0);
+
+          &::backdrop {
+            background-color: var(--color-backdrop);
+            -webkit-backdrop-filter: var(--filter-backdrop);
+            backdrop-filter: var(--filter-backdrop);
+          }
         }
 
         @starting-style {
           &:is(:popover-open, [open], [open="true"]) {
+            opacity: 0;
             transform: translateX(var(--panel-offscreen));
           }
         }
 
-        /* Large screens — `@media` only. A `<dialog popover>` is hoisted into the
-         * top layer when opened, which detaches it from the body's container
-         * containment chain; matching against the viewport via `@media` stays
-         * stable across that hoist (and across an open→resize hand-off).
-         *
-         * Resets all overlay/off-canvas styles so the panel renders as a regular
-         * in-flow sticky sidebar. The backdrop is fully suppressed (hidden,
-         * transparent, non-interactive, no filter). A matchMedia listener in
-         * the template closes any open popover at this breakpoint to prevent
-         * top-layer hoisting from breaking the grid layout. */
-        @media (min-width: 64rem) {
+        @media (prefers-reduced-motion: reduce) {
+          transition-duration: 0.01ms;
+        }
+
+        /* Large screens — `@container` only (see file header). Always visible in-flow;
+         * no off-canvas motion; backdrop non-interactive so light-dismiss passes through. */
+        @container (min-width: 64rem) {
           display: flex !important;
           position: sticky !important;
           inset: auto !important;
@@ -368,8 +380,10 @@
           overflow: auto !important;
           background-color: transparent !important;
           box-shadow: none !important;
+          opacity: 1 !important;
           transform: none !important;
           transition: none !important;
+          pointer-events: auto !important;
 
           &::backdrop {
             display: none !important;
@@ -377,7 +391,15 @@
             pointer-events: none !important;
             -webkit-backdrop-filter: none !important;
             backdrop-filter: none !important;
+            transition: none !important;
           }
+        }
+      }
+
+      /* Panel backdrop entry — @starting-style cannot nest under ::backdrop. */
+      @starting-style {
+        :is(dialog):is([data-panel], .panel):popover-open::backdrop {
+          background-color: transparent;
         }
       }
     }

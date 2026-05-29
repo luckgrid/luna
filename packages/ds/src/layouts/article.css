@@ -3,13 +3,15 @@
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@scope
  *
  * Two scopes share this file because the collection layout is an article variant:
- *   - [data-layout="article"]: long-form body with prose <article> + optional inner TOC dialog.
- *   - [data-layout="collection"]: same prose shell plus an outer collection-sidebar dialog
- *     placed beside <main>, with site header on top and site footer on the bottom row.
+ *   - [data-layout="article"]: long-form body with prose <article> + optional TOC
+ *     dialog inside <main> (right column at ≥lg).
+ *   - [data-layout="collection"]: side-panel dialog outside <main> (left column
+ *     at ≥lg); optional article-toc inside <main> (right column at ≥lg, in dialog on mobile).
  *
- * Sidebars use a single markup: <dialog popover="auto" data-panel> wrapping an <aside>.
- * The dialog primitive owns off-canvas + sticky behavior (primitives/dialog.css panel
- * variant); the aside primitive owns content + TOC styling (primitives/aside.css).
+ * Layout templates own <dialog popover="auto" data-panel> shells; partials render
+ * <aside> content only. The dialog primitive owns off-canvas + sticky behavior
+ * (primitives/dialog.css panel variant); the aside primitive owns content + TOC
+ * styling (primitives/aside.css).
  *
  * Mobile-first: defaults assume a single-column stack; the layout reflows into a
  * sidebar+main grid at `--breakpoint-lg` (64rem). Toggle buttons in the site header
@@ -20,7 +22,7 @@
  * `@media` query would. Article + main grid placement uses `@container` only; `@media`
  * is reserved for elements that can be hoisted into the top layer (the dialog panel
  * itself, the mobile close bar, the TOC scroll reset — see primitives/dialog.css +
- * primitives/aside.css).
+ * primitives/aside.css). Panel open/close at ≥lg is CSS-only (no resize script).
  *
  * Layer order from tailwind.css is `theme, base, layouts, primitives, components,
  * utilities` — meaning primitives override layouts. Rules that need to override a
@@ -47,6 +49,17 @@
 
       @container (min-width: 64rem) {
         display: none !important;
+      }
+    }
+
+    /* Mobile — prevent background scroll while a panel popover is open. */
+    @container (max-width: 63.99rem) {
+      :scope:has(> dialog[data-panel]:popover-open) > :is(main, [data-main]) {
+        overflow: hidden;
+      }
+
+      :scope :is(main, [data-main]):has(> dialog[data-panel]:popover-open) {
+        overflow: hidden;
       }
     }
 
@@ -89,6 +102,44 @@
 
           & > :is(dialog[data-panel], aside, [data-aside]) {
             grid-column: 13 / -1;
+          }
+        }
+      }
+    }
+
+    /* In-main TOC sidebar — shared sticky offset (matches dialog[data-panel] at ≥lg in dialog.css).
+     * Collection: <main> > <aside>. Article: dialog[data-panel] is sticky; inner aside in flow. */
+    @scope (:is(main, [data-main]) > :is(aside, [data-aside])) {
+      @layer base {
+        :scope {
+          @container (min-width: 64rem) {
+            align-self: start;
+            top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
+            max-block-size: calc(
+              100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2
+            ) !important;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            z-index: auto;
+            background-color: transparent !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+          }
+        }
+      }
+    }
+
+    @scope (:is(main, [data-main]) > dialog[data-panel] > :is(aside, [data-aside])) {
+      @layer base {
+        :scope {
+          @container (min-width: 64rem) {
+            position: static !important;
+            top: auto !important;
+            max-block-size: none !important;
+            overflow-y: visible;
+            background-color: transparent !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
           }
         }
       }
@@ -152,6 +203,11 @@
 @scope ([data-layout="collection"]) {
   @layer base {
     :scope {
+      /* Mobile: TOC in collection dialog only; desktop: TOC aside at end of <main> grid. */
+      & :is(main, [data-main]) > :is(aside, [data-aside]) {
+        display: none;
+      }
+
       @media (min-width: 64rem) {
         display: grid;
         grid-template-columns: min(16rem, 25%) 1fr;
@@ -170,8 +226,15 @@
           z-index: 10;
         }
 
-        & > :is(dialog[data-panel], aside, [data-aside]) {
+        & > dialog[data-panel] {
           grid-area: aside;
+
+          @container (min-width: 64rem) {
+            & > :is(aside, [data-aside]) {
+              padding: var(--spacing-container);
+              padding-inline-end: 0;
+            }
+          }
         }
 
         & > :is(main, [data-main]) {
@@ -181,6 +244,21 @@
 
         & > :is(footer, [data-footer]) {
           grid-area: footer;
+        }
+
+        & :is(main, [data-main]) > :is(aside, [data-aside]) {
+          display: flex;
+        }
+
+        /* Hoisted `:popover-open` panels (e.g. after mobile→desktop resize): pin to left grid column. */
+        & > dialog[data-panel]:popover-open {
+          position: fixed !important;
+          inset-block: calc(var(--spacing-toolbar) + var(--spacing-panel)) auto !important;
+          inset-inline: 0 auto !important;
+          width: min(16rem, 25%) !important;
+          max-block-size: calc(
+            100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2
+          ) !important;
         }
       }
     }

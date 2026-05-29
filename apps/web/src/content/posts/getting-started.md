@@ -35,7 +35,7 @@ Archetypes only apply to **`hugo new content`**. This repo uses four **`-k`** ki
 - **`article`** -> [`article.md`](../../archetypes/article.md): single **articles** such as posts, legal policies, and `posts/list-example/...`
 - **`collection`** -> [`collection.md`](../../archetypes/collection.md): collection `_index` pages with shared sidebar + optional TOC
 
-Shared markup lives as flat files under **`layouts/_partials/`** (e.g. `brand.html`, `hero.html`, `collection-sidebar.html`). Page and section **layouts** are inlined in root [`page.html`](../../layouts/page.html) and [`section.html`](../../layouts/section.html) (branch on **`params.layout`**); [`home.html`](../../layouts/home.html) matches the **`simple`** page shape.
+Shared markup lives as flat files under **`layouts/_partials/`** (e.g. `brand.html`, `hero.html`, `article-collection.html`). Page and section **layouts** are inlined in root [`page.html`](../../layouts/page.html) and [`section.html`](../../layouts/section.html) (branch on **`params.layout`**); [`home.html`](../../layouts/home.html) matches the **`simple`** page shape.
 
 - **Posts catalog** — [`/posts/`](./) → `section.html` → **`catalog`** branch
 - **New post** — `hugo new content posts/<slug>.md -k article`

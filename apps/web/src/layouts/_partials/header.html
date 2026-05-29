@@ -1,33 +1,17 @@
 {{- $layout := .Layout -}}
 {{- $isCollection := eq $layout "collection" -}}
-
-{{- /* Mirror article-toc.html visibility: explicit .Params.toc wins, else ≥2 h2 headings. */ -}}
 {{- $hasToc := false -}}
 {{- if in (slice "article" "collection") $layout -}}
-  {{- if in .Params "toc" -}}
-    {{- $hasToc = .Params.toc -}}
-  {{- else -}}
-    {{- $h2Count := 0 -}}
-    {{- range .Fragments.Headings -}}
-      {{- if eq .Level 2 -}}{{- $h2Count = add $h2Count 1 -}}{{- end -}}
-      {{- range (.Headings | default slice) -}}
-        {{- if eq .Level 2 -}}{{- $h2Count = add $h2Count 1 -}}{{- end -}}
-      {{- end -}}
-    {{- end -}}
-    {{- $hasToc = ge $h2Count 2 -}}
-  {{- end -}}
+  {{- $hasToc = (partial "toc-visibility.html" .).show -}}
 {{- end -}}
+{{- $hasSidePanel := or $isCollection $hasToc -}}
 
 <header data-sticky>
   <nav aria-label="Header navigation">
     {{- partial "breadcrumbs.html" . -}}
-    {{- if $isCollection -}}
-    <button type="button" data-button="icon" popovertarget="collection-sidebar" aria-label="Open collection navigation panel">
+    {{- if $hasSidePanel -}}
+    <button type="button" data-button="icon" popovertarget="side-panel" aria-label="Open side panel">
       <i data-icon="menu" aria-hidden="true"></i>
-    </button>
-    {{- else if $hasToc -}}
-    <button type="button" data-button="icon" popovertarget="article-toc" aria-label="Open article table of contents panel">
-      <i data-icon="list" aria-hidden="true"></i>
     </button>
     {{- end -}}
   </nav>

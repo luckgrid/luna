@@ -30,7 +30,7 @@ Calling conventions worth knowing:
 
 - Document head: `partial "metadata.html" .` from [`baseof.html`](src/layouts/baseof.html) (meta tags + deferred CSS).
 - Site chrome: `partial "header.html" .`, `partial "footer.html" .` (footer is wired from [`baseof.html`](src/layouts/baseof.html)).
-- TOC: `partial "article-toc.html" .`
+- TOC: `partial "article-toc.html" .` (nav tree only; layouts own `<aside>` / `<dialog>` chrome)
 - Pagination: `partial "pagination.html" $paginator` (renders nothing when `TotalPages <= 1`).
 - Hero: `partial "hero.html" .` or `partial "hero.html" (dict "page" . "slot" $html)` (catalog injects search form into the hero slot).
 - Marketing strips from Markdown: shortcode [`latest-posts.html`](src/layouts/_shortcodes/latest-posts.html) (e.g. on the home page).
@@ -41,7 +41,7 @@ Calling conventions worth knowing:
 2. **Do not** add a `single.html` — `page.html` already handles kind=page.
 3. **Page/section layout markup** lives in root **`page.html`** / **`section.html`** (and **`home.html`** for kind=home) — compose flat **`_partials/*.html`** fragments; do not add a `_partials/shell/` or `_partials/ui/` layer.
 4. To add a new **`params.layout`** value, add a branch in the right root template + set `params.layout: <name>` in the matching archetype / cascade. Update the [README dispatcher table](README.md#layouts-dispatcher-pattern).
-5. Do not reorder the locked collection DOM (D4): outer `<aside>` → `<main>` (page header + `<article>` + optional inner `<aside>` for TOC). CSS in `@luna/ds` positions the sidebars.
+5. Do not reorder the locked collection DOM (D4): `<header>` → `<dialog id="side-panel">` (`<aside>` with `article-collection` + mobile `article-toc`) → `<main>` (page header + `<article>` + optional `<aside data-sidebar="toc">` with `article-toc`). Article layout uses the same `side-panel` id for its TOC dialog. Header has one `popovertarget="side-panel"` button. CSS in `@luna/ds` positions the sidebars.
 6. Marketing copy and optional strips (e.g. latest posts via **`latest-posts`**) live in **`content/*.md`**, rendered through the same **`page.html`** shapes — not hard-coded in `home.html`.
 
 ## Valid `params.layout` matrix (D11)

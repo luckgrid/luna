@@ -26,7 +26,7 @@ This document is the **single entry point** for this app. Monorepo orchestration
 **Layout terms:** **catalog** = searchable section index of articles (e.g. `/posts/`); **collection** = multi-page group with shared chrome (sidebar + optional right TOC), e.g. [`legal/`](src/content/legal/) or nested [`posts/list-example/`](src/content/posts/list-example/) (Legal is a collection, not under the posts catalog); **article** = one Markdown page (standalone, in a catalog, or inside a collection).
 
 - Content-driven **home**, **posts** catalog with **category** grouping (nested **`posts/list-example/`** posts are excluded from that catalog), and per-post pages.
-- **Collection sections** — [`legal/`](src/content/legal/) and [`posts/list-example/`](src/content/posts/list-example/) share [`src/layouts/_partials/collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): filter-as-you-type sidebar listing every page in the section, optional right **TOC** via [`TableOfContents`](https://gohugo.io/methods/page/tableofcontents/) when **`toc: true`** on the page. Collection routes carry **`data-layout="collection"`** and a section-specific **`data-pattern`** on `<body>` (see [`main.css`](src/assets/css/main.css)).
+- **Collection sections** — [`legal/`](src/content/legal/) and [`posts/list-example/`](src/content/posts/list-example/) use [`article-collection.html`](src/layouts/_partials/article-collection.html) inside the collection sidebar dialog: filter-as-you-type listing of section pages, optional right **TOC** when **`toc: true`**. Collection routes carry **`data-layout="collection"`** and a section-specific **`data-pattern`** on `<body>` (see [`main.css`](src/assets/css/main.css)).
 - **[Archetypes](https://gohugo.io/content-management/archetypes/)** — four starters (**`default`**, **`catalog`**, **`article`**, **`collection`**) with **`-k`**; see [Archetypes](#archetypes-hugo-new) below.
 - **Dispatcher layouts** — [`baseof.html`](src/layouts/baseof.html) plus [`home.html`](src/layouts/home.html), [`page.html`](src/layouts/page.html), [`section.html`](src/layouts/section.html), [`all.html`](src/layouts/all.html). **`page.html`** and **`section.html`** branch on **`params.layout`** inline (each branch composes flat **`_partials/*.html`** fragments). See [Layouts (dispatcher pattern)](#layouts-dispatcher-pattern).
 - **SEO**: meta description, canonical URL, minimal Open Graph / Twitter tags in [`src/layouts/_partials/metadata.html`](src/layouts/_partials/metadata.html) (with deferred CSS link); [sitemap](https://gohugo.io/templates/sitemap-template/), [RSS](https://gohugo.io/templates/rss/).
@@ -66,7 +66,7 @@ src/layouts/_partials/
 ├── header.html, footer.html, navigation.html, brand.html
 ├── hero.html, article-header.html, breadcrumbs.html, article-meta.html, article-toc.html
 ├── article-card.html, search-filter.html, pagination.html
-└── collection-sidebar.html, article-footer.html
+└── article-collection.html, article-footer.html
 ```
 
 Key pieces:
@@ -78,8 +78,9 @@ Key pieces:
 - [`hero.html`](src/layouts/_partials/hero.html): `<header data-hero>` — page context or `(dict "page" . "slot" $html)` (catalog injects search form)
 - [`article-header.html`](src/layouts/_partials/article-header.html): `<hgroup>` (category, title, description, optional [`article-meta.html`](src/layouts/_partials/article-meta.html) for `kind=page`)
 - [`breadcrumbs.html`](src/layouts/_partials/breadcrumbs.html): logo link + breadcrumbs (standalone articles)
-- [`collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html): collection nav + filter search
-- [`article-toc.html`](src/layouts/_partials/article-toc.html): optional right-hand “On this page” TOC (renders nothing when disabled or empty)
+- [`article-collection.html`](src/layouts/_partials/article-collection.html): collection nav header + filterable page list (no `<aside>`; layouts own dialog shell)
+- [`article-toc.html`](src/layouts/_partials/article-toc.html): optional “On this page” TOC nav (renders nothing when disabled or empty)
+- [`toc-visibility.html`](src/layouts/_partials/toc-visibility.html): shared TOC visibility helper
 - [`article-card.html`](src/layouts/_partials/article-card.html): card link for list/catalog/home/collection shortcode
 - [`article-footer.html`](src/layouts/_partials/article-footer.html): collection prev/next nav inside article pages
 - [`search-filter.html`](src/layouts/_partials/search-filter.html): `<form role="search">` with search input + category `<select>`; accepts `{ id, label, placeholder?, categories?, … }`
@@ -119,7 +120,7 @@ Both root templates normalize **`params.layout`** against an allowlist so an unk
 | **D1**  | Drop `layouts/article/`. Root [`page.html`](src/layouts/page.html) holds all **`kind=page`** layout branches.                                                                                                                                                  |
 | **D2**  | Drop `layouts/catalog/`. Root [`section.html`](src/layouts/section.html) holds all **`kind=section`** layout branches.                                                                                                                                         |
 | **D3**  | Site-wide [`[pagination] pagerSize = 10`](hugo.toml); templates call `.Paginate $coll` with no second arg.                                                                                                                                                     |
-| **D4**  | Collection DOM (hub + child): outer `<aside>` (collection nav) → `<main>` containing page header + `<article>` + optional inner `<aside>` (TOC).                                                                                                               |
+| **D4**  | Collection DOM (hub + child): `<header>` → `<dialog id="side-panel">` (nav + mobile TOC) → `<main>` (page header + `<article>` + optional `<aside data-sidebar="toc">`). Article layout: same `side-panel` dialog id for TOC inside `<main>`.                  |
 | **D5**  | Drop `layouts/collection/`. Collection markup lives in the **`collection`** branches of [`page.html`](src/layouts/page.html) (child) and [`section.html`](src/layouts/section.html) (hub).                                                                     |
 | **D6**  | Catalog (`/posts/`) renders two collections: paginated list = `.Pages.ByDate.Reverse` (direct children + collection landings, no grandchildren); search index = `.RegularPagesRecursive ∪ (where .Pages "Kind" "section")` (every leaf + collection landings). |
 | **D7**  | Root `home.html` mirrors the **`simple`** branch of [`page.html`](src/layouts/page.html). Latest posts use **`latest-posts`** in `content/_index.md` (same pool: `/posts/` children with `Kind` `page`).                                                       |
@@ -217,7 +218,7 @@ Tune **`cascade`** / **`toc`** / **`weight`** on real hubs after scaffolding. **
 
 ### Collection layout (article hubs: legal & list-example)
 
-**`legal`** and **`posts/list-example`** are **collections**: same sidebar partial ([`collection-sidebar.html`](src/layouts/_partials/collection-sidebar.html)) with labels driven by **`cascade`** `params` on each section’s `_index.md` (`collection_sidebar_search_label`, `collection_nav_aria`). The **collection hub** uses the **`collection`** branch in [`section.html`](src/layouts/section.html); child pages use the **`collection`** branch in [`page.html`](src/layouts/page.html). Both branches follow the locked outer DOM (D4): outer `<aside>` (sidebar nav) → `<main>` with page header + `<article>` + optional inner `<aside>` (TOC) when **`toc: true`** (renders as **`aside[data-toc]`**).
+**`legal`** and **`posts/list-example`** are **collections**: [`article-collection.html`](src/layouts/_partials/article-collection.html) with labels from **`cascade`** `params` on each section’s `_index.md` (`collection_sidebar_search_label`, `collection_nav_aria`). The **collection hub** uses the **`collection`** branch in [`section.html`](src/layouts/section.html); child pages use the **`collection`** branch in [`page.html`](src/layouts/page.html). Both branches follow the locked DOM (D4): `<dialog id="side-panel">` (collection nav + mobile TOC via **`article-toc`**) → `<main>` with page header + `<article>` + optional `<aside data-sidebar="toc">` when **`toc: true`**. Layout templates own dialog shells and `<aside>` wrappers; **`article-toc`** is nav-only.
 
 - **Legal hub** — [`src/content/legal/_index.md`](src/content/legal/_index.md); policies as `src/content/legal/<slug>.md` with **`weight`** for sidebar order.
 - **List-example hub** — [`src/content/posts/list-example/_index.md`](src/content/posts/list-example/_index.md); new hubs: **`hugo new content …/_index.md -k collection`**. Pages inside the hub: **`hugo new content posts/list-example/<slug>.md -k article`** ([`article.md`](src/archetypes/article.md)).
