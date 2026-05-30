@@ -6,7 +6,7 @@
     :scope {
       position: fixed;
       inset: 0;
-      z-index: 999;
+      z-index: 90;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -288,116 +288,90 @@
        *
        *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
        *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade.
-       *   3. ≥64rem `@media`: always in-flow sticky sidebar; backdrop suppressed;
-       *      header `popovertarget` buttons hidden in article.css. Collection body grid
-       *      uses a 20rem aside track; `[data-layout="collection"]` panel width below.
+`  `         *   3. ≥lg desktop panel composition (sticky, width, backdrop) lives in
+       *      layouts/article.css `layouts.components` — primitive stays mobile-first.
        *
        * Slide direction defaults to inline-end; `[data-side="start"] / .left` flips.
        */
       &:is([data-panel], .panel) {
-        --panel-duration: var(--default-transition-duration);
-        --panel-ease: var(--default-transition-timing-function);
-        --panel-size: min(20rem, 100svw);
-        --panel-offscreen: 100%;
-
         align-items: stretch;
         justify-content: flex-start;
         flex-direction: column;
-        inset-block: 0;
-        inset-inline-start: auto;
-        inset-inline-end: 0;
-        width: var(--panel-size);
-        max-width: 100svw;
         min-width: 0;
-        height: 100svh;
-        max-height: 100svh;
-        min-height: 0;
-        margin: 0;
-        overflow: hidden auto;
-        background-color: var(--color-bg);
-        box-shadow: var(--shadow-2);
-        opacity: 0;
-        transform: translateX(var(--panel-offscreen));
-        transition:
-          opacity var(--panel-duration) var(--panel-ease),
-          transform var(--panel-duration) var(--panel-ease),
-          overlay var(--panel-duration) allow-discrete,
-          display var(--panel-duration) allow-discrete;
 
-        &::backdrop {
-          background-color: transparent;
-          -webkit-backdrop-filter: none;
-          backdrop-filter: none;
+        @media (max-width: 63.99rem) {
+          --panel-duration: var(--default-transition-duration);
+          --panel-ease: var(--default-transition-timing-function);
+          --panel-size: min(20rem, 100svw);
+          --panel-offscreen: 100%;
+
+          inset-block: 0;
+          inset-inline-start: auto;
+          inset-inline-end: 0;
+          width: var(--panel-size);
+          max-width: 100svw;
+          height: 100svh;
+          max-height: 100svh;
+          min-height: 0;
+          margin: 0;
+          overflow: hidden auto;
+          background-color: var(--color-bg);
+          box-shadow: var(--shadow-2);
+          opacity: 0;
+          transform: translateX(var(--panel-offscreen));
           transition:
-            background-color var(--panel-duration) var(--panel-ease),
+            opacity var(--panel-duration) var(--panel-ease),
+            transform var(--panel-duration) var(--panel-ease),
             overlay var(--panel-duration) allow-discrete,
             display var(--panel-duration) allow-discrete;
-        }
-
-        &:is([data-side="start"], .left) {
-          --panel-offscreen: -100%;
-
-          inset-inline-start: 0;
-          inset-inline-end: auto;
-        }
-
-        &:is(:popover-open, [open], [open="true"]) {
-          opacity: 1;
-          transform: translateX(0);
 
           &::backdrop {
-            background-color: var(--color-backdrop);
-            -webkit-backdrop-filter: var(--filter-backdrop);
-            backdrop-filter: var(--filter-backdrop);
+            background-color: transparent;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+            transition:
+              background-color var(--panel-duration) var(--panel-ease),
+              overlay var(--panel-duration) allow-discrete,
+              display var(--panel-duration) allow-discrete;
           }
-        }
 
-        @starting-style {
+          &:is([data-side="start"], .left) {
+            --panel-offscreen: -100%;
+
+            inset-inline-start: 0;
+            inset-inline-end: auto;
+          }
+
           &:is(:popover-open, [open], [open="true"]) {
-            opacity: 0;
-            transform: translateX(var(--panel-offscreen));
+            opacity: 1;
+            transform: translateX(0);
+
+            &::backdrop {
+              background-color: var(--color-backdrop);
+              -webkit-backdrop-filter: var(--filter-backdrop);
+              backdrop-filter: var(--filter-backdrop);
+            }
+          }
+
+          @starting-style {
+            &:is(:popover-open, [open], [open="true"]) {
+              opacity: 0;
+              transform: translateX(var(--panel-offscreen));
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            transition-duration: 0.01ms;
           }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-          transition-duration: 0.01ms;
-        }
-
-        /* Large screens — `@media` (not `@container`): initial rem → 1024px; fluid root
-         * lags in container queries (~1146px). Always visible in-flow when closed. */
+        /* ≥lg hooks — composition in layouts/article.css `layouts.components`. */
         @media (min-width: 64rem) {
-          display: flex !important;
-          position: sticky !important;
-          inset: auto !important;
-          top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
-          z-index: auto !important;
-          width: 100% !important;
-          max-width: 100% !important;
-          min-width: 0 !important;
-
-          :is([data-layout="collection"]) > & {
-            width: 20rem !important;
-            max-width: 20rem !important;
-          }
-          height: auto !important;
-          max-height: calc(100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2) !important;
-          min-height: 0 !important;
-          overflow: auto !important;
-          background-color: transparent !important;
-          box-shadow: none !important;
-          opacity: 1 !important;
-          transform: none !important;
-          transition: none !important;
-          pointer-events: auto !important;
-
-          &::backdrop {
-            display: none !important;
-            background: transparent !important;
-            pointer-events: none !important;
-            -webkit-backdrop-filter: none !important;
-            backdrop-filter: none !important;
-            transition: none !important;
-          }
+          display: flex;
+          opacity: 1;
+          transform: none;
+          transition: none;
+          pointer-events: auto;
         }
       }
 

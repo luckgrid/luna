@@ -58,6 +58,15 @@
 
       /* Body Layout Header */
       & > :is(header, [data-header]) {
+        z-index: 100;
+
+        &:is([data-sticky], .sticky) {
+          top: 0;
+          -webkit-backdrop-filter: var(--filter-backdrop);
+          backdrop-filter: var(--filter-backdrop);
+          background-color: color-mix(in oklch, var(--color-bg), transparent 20%);
+        }
+
         /* Header Navigation */
         & > :is(nav, [role="navigation"]) {
           justify-content: space-between;
