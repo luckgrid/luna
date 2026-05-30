@@ -2,71 +2,70 @@
 {{- if not $sec }}{{ $sec = . }}{{ end -}}
 {{- if not $sec }}{{ return }}{{ end -}}
 {{- $slug := $sec.RelPermalink | strings.TrimPrefix "/" | strings.TrimSuffix "/" | replaceRE "/" "-" | lower | default "section" -}}
-{{- $searchLabel := .Params.collection_sidebar_search_label | default "Filter pages…" -}}
+{{- $searchLabel := .Params.collection_sidebar_search_label | default "Filter Collection" -}}
 {{- $navAria := .Params.collection_nav_aria | default "Pages in this section" -}}
 
 <header>
-  <hgroup><h2>Navigation</h2></hgroup>
+  <hgroup><h2>Collection Navigation</h2></hgroup>
   <button type="button" data-button="icon" popovertarget="side-panel" popovertargetaction="hide" aria-label="Close">
     <i data-icon="close" aria-hidden="true"></i>
   </button>
 </header>
 
-<section data-mobile-section="collection">
-  <h3>In this collection</h3>
+<nav aria-label="{{ $navAria }}">
   <fieldset>
     <label for="collection-nav-search-{{ $slug }}">{{ $searchLabel }}</label>
     <input
       type="search"
       id="collection-nav-search-{{ $slug }}"
       name="q"
-      placeholder="Filter pages…"
+      placeholder="{{ $searchLabel }}"
       autocomplete="off"
       spellcheck="false"
     />
-    <p id="collection-nav-status-{{ $slug }}" hidden>No matching pages.</p>
+    <p id="collection-nav-status-{{ $slug }}" hidden>No matches found.</p>
   </fieldset>
-  <nav aria-label="{{ $navAria }}">
-    <ul id="collection-nav-list-{{ $slug }}">{{- $introHay := printf "%s %s %s" $sec.Title ($sec.Description | default "") $sec.RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
-      <li data-search="{{ $introHay }}">
-        <a
-          href="{{ $sec.RelPermalink }}"
-          {{- if eq $.RelPermalink $sec.RelPermalink }} aria-current="page"{{ end }}
-          >{{ $sec.Title }}</a>
-      </li>{{- range sort $sec.RegularPages "Weight" -}}
-        {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
-      <li data-search="{{ $hay }}">
-        <a
-          href="{{ .RelPermalink }}"
-          {{- if eq $.RelPermalink .RelPermalink }} aria-current="page"{{ end }}
-          >{{ .Title }}</a>
-      </li>{{- end }}</ul>
-  </nav>
-  <script>
-    (function () {
-      var slug = "{{ $slug }}";
-      var input = document.getElementById("collection-nav-search-" + slug);
-      var list = document.getElementById("collection-nav-list-" + slug);
-      var status = document.getElementById("collection-nav-status-" + slug);
-      if (!input || !list) return;
 
-      function filter() {
-        var q = (input.value || "").toLowerCase().trim();
-        var items = list.querySelectorAll("li");
-        var visible = 0;
+  <ul id="collection-nav-list-{{ $slug }}">{{- $introHay := printf "%s %s %s" $sec.Title ($sec.Description | default "") $sec.RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+    <li data-search="{{ $introHay }}">
+      <a
+        href="{{ $sec.RelPermalink }}"
+        {{- if eq $.RelPermalink $sec.RelPermalink }} aria-current="page"{{ end }}
+        >{{ $sec.Title }}</a>
+    </li>{{- range sort $sec.RegularPages "Weight" -}}
+      {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+    <li data-search="{{ $hay }}">
+      <a
+        href="{{ .RelPermalink }}"
+        {{- if eq $.RelPermalink .RelPermalink }} aria-current="page"{{ end }}
+        >{{ .Title }}</a>
+    </li>{{- end }}</ul>
+</nav>
 
-        items.forEach(function (item) {
-          var hay = item.getAttribute("data-search") || "";
-          var show = !q || hay.indexOf(q) !== -1;
-          item.hidden = !show;
-          if (show) visible++;
-        });
+<script>
+  (function () {
+    var slug = "{{ $slug }}";
+    var input = document.getElementById("collection-nav-search-" + slug);
+    var list = document.getElementById("collection-nav-list-" + slug);
+    var status = document.getElementById("collection-nav-status-" + slug);
+    if (!input || !list) return;
 
-        if (status) status.hidden = visible !== 0;
-      }
+    function filter() {
+      var q = (input.value || "").toLowerCase().trim();
+      var items = list.querySelectorAll("li");
+      var visible = 0;
 
-      input.addEventListener("input", filter);
-      input.addEventListener("search", filter);
-    })();
-  </script>
-</section>
+      items.forEach(function (item) {
+        var hay = item.getAttribute("data-search") || "";
+        var show = !q || hay.indexOf(q) !== -1;
+        item.hidden = !show;
+        if (show) visible++;
+      });
+
+      if (status) status.hidden = visible !== 0;
+    }
+
+    input.addEventListener("input", filter);
+    input.addEventListener("search", filter);
+  })();
+</script>

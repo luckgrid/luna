@@ -7,6 +7,11 @@
       min-inline-size: 0;
       background-color: var(--color-bg);
 
+      & > * {
+        gap: var(--spacing-tap);
+        padding-inline: var(--aside-child-padding-inline, var(--spacing-container));
+      }
+
       /* Mobile-only close bar inside panel — hidden once dialog is in-flow at ≥lg. */
       & > :is(header, [data-header]) {
         display: flex;
@@ -15,14 +20,10 @@
         justify-content: space-between;
         min-block-size: var(--spacing-toolbar);
         padding-block: var(--spacing-panel);
-        padding-inline: var(--spacing-container);
-        gap: var(--spacing-6-12);
         box-shadow: var(--shadow-1);
 
-        /* `@container` (not `@media`): the close bar lives inside a <dialog popover>
-         * that hoists to the top layer when open, which can break `@container` matching
-         * against the body. `@container` matching stays stable across that hop. */
-        @container (min-width: 64rem) {
+        /* `@media` (not `@container`): lg uses initial rem (1024px); matches panel `@media`. */
+        @media (min-width: 64rem) {
           display: none;
         }
 
@@ -35,9 +36,15 @@
         }
       }
 
-      & :is(nav, [role="navigation"]) > :is(ol, ul) {
+      & :is(nav, [role="navigation"]) {
         flex-direction: column;
-        align-items: start;
+        align-items: stretch;
+
+        & > :is(ol, ul) {
+          flex-direction: column;
+          align-items: stretch;
+          gap: var(--spacing-6-12);
+        }
       }
     }
 
@@ -48,7 +55,6 @@
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-6-12);
-        padding-inline: var(--spacing-container);
         max-block-size: calc(
           100svh - calc(var(--spacing-toolbar) + var(--spacing-panel) * 2) - var(--spacing-layout)
         );
@@ -56,9 +62,7 @@
         overscroll-behavior: contain;
         text-wrap: pretty;
 
-        /* `@container`: see note above — TOC nav lives inside the same top-layer-capable dialog. */
         @container (min-width: 64rem) {
-          padding: 0;
           max-block-size: none;
           overflow-y: visible;
           overscroll-behavior: auto;

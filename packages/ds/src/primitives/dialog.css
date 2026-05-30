@@ -288,9 +288,9 @@
        *
        *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
        *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade.
-       *   3. ≥64rem `@container`: always in-flow sticky sidebar; backdrop suppressed;
-       *      header `popovertarget` buttons hidden in article.css. If still `:popover-open`
-       *      (e.g. resize), layout scopes pin hoisted panels with `position: fixed`.
+       *   3. ≥64rem `@media`: always in-flow sticky sidebar; backdrop suppressed;
+       *      header `popovertarget` buttons hidden in article.css. Collection body grid
+       *      uses a 20rem aside track; `[data-layout="collection"]` panel width below.
        *
        * Slide direction defaults to inline-end; `[data-side="start"] / .left` flips.
        */
@@ -363,17 +363,22 @@
           transition-duration: 0.01ms;
         }
 
-        /* Large screens — `@container` only (see file header). Always visible in-flow;
-         * no off-canvas motion; backdrop non-interactive so light-dismiss passes through. */
-        @container (min-width: 64rem) {
+        /* Large screens — `@media` (not `@container`): initial rem → 1024px; fluid root
+         * lags in container queries (~1146px). Always visible in-flow when closed. */
+        @media (min-width: 64rem) {
           display: flex !important;
           position: sticky !important;
           inset: auto !important;
           top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
           z-index: auto !important;
-          width: auto !important;
-          max-width: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
           min-width: 0 !important;
+
+          :is([data-layout="collection"]) > & {
+            width: 20rem !important;
+            max-width: 20rem !important;
+          }
           height: auto !important;
           max-height: calc(100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2) !important;
           min-height: 0 !important;

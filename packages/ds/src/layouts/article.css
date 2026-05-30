@@ -17,12 +17,10 @@
  * sidebar+main grid at `--breakpoint-lg` (64rem). Toggle buttons in the site header
  * are hidden at the same breakpoint regardless of panel open/closed state.
  *
- * Queries: `<body>` declares `container-type: inline-size` (see layouts/base.css), so
- * `@container (min-width: …)` on body descendants matches whenever the equivalent
- * `@media` query would. Article + main grid placement uses `@container` only; `@media`
- * is reserved for elements that can be hoisted into the top layer (the dialog panel
- * itself, the mobile close bar, the TOC scroll reset — see primitives/dialog.css +
- * primitives/aside.css). Panel open/close at ≥lg is CSS-only (no resize script).
+ * Queries: `<body>` declares `container-type: inline-size` (see layouts/base.css).
+ * Main inner grid uses `@container` against `<main>`. `@media (min-width: 64rem)` is
+ * used for collection grid, panel resets, and header toggles (initial rem → 1024px;
+ * `@container` lags with fluid root ~1146px). Panel open/close at ≥lg is CSS-only.
  *
  * Layer order from tailwind.css is `theme, base, layouts, primitives, components,
  * utilities` — meaning primitives override layouts. Rules that need to override a
@@ -47,7 +45,7 @@
       > :is(button, [role="button"]) {
       min-inline-size: max-content;
 
-      @container (min-width: 64rem) {
+      @media (min-width: 64rem) {
         display: none !important;
       }
     }
@@ -82,12 +80,12 @@
       }
 
       @container (min-width: 64rem) {
-        &:has(> :is(dialog[data-panel], aside, [data-aside])) {
+        &:has(> :is(dialog:is([data-panel], .panel), aside, [data-aside])) {
           & > :is(header, [data-header], article, [data-article]) {
             grid-column: 1 / 9;
           }
 
-          & > :is(dialog[data-panel], aside, [data-aside]) {
+          & > :is(dialog:is([data-panel], .panel), aside, [data-aside]) {
             grid-column: 9 / -1;
             grid-row: 1 / -1;
           }
@@ -95,12 +93,12 @@
       }
 
       @container (min-width: 90rem) {
-        &:has(> :is(dialog[data-panel], aside, [data-aside])) {
+        &:has(> :is(dialog:is([data-panel], .panel), aside, [data-aside])) {
           & > :is(header, [data-header], article, [data-article]) {
             grid-column: 1 / 13;
           }
 
-          & > :is(dialog[data-panel], aside, [data-aside]) {
+          & > :is(dialog:is([data-panel], .panel), aside, [data-aside]) {
             grid-column: 13 / -1;
           }
         }
@@ -114,16 +112,14 @@
         :scope {
           @container (min-width: 64rem) {
             align-self: start;
-            top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
-            max-block-size: calc(
-              100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2
-            ) !important;
+            top: calc(var(--spacing-toolbar) + var(--spacing-panel));
+            max-block-size: calc(100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2);
             overflow-y: auto;
             overscroll-behavior: contain;
             z-index: auto;
-            background-color: transparent !important;
-            -webkit-backdrop-filter: none !important;
-            backdrop-filter: none !important;
+            background-color: transparent;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
           }
         }
       }
@@ -133,13 +129,13 @@
       @layer base {
         :scope {
           @container (min-width: 64rem) {
-            position: static !important;
-            top: auto !important;
-            max-block-size: none !important;
+            position: static;
+            top: auto;
+            max-block-size: none;
             overflow-y: visible;
-            background-color: transparent !important;
-            -webkit-backdrop-filter: none !important;
-            backdrop-filter: none !important;
+            background-color: transparent;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
           }
         }
       }
@@ -210,14 +206,13 @@
 
       @media (min-width: 64rem) {
         display: grid;
-        grid-template-columns: min(16rem, 25%) 1fr;
+        grid-template-columns: minmax(0, 20rem) 1fr;
         grid-template-rows: auto 1fr auto;
         grid-template-areas:
           "header header"
           "aside main"
           "footer footer";
         align-items: start;
-        column-gap: var(--spacing-container);
 
         & > :is(header, [data-header]) {
           grid-area: header;
@@ -226,14 +221,19 @@
           z-index: 10;
         }
 
-        & > dialog[data-panel] {
+        & > dialog:is([data-panel], .panel) {
           grid-area: aside;
+          inline-size: 20rem;
+          width: 20rem;
+          max-inline-size: 20rem;
+          max-width: 20rem;
+          min-inline-size: 0;
 
-          @container (min-width: 64rem) {
-            & > :is(aside, [data-aside]) {
-              padding: var(--spacing-container);
-              padding-inline-end: 0;
-            }
+          & > :is(aside, [data-aside]) {
+            padding-block: var(--spacing-container);
+            min-inline-size: 0;
+            max-inline-size: 100%;
+            overflow-x: clip;
           }
         }
 
@@ -250,15 +250,10 @@
           display: flex;
         }
 
-        /* Hoisted `:popover-open` panels (e.g. after mobile→desktop resize): pin to left grid column. */
-        & > dialog[data-panel]:popover-open {
-          position: fixed !important;
-          inset-block: calc(var(--spacing-toolbar) + var(--spacing-panel)) auto !important;
-          inset-inline: 0 auto !important;
-          width: min(16rem, 25%) !important;
-          max-block-size: calc(
-            100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2
-          ) !important;
+        /* Hoisted `:popover-open` after resize — match grid track width (dialog `@media` owns position). */
+        & > dialog:is([data-panel], .panel):popover-open {
+          inline-size: 20rem;
+          max-inline-size: 20rem;
         }
       }
     }

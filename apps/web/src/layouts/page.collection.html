@@ -1,14 +1,11 @@
 {{ define "main" }}
 {{- partial "header.html" . -}}
 <dialog id="side-panel" popover="auto" data-panel data-side="end">
-  <aside aria-label="Navigation">
+  <aside aria-label="Collection navigation">
     {{- partial "article-collection.html" . -}}
     {{- $toc := partial "toc-visibility.html" . -}}
     {{- if $toc.show -}}
-    <section data-mobile-section="toc">
-      <h3>On this page</h3>
-      {{- partial "article-toc.html" . -}}
-    </section>
+    {{- partial "article-toc.html" . -}}
     {{- end -}}
   </aside>
 </dialog>
@@ -17,7 +14,7 @@
   {{- partial "article.html" (dict "page" . "footer" true) -}}
   {{- $toc := partial "toc-visibility.html" . -}}
   {{- if $toc.show -}}
-  <aside aria-label="In this article" data-sidebar="toc" data-sticky>
+  <aside aria-label="Article table of contents" data-sticky>
     {{- partial "article-toc.html" . -}}
   </aside>
   {{- end -}}

@@ -138,8 +138,8 @@
         }
 
         @-moz-document url-prefix() {
-          padding-inline-end: var(--spacing-8-16) !important;
-          background-image: none !important;
+          padding-inline-end: var(--spacing-8-16);
+          background-image: none;
         }
 
         &::-webkit-calendar-picker-indicator {
