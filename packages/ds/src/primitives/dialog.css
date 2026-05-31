@@ -102,377 +102,393 @@
       }
     }
   }
+}
 
-  /* Dialog Variants */
-  @layer variants {
+/* Dialog Popover Variant
+ *
+ * Popover dialog with preview mode (hover) support.
+ */
+@scope (:is(dialog):is([data-popover], .popover)) {
+  @layer base {
     :scope {
-      /* Popover Variant 
-       *
-       * Popover dialog with preview mode (hover) support.
-       *
-      */
-      &:is([data-popover], .popover) {
-        justify-content: end;
-        padding: var(--size);
-        background-color: transparent;
+      justify-content: end;
+      padding: var(--size);
+      background-color: transparent;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      pointer-events: none;
+
+      &::backdrop {
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          transparent 60%,
+          var(--color-backdrop) 80%,
+          var(--color-dark) 100%
+        );
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
-        pointer-events: none;
+      }
 
-        &::backdrop {
-          background: linear-gradient(
-            180deg,
-            transparent 0%,
-            transparent 60%,
-            var(--color-backdrop) 80%,
-            var(--color-dark) 100%
-          );
-          -webkit-backdrop-filter: none;
-          backdrop-filter: none;
-        }
-
-        &:is(:popover-open, [open], [open="true"]) {
-          pointer-events: auto;
-
-          &[data-preview-mode="hover"] {
-            display: block;
-            pointer-events: none;
-
-            /* Reset backdrop styles for popover */
-            &::backdrop {
-              background: transparent;
-              pointer-events: none;
-            }
-
-            & > :is(article, [data-article], [data-card], .card) {
-              pointer-events: auto;
-            }
-          }
-        }
-
-        /*
+      /*
        * Dialog popover preview: article clones inherit body heading breaks (layout.css);
        * reset so anchor-sized hover cards do not degenerate into single-glyph lines.
        */
-        & :where(h1, h2, h3, h4, h5, h6, hgroup, summary, figcaption) {
-          hyphens: manual;
-          word-break: normal;
-          overflow-wrap: normal;
-        }
-
-        & > :is(article, [data-article], [data-card], .card) {
-          position: relative;
-          display: flex;
-          flex: 0 1 auto;
-          flex-direction: column;
-          align-items: stretch;
-          justify-content: flex-start;
-          padding: var(--spacing-surface);
-          gap: var(--spacing-surface);
-          border-color: var(--color-accent);
-          overflow-x: visible;
-          overflow-y: auto;
-          overflow-wrap: anywhere;
-          color: var(--color-fg-1);
-
-          & :is(a:not([role="button"])) {
-            pointer-events: none;
-            color: inherit;
-            text-decoration: underline;
-            cursor: default;
-
-            /* Preview clones duplicate in-article links; keep them non-interactive and focus-free. */
-            &:is(:focus, :focus-visible) {
-              outline: none;
-              text-decoration: underline;
-            }
-          }
-        }
-
-        /* Dialog popover footer (sibling of card, not inside) */
-        & > :is(footer, [data-footer]) {
-          position: relative;
-          inline-size: 100%;
-          min-inline-size: 0;
-          display: flex;
-          flex-direction: row;
-          flex-shrink: 0;
-          justify-content: flex-end;
-          gap: var(--spacing-6-12);
-          margin-bottom: var(--spacing-container);
-          padding: 0;
-
-          & > :is(button, [role="button"]) {
-            --size: 1.25em;
-
-            min-inline-size: 0;
-            min-block-size: var(--size);
-            padding: var(--spacing-6-12);
-          }
-        }
-
-        @container (min-width: 64rem) {
-          /* Dialog popover wide backdrop reset */
-          &::backdrop {
-            background: transparent;
-          }
-
-          & > :is(article, [data-article], [data-card], .card) {
-            inline-size: fit-content;
-            min-inline-size: min(100%, 20rem);
-            max-inline-size: calc(100svw - var(--size) * 2);
-            max-block-size: min(80svh, calc(100svh - var(--size) * 2));
-            overflow-x: visible;
-            overflow-y: auto;
-            word-break: normal;
-            overflow-wrap: normal;
-          }
-        }
-
-        /*
-         * Dialog popover hover preview: viewport + interaction media (match `canOpenHoverPreview()`
-         * in footnotes.ts — `matchMedia('(min-width: 64rem)')`, not `@container`).
-         */
-        @media (min-width: 64rem) {
-          @media (hover: hover) and (pointer: fine) and (any-pointer: fine) and (any-hover: hover) {
-            justify-content: unset;
-            align-items: unset;
-
-            & > :is(footer, [data-footer]) {
-              display: none;
-              pointer-events: none;
-            }
-
-            &[data-preview-mode="hover"] {
-              & > :is(article, [data-article], [data-card], .card) {
-                position: fixed;
-                inset: auto auto max(var(--size), 10svh) 50%;
-                translate: -50% 0;
-                inline-size: fit-content;
-                min-inline-size: min(100%, 20rem);
-                max-inline-size: calc(80svw - var(--size) * 2);
-                max-block-size: min(80svh, calc(100svh - var(--size) * 2));
-                width: 100%;
-                overflow-x: visible;
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                justify-content: flex-start;
-                gap: var(--spacing-surface);
-                margin: 0;
-                word-break: normal;
-                overflow-wrap: normal;
-
-                /*
-               * Dialog popover hover card: anchor above trigger; `flip-block` / `flip-inline` fallbacks;
-               * `margin-block` gaps from ref; `position-visibility` avoids overflow (footnotes.ts anchor).
-               */
-                @supports (anchor-name: --fn-preview) {
-                  position-anchor: --fn-preview;
-                  position-visibility: no-overflow;
-                  inset: auto;
-                  translate: none;
-                  top: auto;
-                  right: auto;
-                  bottom: anchor(top);
-                  left: auto;
-                  margin: var(--size);
-                  justify-self: anchor-center;
-                  position-try-fallbacks: flip-block, flip-inline;
-                }
-              }
-            }
-          }
-        }
+      & :where(h1, h2, h3, h4, h5, h6, hgroup, summary, figcaption) {
+        hyphens: manual;
+        word-break: normal;
+        overflow-wrap: normal;
       }
+    }
 
-      /* Panel Variant
-       *
-       * Side panel / off-canvas drawer driven by the HTML popover API
-       * (`<dialog popover="auto">` + `<button popovertarget="…">`), no JS required.
-       * Wrap an <aside> (or any content) inside to keep complementary-landmark
-       * semantics — the dialog handles open/close + animation.
-       *
-       *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
-       *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade;
-       *      background scroll on `<main>` is locked (see `@layer patterns` below).
-       *   3. ≥lg: closed panels are in-flow; collection `:popover-open` placement in
-       *      layouts/article.css. Article TOC (`main > dialog`) stays in-flow for both
-       *      popover states — sticky lives on the inner aside.
-       *
-       */
-      &:is([data-panel], .panel) {
+    /* Dialog popover card (preview / footnote content) */
+    @scope (:scope > :is(article, [data-article], [data-card], .card)) {
+      :scope {
+        position: relative;
         display: flex;
+        flex: 0 1 auto;
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
-        min-width: 0;
-        margin: 0;
-        padding: 0;
-        border: 0;
+        padding: var(--spacing-surface);
+        gap: var(--spacing-surface);
+        border-color: var(--color-accent);
+        overflow-x: visible;
+        overflow-y: auto;
+        overflow-wrap: anywhere;
+        color: var(--color-fg-1);
 
-        & > :is(aside, [data-aside]) {
-          flex: 1 1 auto;
-          align-self: stretch;
-          block-size: 100%;
-          min-block-size: 0;
+        & :is(a:not([role="button"])) {
+          pointer-events: none;
+          color: inherit;
+          text-decoration: underline;
+          cursor: default;
 
-          &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
-            padding-block-start: 0;
+          /* Preview clones duplicate in-article links; keep them non-interactive and focus-free. */
+          &:is(:focus, :focus-visible) {
+            outline: none;
+            text-decoration: underline;
           }
         }
+      }
+    }
 
-        /* Mobile off-canvas — scoped to small viewports only. */
-        @media (max-width: 63.99rem) {
+    /* Dialog popover footer (sibling of card, not inside) */
+    @scope (:scope > :is(footer, [data-footer])) {
+      :scope {
+        position: relative;
+        inline-size: 100%;
+        min-inline-size: 0;
+        display: flex;
+        flex-direction: row;
+        flex-shrink: 0;
+        justify-content: flex-end;
+        gap: var(--spacing-6-12);
+        margin-bottom: var(--spacing-container);
+        padding: 0;
+
+        & > :is(button, [role="button"]) {
+          --size: 1.25em;
+
+          min-inline-size: 0;
+          min-block-size: var(--size);
+          padding: var(--spacing-6-12);
+        }
+      }
+    }
+  }
+
+  @layer variants {
+    :scope:is(:popover-open, [open], [open="true"]) {
+      pointer-events: auto;
+
+      &[data-preview-mode="hover"] {
+        display: block;
+        pointer-events: none;
+
+        /* Reset backdrop styles for popover */
+        &::backdrop {
+          background: transparent;
+          pointer-events: none;
+        }
+
+        & > :is(article, [data-article], [data-card], .card) {
+          pointer-events: auto;
+        }
+      }
+    }
+
+    @container (min-width: 64rem) {
+      :scope::backdrop {
+        /* Dialog popover wide backdrop reset */
+        background: transparent;
+      }
+
+      :scope > :is(article, [data-article], [data-card], .card) {
+        inline-size: fit-content;
+        min-inline-size: min(100%, 20rem);
+        max-inline-size: calc(100svw - var(--size) * 2);
+        max-block-size: min(80svh, calc(100svh - var(--size) * 2));
+        overflow-x: visible;
+        overflow-y: auto;
+        word-break: normal;
+        overflow-wrap: normal;
+      }
+    }
+
+    /*
+     * Dialog popover hover preview: viewport + interaction media (match `canOpenHoverPreview()`
+     * in footnotes.ts — `matchMedia('(min-width: 64rem)')`, not `@container`).
+     */
+    @media (min-width: 64rem) {
+      @media (hover: hover) and (pointer: fine) and (any-pointer: fine) and (any-hover: hover) {
+        :scope {
+          justify-content: unset;
+          align-items: unset;
+        }
+
+        :scope > :is(footer, [data-footer]) {
+          display: none;
+          pointer-events: none;
+        }
+
+        :scope[data-preview-mode="hover"] > :is(article, [data-article], [data-card], .card) {
           position: fixed;
-          inset-block: 0;
-          inset-inline-start: auto;
-          inset-inline-end: 0;
-          z-index: 90;
-          width: min(20rem, 100svw);
-          max-width: 100svw;
-          height: 100svh;
-          max-height: 100svh;
-          min-height: 0;
-          overflow: hidden;
-          background-color: var(--color-bg);
-          box-shadow: var(--shadow-2);
-          opacity: 0;
-          transform: translateX(100%);
-          transition: var(--transition-panel);
+          inset: auto auto max(var(--size), 10svh) 50%;
+          translate: -50% 0;
+          inline-size: fit-content;
+          min-inline-size: min(100%, 20rem);
+          max-inline-size: calc(80svw - var(--size) * 2);
+          max-block-size: min(80svh, calc(100svh - var(--size) * 2));
+          width: 100%;
+          overflow-x: visible;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          justify-content: flex-start;
+          gap: var(--spacing-surface);
+          margin: 0;
+          word-break: normal;
+          overflow-wrap: normal;
+
+          /*
+           * Dialog popover hover card: anchor above trigger; `flip-block` / `flip-inline` fallbacks;
+           * `margin-block` gaps from ref; `position-visibility` avoids overflow (footnotes.ts anchor).
+           */
+          @supports (anchor-name: --fn-preview) {
+            position-anchor: --fn-preview;
+            position-visibility: no-overflow;
+            inset: auto;
+            translate: none;
+            top: auto;
+            right: auto;
+            bottom: anchor(top);
+            left: auto;
+            margin: var(--size);
+            justify-self: anchor-center;
+            position-try-fallbacks: flip-block, flip-inline;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Dialog Panel Variant
+ *
+ * Side panel / off-canvas drawer driven by the HTML popover API
+ * (`<dialog popover="auto">` + `<button popovertarget="…">`), no JS required.
+ * Wrap an <aside> (or any content) inside to keep complementary-landmark
+ * semantics — the dialog handles open/close + animation.
+ *
+ *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
+ *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade;
+ *      background scroll on `<main>` is locked (see `@layer patterns` below).
+ *   3. ≥lg: closed panels are in-flow; collection `:popover-open` placement in
+ *      layouts/article.css. Article TOC (`main > dialog`) stays in-flow for both
+ *      popover states — sticky lives on the inner aside.
+ */
+@scope (:is(dialog):is([data-panel], .panel)) {
+  @layer base {
+    :scope {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    @scope (:scope > :is(aside, [data-aside])) {
+      :scope {
+        flex: 1 1 auto;
+        align-self: stretch;
+        block-size: 100%;
+        min-block-size: 0;
+
+        &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
+          padding-block-start: 0;
+        }
+      }
+    }
+  }
+
+  @layer variants {
+    /* Mobile off-canvas — scoped to small viewports only. */
+    @media (max-width: 63.99rem) {
+      :scope {
+        position: fixed;
+        inset-block: 0;
+        inset-inline-start: auto;
+        inset-inline-end: 0;
+        z-index: 90;
+        width: min(20rem, 100svw);
+        max-width: 100svw;
+        height: 100svh;
+        max-height: 100svh;
+        min-height: 0;
+        overflow: hidden;
+        background-color: var(--color-bg);
+        box-shadow: var(--shadow-2);
+        opacity: 0;
+        transform: translateX(100%);
+        transition: var(--transition-panel);
+
+        &::backdrop {
+          background-color: transparent;
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+          transition: var(--transition-backdrop);
+        }
+
+        &:is(:popover-open, [open], [open="true"]) {
+          opacity: 1;
+          transform: translateX(0);
 
           &::backdrop {
-            background-color: transparent;
-            -webkit-backdrop-filter: none;
-            backdrop-filter: none;
-            transition: var(--transition-backdrop);
-          }
-
-          &:is(:popover-open, [open], [open="true"]) {
-            opacity: 1;
-            transform: translateX(0);
-
-            &::backdrop {
-              background-color: var(--color-backdrop);
-              -webkit-backdrop-filter: var(--filter-backdrop);
-              backdrop-filter: var(--filter-backdrop);
-            }
-          }
-
-          @starting-style {
-            &:is(:popover-open, [open], [open="true"]) {
-              opacity: 0;
-              transform: translateX(100%);
-            }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            transition-duration: 0.01ms;
+            background-color: var(--color-backdrop);
+            -webkit-backdrop-filter: var(--filter-backdrop);
+            backdrop-filter: var(--filter-backdrop);
           }
         }
 
-        /* ≥lg — closed: in-flow shell; open: fixed pin (top layer after mobile resize). */
-        @media (min-width: 64rem) {
-          display: flex !important;
-          align-items: flex-start;
-          justify-content: flex-start;
-          min-inline-size: 0;
-          min-block-size: 0;
-          margin: initial !important;
-          opacity: 1 !important;
-          transform: none !important;
-          transition: none !important;
-          pointer-events: auto !important;
-
-          &:not(:is(:popover-open, [open], [open="true"])) {
-            position: static !important;
-            inset: auto !important;
-            z-index: auto !important;
-            inline-size: auto;
-            width: auto !important;
-            max-inline-size: none;
-            max-width: none !important;
-            min-width: 0 !important;
-            block-size: auto;
-            height: auto !important;
-            max-block-size: none;
-            max-height: none !important;
-            min-height: 0 !important;
-            overflow: visible !important;
-            background-color: transparent !important;
-            box-shadow: none !important;
-
-            &::backdrop {
-              display: none !important;
-              background: transparent !important;
-              background-color: transparent !important;
-              pointer-events: none !important;
-              -webkit-backdrop-filter: none !important;
-              backdrop-filter: none !important;
-              transition: none !important;
-            }
-          }
-
+        @starting-style {
           &:is(:popover-open, [open], [open="true"]) {
-            position: fixed !important;
-            inset: auto !important;
-            top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
-            bottom: auto !important;
-            z-index: auto !important;
-            block-size: auto;
-            height: auto !important;
-            max-block-size: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2);
-            max-height: calc(
-              100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2
-            ) !important;
-            min-height: 0 !important;
-            overflow: visible !important;
+            opacity: 0;
+            transform: translateX(100%);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          transition-duration: 0.01ms;
+        }
+      }
+    }
+
+    /* ≥lg — closed: in-flow shell; open: fixed pin (top layer after mobile resize). */
+    @media (min-width: 64rem) {
+      :scope {
+        display: flex !important;
+        align-items: flex-start;
+        justify-content: flex-start;
+        min-inline-size: 0;
+        min-block-size: 0;
+        margin: initial !important;
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        pointer-events: auto !important;
+
+        &:not(:is(:popover-open, [open], [open="true"])) {
+          position: static !important;
+          inset: auto !important;
+          z-index: auto !important;
+          inline-size: auto;
+          width: auto !important;
+          max-inline-size: none;
+          max-width: none !important;
+          min-width: 0 !important;
+          block-size: auto;
+          height: auto !important;
+          max-block-size: none;
+          max-height: none !important;
+          min-height: 0 !important;
+          overflow: visible !important;
+          background-color: transparent !important;
+          box-shadow: none !important;
+
+          &::backdrop {
+            display: none !important;
+            background: transparent !important;
             background-color: transparent !important;
-            box-shadow: none !important;
+            pointer-events: none !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+            transition: none !important;
+          }
+        }
 
-            &::backdrop {
-              display: none !important;
-              background: transparent !important;
-              background-color: transparent !important;
-              pointer-events: none !important;
-              -webkit-backdrop-filter: none !important;
-              backdrop-filter: none !important;
-              transition: none !important;
-            }
+        &:is(:popover-open, [open], [open="true"]) {
+          position: fixed !important;
+          inset: auto !important;
+          top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
+          bottom: auto !important;
+          z-index: auto !important;
+          block-size: auto;
+          height: auto !important;
+          max-block-size: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2);
+          max-height: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2) !important;
+          min-height: 0 !important;
+          overflow: visible !important;
+          background-color: transparent !important;
+          box-shadow: none !important;
 
-            & > :is(aside, [data-aside]):is([data-sticky], .sticky) {
-              top: 0;
-              max-block-size: 100%;
-            }
+          &::backdrop {
+            display: none !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            pointer-events: none !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+            transition: none !important;
           }
 
-          & > :is(aside, [data-aside]) {
-            flex: none;
-            align-self: auto;
-            block-size: auto;
-            min-inline-size: 0;
-
-            &:is([data-sticky], .sticky) {
-              align-self: start;
-              flex: none;
-              block-size: auto;
-              min-block-size: 0;
-              overflow-y: auto;
-              overscroll-behavior: contain;
-            }
-
-            &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
-              padding-block-start: var(--spacing-container);
-            }
+          & > :is(aside, [data-aside]):is([data-sticky], .sticky) {
+            top: 0;
+            max-block-size: 100%;
           }
         }
       }
 
-      @starting-style {
-        &:is([data-panel], .panel):popover-open::backdrop {
-          background-color: transparent;
+      :scope > :is(aside, [data-aside]) {
+        flex: none;
+        align-self: auto;
+        block-size: auto;
+        min-inline-size: 0;
+
+        &:is([data-sticky], .sticky) {
+          align-self: start;
+          flex: none;
+          block-size: auto;
+          min-block-size: 0;
+          overflow-y: auto;
+          overscroll-behavior: contain;
         }
+
+        &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
+          padding-block-start: var(--spacing-container);
+        }
+      }
+    }
+  }
+
+  @layer patterns {
+    @starting-style {
+      :scope:popover-open::backdrop {
+        background-color: transparent;
       }
     }
   }
