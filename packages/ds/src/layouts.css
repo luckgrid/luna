@@ -1,4 +1,4 @@
-@layer layouts.base, layouts.components, layouts.patterns;
+@layer layouts.base, layouts.variants, layouts.patterns;
 
 @import "./layouts/base.css";
 @import "./layouts/article.css";

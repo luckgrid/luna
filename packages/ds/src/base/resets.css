@@ -51,10 +51,11 @@ body {
 
 /* Group / Search */
 :is([role="search"], [role="group"]) {
-  display: inline-flex;
   position: relative;
-  width: 100%;
+  display: inline-flex;
+  align-items: center;
   vertical-align: middle;
+  width: 100%;
 
   & > *,
   & :is(input:not([type="checkbox"], [type="radio"]), select) {

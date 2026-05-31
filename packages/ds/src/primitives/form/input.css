@@ -5,6 +5,8 @@
   @layer base {
     :scope {
       --space: var(--spacing-8-16);
+      --background-color: var(--color-light);
+      --color: var(--color-dark);
 
       display: inline-flex;
       gap: var(--space);
@@ -335,6 +337,7 @@
 
             & :is(button, [type="submit"], [type="reset"], [type="button"], [role="button"]) {
               padding: 0;
+              box-shadow: none;
             }
 
             & option {

@@ -31,6 +31,7 @@
       container-type: inline-size;
       min-height: 100svh;
 
+      /* All Body Layout Children Resets */
       &
         :is(
           header,
@@ -45,6 +46,11 @@
         gap: var(--spacing-container);
       }
 
+      & :is(aside, [data-aside]) {
+        padding-block: var(--spacing-container);
+      }
+
+      /* Direct Body Layout Children Resets */
       & > :is(header, [data-header], footer, [data-footer], section, [data-section]) {
         padding-block: var(--spacing-layout);
         padding-inline: var(--spacing-container);
@@ -56,38 +62,16 @@
         justify-content: center;
       }
 
-      /* Body Layout Header */
+      /* Body Layout Header — sticky chrome in primitives/header.css */
       & > :is(header, [data-header]) {
+        flex-direction: row;
+        align-items: center;
         z-index: 100;
-
-        &:is([data-sticky], .sticky) {
-          top: 0;
-          -webkit-backdrop-filter: var(--filter-backdrop);
-          backdrop-filter: var(--filter-backdrop);
-          background-color: color-mix(in oklch, var(--color-bg), transparent 20%);
-        }
+        min-block-size: var(--spacing-toolbar);
 
         /* Header Navigation */
         & > :is(nav, [role="navigation"]) {
           justify-content: space-between;
-        }
-
-        /* Sticky Header - Show shadow after scrolling past 1px */
-        &:is([data-sticky], .sticky) {
-          @supports (animation-timeline: scroll(root block)) {
-            animation: dropshadow linear both;
-            animation-timeline: scroll(root block);
-            animation-range: 0 1px;
-
-            @media (prefers-reduced-motion: reduce) {
-              animation: none;
-              box-shadow: var(--shadow-2);
-            }
-          }
-
-          @supports not (animation-timeline: scroll(root block)) {
-            box-shadow: var(--shadow-2);
-          }
         }
       }
 

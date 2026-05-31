@@ -7,6 +7,23 @@
       min-inline-size: 0;
       background-color: var(--color-bg);
 
+      /* Panel aside with mobile close bar — full-height scroll on small screens. */
+      &:has(> :is(header, [data-header])) {
+        padding-block-end: var(--spacing-container);
+
+        @media (max-width: 63.99rem) {
+          block-size: 100%;
+          min-block-size: 0;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+        }
+
+        @media (min-width: 64rem) {
+          block-size: auto;
+        }
+      }
+
+      /* aside children spacing resets */
       & > * {
         gap: var(--spacing-tap);
         padding-inline: var(--aside-child-padding-inline, var(--spacing-container));
@@ -20,7 +37,6 @@
         justify-content: space-between;
         min-block-size: var(--spacing-toolbar);
         padding-block: var(--spacing-panel);
-        box-shadow: var(--shadow-1);
 
         /* `@media` (not `@container`): lg uses initial rem (1024px); matches panel `@media`. */
         @media (min-width: 64rem) {
@@ -48,6 +64,8 @@
       }
     }
 
+    /* TODO: move toc and details styles to separate component/primitive stylesheet */
+
     /* Table of Contents — nested scope keeps TOC styles co-located with aside primitive. */
     @scope (:is([data-toc])) {
       :scope {
@@ -55,18 +73,7 @@
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-6-12);
-        max-block-size: calc(
-          100svh - calc(var(--spacing-toolbar) + var(--spacing-panel) * 2) - var(--spacing-layout)
-        );
-        overflow-y: auto;
-        overscroll-behavior: contain;
         text-wrap: pretty;
-
-        @container (min-width: 64rem) {
-          max-block-size: none;
-          overflow-y: visible;
-          overscroll-behavior: auto;
-        }
       }
 
       /* TOC items (links, summaries, leaves) */

@@ -20,12 +20,13 @@
  * Queries: `<body>` declares `container-type: inline-size` (see layouts/base.css).
  * Main inner grid uses `@container` against `<main>`. `@media (min-width: 64rem)` is
  * used for collection grid, panel resets, and header toggles (initial rem → 1024px;
- * `@container` lags with fluid root ~1146px). Panel open/close at ≥lg is CSS-only.
+ * `@container` lags with fluid root ~1146px). Collection nav panel pins when open at
+ * ≥lg; article TOC in `main > dialog` stays in-flow for both popover states.
  *
  * Layer order: `layouts.*` then `primitives` then `utilities`. Desktop panel + TOC
  * sidebar composition uses `layouts.components` in this file. `[data-sticky]` on
- * panel/TOC asides gets `top` + `max-block-size` here (toolbar + panel gap); site
- * `<header data-sticky>` keeps `top: 0` and frosted chrome in layouts.base.
+ * panel/TOC asides gets `top` + `max-block-size` here (toolbar + panel gap for
+ * site header + footer); `<header data-sticky>` chrome lives in primitives/header.css.
  * Utilities only set `position: sticky` so layout `top` wins on sidebars.
  */
 
@@ -49,17 +50,6 @@
 
       @media (min-width: 64rem) {
         display: none !important;
-      }
-    }
-
-    /* Mobile — prevent background scroll while a panel popover is open. */
-    @container (max-width: 63.99rem) {
-      :scope:has(> dialog[data-panel]:popover-open) > :is(main, [data-main]) {
-        overflow: hidden;
-      }
-
-      :scope :is(main, [data-main]):has(> dialog[data-panel]:popover-open) {
-        overflow: hidden;
       }
     }
 
@@ -132,17 +122,20 @@
     }
   }
 
-  @layer components {
+  @layer variants {
     @media (min-width: 64rem) {
       /* Layout sidebars only — not `body > header[data-sticky]`. */
-      :scope > dialog:is([data-panel], .panel) > :is(aside, [data-aside])[data-sticky],
-      :scope :is(main, [data-main]) > :is(aside, [data-aside])[data-sticky],
+      :scope
+        > dialog:is([data-panel], .panel)
+        > :is(aside, [data-aside]):is([data-sticky], .sticky),
+      :scope :is(main, [data-main]) > :is(aside, [data-aside]):is([data-sticky], .sticky),
       :scope
         :is(main, [data-main])
         > dialog:is([data-panel], .panel)
-        > :is(aside, [data-aside])[data-sticky] {
+        > :is(aside, [data-aside]):is([data-sticky], .sticky) {
         top: calc(var(--spacing-toolbar) + var(--spacing-panel));
-        max-block-size: calc(100svh - var(--spacing-toolbar) - var(--spacing-panel) * 2);
+        max-block-size: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2);
+        min-block-size: 0;
         align-self: start;
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -180,36 +173,56 @@
     }
   }
 
-  @layer components {
+  @layer variants {
     @media (min-width: 64rem) {
-      /* TOC panel shell — sticky lives on inner `[data-sticky]` aside (shared rules). */
+      /* TOC panel in main grid — in-flow for open + closed (match collection `main > aside`). */
       :scope :is(main, [data-main]) > dialog:is([data-panel], .panel) {
-        display: flex;
-        position: static;
-        inset: auto;
-        z-index: auto;
+        display: block !important;
+        position: static !important;
+        inset: auto !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        z-index: auto !important;
+        align-self: stretch;
         inline-size: 100%;
         width: 100%;
         max-inline-size: 100%;
         max-width: 100%;
         min-inline-size: 0;
-        block-size: auto;
         min-block-size: 0;
-        overflow: visible;
-        background-color: transparent;
-        box-shadow: none;
-        opacity: 1;
-        transform: none;
-        transition: none;
-        pointer-events: auto;
+        block-size: auto;
+        height: auto !important;
+        max-block-size: none;
+        max-height: none !important;
+        overflow: visible !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        pointer-events: auto !important;
 
         &::backdrop {
-          display: none;
-          background: transparent;
-          pointer-events: none;
-          -webkit-backdrop-filter: none;
-          backdrop-filter: none;
-          transition: none;
+          display: none !important;
+          background: transparent !important;
+          background-color: transparent !important;
+          pointer-events: none !important;
+          -webkit-backdrop-filter: none !important;
+          backdrop-filter: none !important;
+          transition: none !important;
+        }
+
+        & > :is(aside, [data-aside]) {
+          padding-block: var(--spacing-container);
+          min-inline-size: 0;
+          max-inline-size: 100%;
+          overflow-x: clip;
+
+          &:is([data-sticky], .sticky) {
+            top: calc(var(--spacing-toolbar) + var(--spacing-panel));
+            max-block-size: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2);
+          }
         }
       }
     }
@@ -218,56 +231,6 @@
 
 /* Article Collection Layout */
 @scope ([data-layout="collection"]) {
-  @layer components {
-    @media (min-width: 64rem) {
-      /* Collection panel shell — sticky on inner `[data-sticky]` aside (shared rules). */
-      :scope > dialog:is([data-panel], .panel) {
-        display: flex;
-        position: static;
-        inset: auto;
-        z-index: auto;
-        block-size: auto;
-        min-block-size: 0;
-        overflow: visible;
-        background-color: transparent;
-        box-shadow: none;
-        opacity: 1;
-        transform: none;
-        transition: none;
-        pointer-events: auto;
-
-        &::backdrop {
-          display: none;
-          background: transparent;
-          pointer-events: none;
-          -webkit-backdrop-filter: none;
-          backdrop-filter: none;
-          transition: none;
-        }
-      }
-
-      /* Body grid panel (left nav) — width + hoisted popover match track. */
-      :scope > dialog:is([data-panel], .panel) {
-        inline-size: 20rem;
-        width: 20rem;
-        max-inline-size: 20rem;
-        max-width: 20rem;
-      }
-
-      :scope > dialog:is([data-panel], .panel):popover-open {
-        inline-size: 20rem;
-        max-inline-size: 20rem;
-      }
-
-      :scope > dialog:is([data-panel], .panel) > :is(aside, [data-aside]) {
-        padding-block: var(--spacing-container);
-        min-inline-size: 0;
-        max-inline-size: 100%;
-        overflow-x: clip;
-      }
-    }
-  }
-
   @layer base {
     :scope {
       /* Mobile: TOC in collection dialog only; desktop: TOC aside at end of <main> grid. */
@@ -294,7 +257,9 @@
 
         & > dialog:is([data-panel], .panel) {
           grid-area: aside;
+          align-self: stretch;
           min-inline-size: 0;
+          min-block-size: 0;
         }
 
         & > :is(main, [data-main]) {
@@ -309,6 +274,36 @@
         & :is(main, [data-main]) > :is(aside, [data-aside]) {
           display: flex;
         }
+      }
+    }
+  }
+
+  @layer variants {
+    @media (min-width: 64rem) {
+      /* Collection panel track width — shell reset in primitives/dialog.css. */
+      :scope > dialog:is([data-panel], .panel) {
+        align-self: stretch;
+        inline-size: 20rem;
+        width: 20rem;
+        max-inline-size: 20rem;
+        max-width: 20rem;
+
+        & > :is(aside, [data-aside]) {
+          padding-block: var(--spacing-container);
+          min-inline-size: 0;
+          max-inline-size: 100%;
+          overflow-x: clip;
+        }
+      }
+
+      /* Open popover pinned to the left sidebar column (top layer after mobile resize). */
+      :scope > dialog:is([data-panel], .panel):is(:popover-open, [open], [open="true"]) {
+        left: var(--spacing-container) !important;
+        right: auto !important;
+        inline-size: 20rem;
+        width: 20rem !important;
+        max-inline-size: 20rem;
+        max-width: 20rem !important;
       }
     }
   }

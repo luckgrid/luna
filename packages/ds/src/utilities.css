@@ -1,7 +1,7 @@
 /* Utilities */
 
 @layer utilities {
-  /* Sticky Utility — header `top`/chrome in layouts.base; sidebar `top` in article.css */
+  /* Sticky Utility */
   [data-sticky],
   .sticky {
     position: sticky;

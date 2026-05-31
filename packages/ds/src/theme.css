@@ -295,6 +295,8 @@
     color, background-color, border-color, outline-color, text-decoration-color, fill, stroke,
     --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform;
   --transition-property-slider: inline-slide;
+  --transition-property-panel: opacity, transform, overlay, display;
+  --transition-property-backdrop: background-color, overlay, display;
 
   /* Animations */
   --animation-dropshadow: dropshadow 0.5s linear both;
@@ -392,6 +394,15 @@
     var(--default-transition-timing-function);
   --transition-slider: var(--transition-property-slider) var(--default-transition-duration)
     var(--default-transition-timing-function);
+  --transition-panel:
+    opacity var(--default-transition-duration) var(--default-transition-timing-function),
+    transform var(--default-transition-duration) var(--default-transition-timing-function),
+    overlay var(--default-transition-duration) allow-discrete,
+    display var(--default-transition-duration) allow-discrete;
+  --transition-backdrop:
+    background-color var(--default-transition-duration) var(--default-transition-timing-function),
+    overlay var(--default-transition-duration) allow-discrete,
+    display var(--default-transition-duration) allow-discrete;
 
   /* SVG Icon Tokens (src/icons/*.svg — mask icons use opaque fills; stroke icons use currentColor for tint) */
   --icon-arrow: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' fill='currentColor'%3E%3Cpolygon transform='translate(106.680107, 134.255147)' points='1.42108547e-14 143.073067 216.973013 143.073067 146.7232 213.32288 176.889813 243.489707 298.639787 121.739733 176.889813 0 146.7232 30.1668267 216.970453 100.4064 1.42108547e-14 100.4064'/%3E%3C/svg%3E");

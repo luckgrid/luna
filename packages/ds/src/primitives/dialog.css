@@ -4,17 +4,6 @@
   /* Dialog Base */
   @layer base {
     :scope {
-      position: fixed;
-      inset: 0;
-      z-index: 90;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: inherit;
-      height: inherit;
-      min-width: 100%;
-      min-height: 100%;
       padding: 0;
       border: 0;
       outline: none;
@@ -22,6 +11,21 @@
       backdrop-filter: none;
       background-color: transparent;
       color: var(--color-fg);
+
+      /* Modal / centered dialogs — `[data-panel]` owns its own placement in variants. */
+      &:not(:is([data-panel], .panel)) {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: inherit;
+        height: inherit;
+        min-width: 100%;
+        min-height: 100%;
+      }
 
       &::backdrop {
         border: 0;
@@ -102,7 +106,11 @@
   /* Dialog Variants */
   @layer variants {
     :scope {
-      /* Popover Variant */
+      /* Popover Variant 
+       *
+       * Popover dialog with preview mode (hover) support.
+       *
+      */
       &:is([data-popover], .popover) {
         justify-content: end;
         padding: var(--size);
@@ -222,9 +230,9 @@
         }
 
         /*
-       * Dialog popover hover preview: viewport + interaction media (match `canOpenHoverPreview()`
-       * in footnotes.ts — `matchMedia('(min-width: 64rem)')`, not `@container`).
-       */
+         * Dialog popover hover preview: viewport + interaction media (match `canOpenHoverPreview()`
+         * in footnotes.ts — `matchMedia('(min-width: 64rem)')`, not `@container`).
+         */
         @media (min-width: 64rem) {
           @media (hover: hover) and (pointer: fine) and (any-pointer: fine) and (any-hover: hover) {
             justify-content: unset;
@@ -287,59 +295,58 @@
        * semantics — the dialog handles open/close + animation.
        *
        *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
-       *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade.
-`  `         *   3. ≥lg desktop panel composition (sticky, width, backdrop) lives in
-       *      layouts/article.css `layouts.components` — primitive stays mobile-first.
+       *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade;
+       *      background scroll on `<main>` is locked (see `@layer patterns` below).
+       *   3. ≥lg: closed panels are in-flow; collection `:popover-open` placement in
+       *      layouts/article.css. Article TOC (`main > dialog`) stays in-flow for both
+       *      popover states — sticky lives on the inner aside.
        *
-       * Slide direction defaults to inline-end; `[data-side="start"] / .left` flips.
        */
       &:is([data-panel], .panel) {
+        display: flex;
+        flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
-        flex-direction: column;
         min-width: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
 
+        & > :is(aside, [data-aside]) {
+          flex: 1 1 auto;
+          align-self: stretch;
+          block-size: 100%;
+          min-block-size: 0;
+
+          &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
+            padding-block-start: 0;
+          }
+        }
+
+        /* Mobile off-canvas — scoped to small viewports only. */
         @media (max-width: 63.99rem) {
-          --panel-duration: var(--default-transition-duration);
-          --panel-ease: var(--default-transition-timing-function);
-          --panel-size: min(20rem, 100svw);
-          --panel-offscreen: 100%;
-
+          position: fixed;
           inset-block: 0;
           inset-inline-start: auto;
           inset-inline-end: 0;
-          width: var(--panel-size);
+          z-index: 90;
+          width: min(20rem, 100svw);
           max-width: 100svw;
           height: 100svh;
           max-height: 100svh;
           min-height: 0;
-          margin: 0;
-          overflow: hidden auto;
+          overflow: hidden;
           background-color: var(--color-bg);
           box-shadow: var(--shadow-2);
           opacity: 0;
-          transform: translateX(var(--panel-offscreen));
-          transition:
-            opacity var(--panel-duration) var(--panel-ease),
-            transform var(--panel-duration) var(--panel-ease),
-            overlay var(--panel-duration) allow-discrete,
-            display var(--panel-duration) allow-discrete;
+          transform: translateX(100%);
+          transition: var(--transition-panel);
 
           &::backdrop {
             background-color: transparent;
             -webkit-backdrop-filter: none;
             backdrop-filter: none;
-            transition:
-              background-color var(--panel-duration) var(--panel-ease),
-              overlay var(--panel-duration) allow-discrete,
-              display var(--panel-duration) allow-discrete;
-          }
-
-          &:is([data-side="start"], .left) {
-            --panel-offscreen: -100%;
-
-            inset-inline-start: 0;
-            inset-inline-end: auto;
+            transition: var(--transition-backdrop);
           }
 
           &:is(:popover-open, [open], [open="true"]) {
@@ -356,7 +363,7 @@
           @starting-style {
             &:is(:popover-open, [open], [open="true"]) {
               opacity: 0;
-              transform: translateX(var(--panel-offscreen));
+              transform: translateX(100%);
             }
           }
 
@@ -365,22 +372,121 @@
           }
         }
 
-        /* ≥lg hooks — composition in layouts/article.css `layouts.components`. */
+        /* ≥lg — closed: in-flow shell; open: fixed pin (top layer after mobile resize). */
         @media (min-width: 64rem) {
-          display: flex;
-          opacity: 1;
-          transform: none;
-          transition: none;
-          pointer-events: auto;
+          display: flex !important;
+          align-items: flex-start;
+          justify-content: flex-start;
+          min-inline-size: 0;
+          min-block-size: 0;
+          margin: initial !important;
+          opacity: 1 !important;
+          transform: none !important;
+          transition: none !important;
+          pointer-events: auto !important;
+
+          &:not(:is(:popover-open, [open], [open="true"])) {
+            position: static !important;
+            inset: auto !important;
+            z-index: auto !important;
+            inline-size: auto;
+            width: auto !important;
+            max-inline-size: none;
+            max-width: none !important;
+            min-width: 0 !important;
+            block-size: auto;
+            height: auto !important;
+            max-block-size: none;
+            max-height: none !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+
+            &::backdrop {
+              display: none !important;
+              background: transparent !important;
+              background-color: transparent !important;
+              pointer-events: none !important;
+              -webkit-backdrop-filter: none !important;
+              backdrop-filter: none !important;
+              transition: none !important;
+            }
+          }
+
+          &:is(:popover-open, [open], [open="true"]) {
+            position: fixed !important;
+            inset: auto !important;
+            top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
+            bottom: auto !important;
+            z-index: auto !important;
+            block-size: auto;
+            height: auto !important;
+            max-block-size: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2);
+            max-height: calc(
+              100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2
+            ) !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+
+            &::backdrop {
+              display: none !important;
+              background: transparent !important;
+              background-color: transparent !important;
+              pointer-events: none !important;
+              -webkit-backdrop-filter: none !important;
+              backdrop-filter: none !important;
+              transition: none !important;
+            }
+
+            & > :is(aside, [data-aside]):is([data-sticky], .sticky) {
+              top: 0;
+              max-block-size: 100%;
+            }
+          }
+
+          & > :is(aside, [data-aside]) {
+            flex: none;
+            align-self: auto;
+            block-size: auto;
+            min-inline-size: 0;
+
+            &:is([data-sticky], .sticky) {
+              align-self: start;
+              flex: none;
+              block-size: auto;
+              min-block-size: 0;
+              overflow-y: auto;
+              overscroll-behavior: contain;
+            }
+
+            &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
+              padding-block-start: var(--spacing-container);
+            }
+          }
         }
       }
 
-      /* Panel backdrop entry — @starting-style cannot nest under ::backdrop. */
       @starting-style {
-        :is(dialog):is([data-panel], .panel):popover-open::backdrop {
+        &:is([data-panel], .panel):popover-open::backdrop {
           background-color: transparent;
         }
       }
+    }
+  }
+}
+
+/* Panel open — lock background scroll on `<main>` while mobile off-canvas is open. */
+@layer patterns {
+  :is(body, [data-body]):has(> :is(dialog):is([data-panel], .panel):popover-open)
+    > :is(main, [data-main]),
+  :is(main, [data-main]):has(> :is(dialog):is([data-panel], .panel):popover-open) {
+    overflow: hidden;
+
+    @media (min-width: 64rem) {
+      overflow: visible;
     }
   }
 }

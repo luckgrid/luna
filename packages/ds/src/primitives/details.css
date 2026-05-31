@@ -17,8 +17,8 @@
 
         &:focus-visible {
           outline: var(--outline-width-2) solid
-            color-mix(in oklab, var(--color-accent) 60%, transparent);
-          outline-offset: var(--outline-offset-3);
+            color-mix(in oklab, var(--color-accent) 80%, transparent);
+          outline-offset: var(--outline-offset-4);
         }
 
         /* Reset Marker */
@@ -41,8 +41,8 @@
       &:is([open], [data-open]) {
         &:has(:focus-visible) {
           outline: var(--outline-width-2) solid
-            color-mix(in oklab, var(--color-accent) 60%, transparent);
-          outline-offset: var(--outline-offset-1);
+            color-mix(in oklab, var(--color-accent) 80%, transparent);
+          outline-offset: var(--outline-offset-2);
         }
 
         & :is(summary, [data-trigger]) {
