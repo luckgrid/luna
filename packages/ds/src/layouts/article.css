@@ -18,10 +18,11 @@
  * are hidden at the same breakpoint regardless of panel open/closed state.
  *
  * Queries: `<body>` declares `container-type: inline-size` (see layouts/base.css).
- * Main inner grid uses `@container` against `<main>`, with `@media` fallback at 64rem
- * (container lags ~1146px vs collection body grid at 1024px). Collection body grid
- * places `body > dialog` in `grid-area: aside` (patterns). Viewport sync in apps/web
- * dismisses open popovers and removes `popover` at ≥lg (top layer vs grid).
+ * Main inner grid uses `grid-template-areas` (`header` / `article` / `aside`) when
+ * `<main>` has a sidebar (`dialog[data-panel]` or `aside`), with `@container` against
+ * `<main>` and `@media` fallback at 64rem (container lags vs collection body grid).
+ * Collection body grid places `body > dialog` in `grid-area: aside`. Viewport sync in
+ * apps/web dismisses open popovers and removes `popover` at ≥lg (top layer vs grid).
  *
  * Layer order: `layouts.*` then `primitives` then `utilities`. `[data-sticky]` on
  * sidebar asides gets `top` + `max-block-size` in variants; article TOC sticky is
@@ -31,6 +32,10 @@
 /* Shared Article Layout (applies to both article & collection layouts). */
 @scope (:is([data-layout="article"], [data-layout="collection"])) {
   @layer base {
+    :scope {
+      --layout-sidebar-inline-size: 20rem;
+    }
+
     /* Layout Resets (reset max-width of header hgroup) */
     :scope :is(main, [data-main], article, [data-article]) > :is(header, [data-header]) hgroup {
       max-width: none;
@@ -51,9 +56,11 @@
       }
     }
 
-    /* Layout Main — 12/16-col grid; `dialog` and `aside` share the sidebar column. */
+    /* Layout Main — single column by default; sidebar uses template areas at ≥lg. */
     :scope :is(main, [data-main]) {
       --grid-cols: 12;
+      --main-content-fr: 8;
+      --main-sidebar-fr: 4;
 
       container-type: inline-size;
       display: grid;
@@ -62,6 +69,7 @@
 
       @container (min-width: 90rem) {
         --grid-cols: 16;
+        --main-content-fr: 12;
       }
 
       & > * {
@@ -70,59 +78,73 @@
 
       @container (min-width: 64rem) {
         &:has(> :is(dialog:is([data-panel], .panel), aside, [data-aside])) {
-          & > :is(header, [data-header], article, [data-article]) {
-            grid-column: 1 / 9;
+          grid-template-columns: minmax(0, var(--main-content-fr) fr) minmax(
+              0,
+              var(--main-sidebar-fr) fr
+            );
+          grid-template-areas:
+            "header aside"
+            "article aside";
+
+          & > * {
+            grid-column: auto;
+          }
+
+          & > :is(header, [data-header]) {
+            grid-area: header;
+          }
+
+          & > :is(article, [data-article]) {
+            grid-area: article;
           }
 
           & > :is(dialog:is([data-panel], .panel), aside, [data-aside]) {
-            grid-column: 9 / -1;
-            grid-row: 1 / -1;
+            grid-area: aside;
           }
         }
       }
 
-      @container (min-width: 90rem) {
-        &:has(> :is(dialog:is([data-panel], .panel), aside, [data-aside])) {
-          & > :is(header, [data-header], article, [data-article]) {
-            grid-column: 1 / 13;
-          }
-
-          & > :is(dialog:is([data-panel], .panel), aside, [data-aside]) {
-            grid-column: 13 / -1;
-          }
-        }
-      }
-
-      /* Viewport fallback — same sidebar placement when main container query lags. */
+      /* Viewport fallback — same area map when main container query lags. */
       @media (min-width: 64rem) {
+        --main-content-fr: 8;
+        --main-sidebar-fr: 4;
+
         &:has(> :is(dialog:is([data-panel], .panel), aside, [data-aside])) {
-          & > :is(header, [data-header], article, [data-article]) {
-            grid-column: 1 / 9;
+          grid-template-columns: minmax(0, var(--main-content-fr) fr) minmax(
+              0,
+              var(--main-sidebar-fr) fr
+            );
+          grid-template-areas:
+            "header aside"
+            "article aside";
+
+          & > * {
+            grid-column: auto;
+          }
+
+          & > :is(header, [data-header]) {
+            grid-area: header;
+          }
+
+          & > :is(article, [data-article]) {
+            grid-area: article;
           }
 
           & > :is(dialog:is([data-panel], .panel), aside, [data-aside]) {
-            grid-column: 9 / -1;
-            grid-row: 1 / -1;
+            grid-area: aside;
           }
         }
       }
 
       @media (min-width: 90rem) {
-        &:has(> :is(dialog:is([data-panel], .panel), aside, [data-aside])) {
-          & > :is(header, [data-header], article, [data-article]) {
-            grid-column: 1 / 13;
-          }
-
-          & > :is(dialog:is([data-panel], .panel), aside, [data-aside]) {
-            grid-column: 13 / -1;
-          }
-        }
+        --main-content-fr: 12;
       }
     }
 
     /* Main Header */
     @scope (:is(main, [data-main]) > :is(header, [data-header])) {
       :scope :is([aria-label="Tags"], [data-tags]) {
+        display: flex;
         gap: var(--spacing-6-12);
 
         &:is(ol, ul) {
@@ -180,6 +202,21 @@
 /* Article Layout */
 @scope ([data-layout="article"]) {
   @layer base {
+    /* TOC column matches collection nav panel width (fixed track, content fills remainder). */
+    :scope :is(main, [data-main]) {
+      @container (min-width: 64rem) {
+        &:has(> dialog:is([data-panel], .panel)) {
+          grid-template-columns: minmax(0, 1fr) minmax(0, var(--layout-sidebar-inline-size));
+        }
+      }
+
+      @media (min-width: 64rem) {
+        &:has(> dialog:is([data-panel], .panel)) {
+          grid-template-columns: minmax(0, 1fr) minmax(0, var(--layout-sidebar-inline-size));
+        }
+      }
+    }
+
     /* Article Post Pattern */
     &[data-pattern="post"] {
       @scope (:is(main, [data-main]) :is(article, [data-article])) {
@@ -249,7 +286,7 @@
 
       @media (min-width: 64rem) {
         display: grid;
-        grid-template-columns: minmax(0, 20rem) 1fr;
+        grid-template-columns: minmax(0, var(--layout-sidebar-inline-size)) 1fr;
         grid-template-rows: auto 1fr auto;
         grid-template-areas:
           "header header"
@@ -292,10 +329,10 @@
       :scope > dialog:is([data-panel], .panel),
       :scope > dialog:is([data-panel], .panel):is(:popover-open, [open], [open="true"]) {
         position: static;
-        inline-size: 20rem;
-        width: 20rem;
-        max-inline-size: 20rem;
-        max-width: 20rem;
+        inline-size: var(--layout-sidebar-inline-size);
+        width: var(--layout-sidebar-inline-size);
+        max-inline-size: var(--layout-sidebar-inline-size);
+        max-width: var(--layout-sidebar-inline-size);
       }
 
       :scope > dialog:is([data-panel], .panel) > :is(aside, [data-aside]) {
