@@ -305,9 +305,9 @@
  *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
  *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade;
  *      background scroll on `<main>` is locked (see `@layer patterns` below).
- *   3. ≥lg: closed panels are in-flow; collection `:popover-open` placement in
- *      layouts/article.css. Article TOC (`main > dialog`) stays in-flow for both
- *      popover states — sticky lives on the inner aside.
+ *   3. ≥lg: in-flow shell (position/static, no backdrop). Layout placement lives in
+ *      layouts/article.css patterns. Top-layer `:popover-open` cannot join grid —
+ *      apps/web syncs viewport in dialog-panel-viewport.js (loaded from baseof.html).
  */
 @scope (:is(dialog):is([data-panel], .panel)) {
   @layer base {
@@ -388,78 +388,45 @@
       }
     }
 
-    /* ≥lg — closed: in-flow shell; open: fixed pin (top layer after mobile resize). */
+    /* ≥lg — in-flow shell (open + closed); off-canvas rules are mobile-only above.
+     * Omit `position` / `top` / `inset` here — layouts.article.css patterns set static vs sticky. */
     @media (min-width: 64rem) {
-      :scope {
+      :scope,
+      :scope:is(:popover-open, [open], [open="true"]) {
+        /* Beat UA `[popover]:not(:popover-open) { display: none }` on desktop panels. */
         display: flex !important;
+        z-index: auto !important;
         align-items: flex-start;
         justify-content: flex-start;
         min-inline-size: 0;
         min-block-size: 0;
-        margin: initial !important;
+        inline-size: auto;
+        width: auto;
+        max-inline-size: none;
+        max-width: none;
+        min-width: 0;
+        block-size: auto;
+        height: auto !important;
+        max-block-size: none;
+        max-height: none !important;
+        min-height: 0;
+        margin: initial;
+        overflow: visible !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
         pointer-events: auto !important;
 
-        &:not(:is(:popover-open, [open], [open="true"])) {
-          position: static !important;
-          inset: auto !important;
-          z-index: auto !important;
-          inline-size: auto;
-          width: auto !important;
-          max-inline-size: none;
-          max-width: none !important;
-          min-width: 0 !important;
-          block-size: auto;
-          height: auto !important;
-          max-block-size: none;
-          max-height: none !important;
-          min-height: 0 !important;
-          overflow: visible !important;
+        &::backdrop {
+          display: none !important;
+          background: transparent !important;
           background-color: transparent !important;
-          box-shadow: none !important;
-
-          &::backdrop {
-            display: none !important;
-            background: transparent !important;
-            background-color: transparent !important;
-            pointer-events: none !important;
-            -webkit-backdrop-filter: none !important;
-            backdrop-filter: none !important;
-            transition: none !important;
-          }
-        }
-
-        &:is(:popover-open, [open], [open="true"]) {
-          position: fixed !important;
-          inset: auto !important;
-          top: calc(var(--spacing-toolbar) + var(--spacing-panel)) !important;
-          bottom: auto !important;
-          z-index: auto !important;
-          block-size: auto;
-          height: auto !important;
-          max-block-size: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2);
-          max-height: calc(100svh - (var(--spacing-toolbar) + var(--spacing-panel)) * 2) !important;
-          min-height: 0 !important;
-          overflow: visible !important;
-          background-color: transparent !important;
-          box-shadow: none !important;
-
-          &::backdrop {
-            display: none !important;
-            background: transparent !important;
-            background-color: transparent !important;
-            pointer-events: none !important;
-            -webkit-backdrop-filter: none !important;
-            backdrop-filter: none !important;
-            transition: none !important;
-          }
-
-          & > :is(aside, [data-aside]):is([data-sticky], .sticky) {
-            top: 0;
-            max-block-size: 100%;
-          }
+          pointer-events: none !important;
+          -webkit-backdrop-filter: none !important;
+          backdrop-filter: none !important;
+          transition: none !important;
         }
       }
 

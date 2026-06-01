@@ -1,12 +1,3 @@
-{{- /*
-  Hero header for sections, list pages, and simple pages.
-
-  Calling conventions:
-    1. Page context  — {{ partial "hero.html" . }}
-    2. Slot variant  — {{ partial "hero.html" (dict "page" . "slot" $rendered) }}
-       where $rendered is HTML produced by another partial (e.g. a search form).
-    3. Optional class — {{ partial "hero.html" (dict "page" . "class" "my-hero") }}
-*/ -}}
 {{- $page := . -}}
 {{- $slot := "" -}}
 {{- $class := "" -}}

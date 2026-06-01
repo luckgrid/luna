@@ -11,5 +11,21 @@
   <body{{- with .Layout }} data-layout="{{ . }}"{{ end -}}>
     {{- block "main" . }}{{ end -}}
     {{- partial "footer.html" . -}}
+    {{- with resources.Get "js/dialog-panel-viewport.js" -}}
+      {{- if hugo.IsDevelopment -}}
+      <script src="{{ .RelPermalink }}" defer></script>
+      {{- else -}}
+        {{- with . | minify | fingerprint -}}
+        <script
+          src="{{ .RelPermalink }}"
+          integrity="{{ .Data.Integrity }}"
+          crossorigin="anonymous"
+          defer
+        ></script>
+        {{- end -}}
+      {{- end -}}
+    {{- else -}}
+      {{- warnf "js/dialog-panel-viewport.js missing — check src/assets/js/dialog-panel-viewport.js" -}}
+    {{- end -}}
   </body>
 </html>

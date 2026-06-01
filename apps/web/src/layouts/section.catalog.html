@@ -39,22 +39,23 @@
   "placeholder" "Search posts"
   "filterId" "catalog-category-filter"
   "filterLabel" "Filter posts by category"
-  "categories" $categories)
+  "categories" $categories
+  "catalog" true)
 -}}
-<main>
+<main data-catalog>
   {{- partial "hero.html" (dict "page" . "slot" $searchFilter) -}}
   {{- if $hasPaginatorPages }}
   <section aria-label="{{ .Title }}" data-list>
-    <ul id="catalog-list">{{- range $paginator.Pages -}}
+    <ul id="catalog-list" data-catalog-list>{{- range $paginator.Pages -}}
       {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
       {{- $category := .Params.category | default "" -}}
       <li data-search="{{ $hay }}" data-category="{{ $category }}">{{ partial "article-card.html" . }}</li>
       {{- end }}
     </ul>
-    <p id="catalog-search-status" hidden data-message>No matching posts.</p>
+    <p id="catalog-search-status" data-catalog-status hidden data-message>No matching posts.</p>
     {{- if $showPagination }}
     <footer aria-label="{{ .Title }}">
-      <div id="catalog-pagination">
+      <div id="catalog-pagination" data-catalog-pagination>
         {{- partial "pagination.html" $paginator -}}
       </div>
     </footer>
@@ -62,91 +63,14 @@
   </section>
   {{- end }}
   {{- partial "article.html" . -}}
+  <script type="application/json" id="catalog-entries" data-catalog-entries>
+    {{- $entries | jsonify | safeJS -}}
+  </script>
 </main>
-<script type="application/json" id="catalog-entries">
-  {{- $entries | jsonify | safeJS -}}
-</script>
-<script>
-  (function () {
-    var form = document.querySelector('form[role="search"]');
-    var input = document.getElementById("catalog-search");
-    var categoryFilter = document.getElementById("catalog-category-filter");
-    var list = document.getElementById("catalog-list");
-    var status = document.getElementById("catalog-search-status");
-    var pager = document.getElementById("catalog-pagination");
-    var data = document.getElementById("catalog-entries");
-    if (!input || !list || !data) return;
-
-    var entries = JSON.parse(data.textContent || "[]");
-    var initial = list.innerHTML;
-
-    function escapeHTML(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function renderEntry(entry) {
-      return (
-        '<li data-search="' +
-        escapeHTML(entry.search) +
-        '" data-category="' +
-        escapeHTML(entry.category || "") +
-        '">' +
-        entry.card +
-        "</li>"
-      );
-    }
-
-    function sortMatches(matches, category) {
-      if (!category) return matches;
-      return matches.slice().sort(function (a, b) {
-        if (category === "post-collection") {
-          return (a.weight || 0) - (b.weight || 0);
-        }
-        var aSection = a.kind === "section" ? 0 : 1;
-        var bSection = b.kind === "section" ? 0 : 1;
-        if (aSection !== bSection) return aSection - bSection;
-        return (b.sortDate || 0) - (a.sortDate || 0);
-      });
-    }
-
-    function filter() {
-      var q = (input.value || "").toLowerCase().trim();
-      var category = categoryFilter ? (categoryFilter.value || "").trim() : "";
-      if (!q && !category) {
-        list.innerHTML = initial;
-        if (pager) pager.hidden = false;
-        if (status) status.hidden = true;
-        return;
-      }
-
-      var matches = entries.filter(function (entry) {
-        var matchesQuery = !q || entry.search.indexOf(q) !== -1;
-        var matchesCategory = !category || entry.category === category;
-        return matchesQuery && matchesCategory;
-      });
-
-      matches = sortMatches(matches, category);
-
-      list.innerHTML = matches.map(renderEntry).join("");
-
-      if (pager) pager.hidden = true;
-      if (status) status.hidden = matches.length !== 0;
-    }
-
-    if (form) {
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        filter();
-      });
-    }
-
-    input.addEventListener("input", filter);
-    input.addEventListener("search", filter);
-    if (categoryFilter) categoryFilter.addEventListener("change", filter);
-  })();
-</script>
+{{- partial "js.html" (dict
+  "page" .
+  "storeKey" "hasCatalogFilter"
+  "bundleName" "catalog-filter"
+  "files" (slice "js/filter-utils.js" "js/catalog-filter.js"))
+-}}
 {{ end }}

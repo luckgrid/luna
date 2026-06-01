@@ -13,21 +13,22 @@
   </button>
 </header>
 
-<nav aria-label="{{ $navLabel }}">
+<nav aria-label="{{ $navLabel }}" data-collection-nav>
   <fieldset>
     <label for="collection-nav-search-{{ $slug }}">{{ $searchLabel }}</label>
     <input
       type="search"
       id="collection-nav-search-{{ $slug }}"
       name="q"
+      data-collection-nav-input
       placeholder="Search to filter collection..."
       autocomplete="off"
       spellcheck="false"
     />
-    <p id="collection-nav-status-{{ $slug }}" hidden>No matches found.</p>
+    <p id="collection-nav-status-{{ $slug }}" data-collection-nav-status hidden>No matches found.</p>
   </fieldset>
 
-  <ul id="collection-nav-list-{{ $slug }}">{{- $introHay := printf "%s %s %s" $sec.Title ($sec.Description | default "") $sec.RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+  <ul id="collection-nav-list-{{ $slug }}" data-collection-nav-list>{{- $introHay := printf "%s %s %s" $sec.Title ($sec.Description | default "") $sec.RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
     <li data-search="{{ $introHay }}">
       <a
         href="{{ $sec.RelPermalink }}"
@@ -43,30 +44,9 @@
     </li>{{- end }}</ul>
 </nav>
 
-<script>
-  (function () {
-    var slug = "{{ $slug }}";
-    var input = document.getElementById("collection-nav-search-" + slug);
-    var list = document.getElementById("collection-nav-list-" + slug);
-    var status = document.getElementById("collection-nav-status-" + slug);
-    if (!input || !list) return;
-
-    function filter() {
-      var q = (input.value || "").toLowerCase().trim();
-      var items = list.querySelectorAll("li");
-      var visible = 0;
-
-      items.forEach(function (item) {
-        var hay = item.getAttribute("data-search") || "";
-        var show = !q || hay.indexOf(q) !== -1;
-        item.hidden = !show;
-        if (show) visible++;
-      });
-
-      if (status) status.hidden = visible !== 0;
-    }
-
-    input.addEventListener("input", filter);
-    input.addEventListener("search", filter);
-  })();
-</script>
+{{- partial "js.html" (dict
+  "page" .
+  "storeKey" "hasCollectionNavFilter"
+  "bundleName" "collection-nav-filter"
+  "files" (slice "js/filter-utils.js" "js/collection-nav-filter.js"))
+-}}

@@ -12,7 +12,7 @@
 {{- $filterName := .filterName | default "category" -}}
 {{- $filterAll := .filterAll | default "All categories" -}}
 {{- $categories := .categories | default slice -}}
-<form role="search" aria-label="{{ $label }}">
+<form role="search" aria-label="{{ $label }}"{{- with .catalog }} data-catalog-search{{ end }}>
   <input
     type="search"
     id="{{ $id }}"
@@ -20,8 +20,9 @@
     placeholder="{{ $placeholder }}"
     autocomplete="off"
     aria-label="{{ $label }}"
+    {{- with .catalog }} data-catalog-input{{ end }}
   />
-  <select id="{{ $filterId }}" name="{{ $filterName }}" aria-label="{{ $filterLabel }}">
+  <select id="{{ $filterId }}" name="{{ $filterName }}" aria-label="{{ $filterLabel }}"{{- with .catalog }} data-catalog-category{{ end }}>
     <button type="button">
       <selectedcontent></selectedcontent>
     </button>
