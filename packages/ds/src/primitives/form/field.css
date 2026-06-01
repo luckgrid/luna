@@ -5,8 +5,8 @@
   @layer base {
     :scope {
       --space: var(--spacing-8-16);
-      --background-color: var(--color-light);
-      --color: var(--color-dark);
+      --background-color: transparent;
+      --color: currentColor;
 
       position: relative;
       flex: 1;
