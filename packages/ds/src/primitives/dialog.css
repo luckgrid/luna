@@ -394,8 +394,8 @@
       :scope,
       :scope:is(:popover-open, [open], [open="true"]) {
         /* Beat UA `[popover]:not(:popover-open) { display: none }` on desktop panels. */
-        display: flex !important;
-        z-index: auto !important;
+        display: flex;
+        z-index: auto;
         align-items: flex-start;
         justify-content: flex-start;
         min-inline-size: 0;
@@ -406,27 +406,27 @@
         max-width: none;
         min-width: 0;
         block-size: auto;
-        height: auto !important;
+        height: auto;
         max-block-size: none;
-        max-height: none !important;
+        max-height: none;
         min-height: 0;
         margin: initial;
-        overflow: visible !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-        transition: none !important;
-        pointer-events: auto !important;
+        overflow: visible;
+        background-color: transparent;
+        box-shadow: none;
+        opacity: 1;
+        transform: none;
+        transition: none;
+        pointer-events: auto;
 
         &::backdrop {
-          display: none !important;
-          background: transparent !important;
-          background-color: transparent !important;
-          pointer-events: none !important;
-          -webkit-backdrop-filter: none !important;
-          backdrop-filter: none !important;
-          transition: none !important;
+          display: none;
+          background: transparent;
+          background-color: transparent;
+          pointer-events: none;
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+          transition: none;
         }
       }
 

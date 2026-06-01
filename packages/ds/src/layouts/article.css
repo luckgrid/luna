@@ -58,7 +58,6 @@
       container-type: inline-size;
       display: grid;
       grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
-      gap: var(--spacing-24-48);
       align-content: start;
 
       @container (min-width: 90rem) {
