@@ -1,0 +1,35 @@
+{{- /*
+  Article TOC — nav tree only. Layouts own chrome (<aside>, headers, dialog shells).
+  Recursive nav uses <ul>/<li> (same as collection nav); nested groups are
+  <details data-toc-item> inside each <li>, leaves are <a data-toc-item>.
+*/ -}}
+
+{{- $toc := partial "toc-visibility.html" . -}}
+{{- if $toc.show -}}
+<nav data-toc>
+  <h4>Table of Contents</h4>
+  <ul>
+  {{- template "_partials/toc-items" $toc.roots -}}
+  </ul>
+</nav>
+{{- end -}}
+
+{{- define "_partials/toc-items" -}}
+  {{- range . -}}
+    {{- $kids := .Headings | default slice -}}
+    {{- if gt (len $kids) 0 -}}
+    <li>
+      <details data-toc-item>
+        <summary><a href="#{{ .ID }}">{{ .Title }}</a></summary>
+        <div data-content>
+          <ul>
+          {{- template "_partials/toc-items" $kids -}}
+          </ul>
+        </div>
+      </details>
+    </li>
+    {{- else -}}
+    <li><a data-toc-item href="#{{ .ID }}">{{ .Title }}</a></li>
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

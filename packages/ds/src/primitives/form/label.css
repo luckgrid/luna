@@ -1,0 +1,57 @@
+/* Label */
+
+@scope (:is(label, legend)) {
+  /* Label Base */
+  @layer base {
+    :scope {
+      --space: var(--spacing-4-6);
+
+      display: flex;
+      flex-direction: column;
+      gap: var(--space);
+      color: currentColor;
+      font-size: var(--text-md);
+      font-weight: var(--text-md--font-weight);
+      line-height: var(--text-md--line-height);
+      letter-spacing: var(--text-md--letter-spacing);
+      white-space: normal;
+
+      /* Required Label */
+      &:has([data-required], .required) {
+        display: inline-flex;
+        color: var(--color-alert);
+
+        & sup {
+          inset-inline-start: calc(var(--gap, var(--spacing-8-16)) * -0.8);
+          inset-block-start: calc(var(--spacing-1-3) * -1);
+        }
+      }
+
+      /* Invalid Label */
+      &:has(:user-invalid, [aria-invalid="true"], [data-invalid]) {
+        color: var(--color-alert);
+      }
+
+      /* Disabled Label */
+      &:has(:disabled, [disabled]) {
+        cursor: not-allowed;
+        color: color-mix(in oklab, currentColor 60%, transparent);
+      }
+    }
+  }
+
+  /* Label Variants */
+  @layer variants {
+    /* Checkbox / Radio Label Variants */
+    :scope:has([type="checkbox"], [type="radio"]) {
+      cursor: pointer;
+      width: fit-content;
+      flex-direction: row;
+    }
+
+    input:is([type="checkbox"], [type="radio"]) ~ label {
+      cursor: pointer;
+      display: inline-flex;
+    }
+  }
+}

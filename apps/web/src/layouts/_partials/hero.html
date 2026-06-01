@@ -1,0 +1,17 @@
+{{- $page := . -}}
+{{- $slot := "" -}}
+{{- $class := "" -}}
+{{- if reflect.IsMap . -}}
+  {{- $page = .page | default . -}}
+  {{- $slot = .slot | default "" -}}
+  {{- $class = .class | default "" -}}
+{{- end -}}
+<header data-hero{{ with $class }} class="{{ . }}"{{ end }}>
+  <hgroup>
+    <h1>{{ $page.Title }}</h1>
+    {{- with $page.Description }}
+    <p>{{ . }}</p>
+    {{- end }}
+  </hgroup>
+  {{- with $slot }}{{ . | safeHTML }}{{ end -}}
+</header>

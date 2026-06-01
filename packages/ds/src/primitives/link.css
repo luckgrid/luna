@@ -1,0 +1,28 @@
+/* Link */
+
+@scope (:is(a:not([role="button"]), [role="link"])) {
+  /* Link Base */
+  @layer base {
+    :scope {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-6-12);
+      color: currentColor;
+      text-decoration: underline;
+      text-decoration-color: currentColor;
+      text-underline-offset: var(--spacing-3-5);
+      transition: var(--transition-action);
+
+      &:is(:hover, :focus, :active, :focus-visible, [aria-current]):not([aria-current="false"]) {
+        outline: none;
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: var(--outline-width-2) dashed
+          color-mix(in oklab, var(--color-accent) 80%, transparent);
+        outline-offset: var(--outline-offset-2);
+      }
+    }
+  }
+}

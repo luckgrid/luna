@@ -1,0 +1,52 @@
+{{- $sec := .CurrentSection -}}
+{{- if not $sec }}{{ $sec = . }}{{ end -}}
+{{- if not $sec }}{{ return }}{{ end -}}
+{{- $slug := $sec.RelPermalink | strings.TrimPrefix "/" | strings.TrimSuffix "/" | replaceRE "/" "-" | lower | default "section" -}}
+{{- $headerTitle := .Params.headerTitle | default "Navigation" -}}
+{{- $navLabel := .Params.collection_nav_aria | default "Pages in this collection" -}}
+{{- $searchLabel := .Params.collection_sidebar_search_label | default "Search Filter" -}}
+
+<header data-sticky>
+  <hgroup><h2>{{ $headerTitle }}</h2></hgroup>
+  <button type="button" data-button="icon" popovertarget="side-panel" popovertargetaction="hide" aria-label="Close">
+    <i data-icon="close" aria-hidden="true"></i>
+  </button>
+</header>
+
+<nav aria-label="{{ $navLabel }}" data-collection-nav>
+  <fieldset>
+    <label for="collection-nav-search-{{ $slug }}">{{ $searchLabel }}</label>
+    <input
+      type="search"
+      id="collection-nav-search-{{ $slug }}"
+      name="q"
+      data-collection-nav-input
+      placeholder="Search to filter collection..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <p id="collection-nav-status-{{ $slug }}" data-collection-nav-status hidden>No matches found.</p>
+  </fieldset>
+
+  <ul id="collection-nav-list-{{ $slug }}" data-collection-nav-list>{{- $introHay := printf "%s %s %s" $sec.Title ($sec.Description | default "") $sec.RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+    <li data-search="{{ $introHay }}">
+      <a
+        href="{{ $sec.RelPermalink }}"
+        {{- if eq $.RelPermalink $sec.RelPermalink }} aria-current="page"{{ end }}
+        >{{ $sec.Title }}</a>
+    </li>{{- range sort $sec.RegularPages "Weight" -}}
+      {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+    <li data-search="{{ $hay }}">
+      <a
+        href="{{ .RelPermalink }}"
+        {{- if eq $.RelPermalink .RelPermalink }} aria-current="page"{{ end }}
+        >{{ .Title }}</a>
+    </li>{{- end }}</ul>
+</nav>
+
+{{- partial "js.html" (dict
+  "page" .
+  "storeKey" "hasCollectionNavFilter"
+  "bundleName" "collection-nav-filter"
+  "files" (slice "js/filter-utils.js" "js/collection-nav-filter.js"))
+-}}

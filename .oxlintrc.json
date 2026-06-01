@@ -9,7 +9,13 @@
     "typeAware": true,
     "typeCheck": true
   },
-  "ignorePatterns": ["**/node_modules/**", "**/.moon/cache/**", "**/.output/**", "**/.vinxi/**"],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.moon/cache/**",
+    "**/.output/**",
+    "**/.vinxi/**",
+    "**/hugo_stats.json"
+  ],
   "overrides": [
     {
       "files": ["**/vite.config.ts"],

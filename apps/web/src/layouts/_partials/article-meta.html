@@ -1,0 +1,12 @@
+{{- $date := .Date -}}
+{{- if $date.IsZero -}}
+  {{- if eq .Kind "section" -}}
+    {{- $pages := .RegularPages.ByDate.Reverse -}}
+    {{- if gt (len $pages) 0 -}}
+      {{- $date = (index $pages 0).Date -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $date.IsZero -}}
+<small data-meta>Posted to <strong>{{- with .Params.category }}{{ replace . "-" " " | title }}{{ else }}Catalog{{ end -}}</strong> on <time datetime='{{ $date.Format "2006-01-02" }}'>{{ $date.Format "January 2, 2006" }}</time></small>
+{{- end -}}

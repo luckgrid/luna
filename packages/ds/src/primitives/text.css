@@ -1,0 +1,44 @@
+/* Text */
+
+@scope (:is(hgroup)) {
+  /* Text Base */
+  @layer base {
+    /* Heading Group */
+    :scope {
+      --font-family: var(--font-sans);
+
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-16-32);
+      text-wrap: balance;
+
+      @container (min-width: 48rem) {
+        max-width: 80svw;
+      }
+
+      & :is(p, small, span) {
+        color: color-mix(in oklab, currentColor 75%, transparent);
+      }
+
+      & p {
+        font-size: var(--text-xl);
+        font-weight: var(--text-xl--font-weight);
+        line-height: var(--text-xl--line-height);
+        letter-spacing: var(--text-xl--letter-spacing);
+      }
+
+      & small {
+        font-size: var(--text-base);
+        font-weight: var(--text-base--font-weight);
+        line-height: var(--text-base--line-height);
+        letter-spacing: var(--text-base--letter-spacing);
+      }
+
+      & hr {
+        width: 100%;
+        border-width: var(--border-width-4);
+      }
+    }
+  }
+}

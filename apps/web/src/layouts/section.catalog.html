@@ -1,0 +1,76 @@
+{{ define "main" }}
+{{- partial "header.html" . -}}
+{{- $listed := .Pages.ByDate.Reverse -}}
+{{- $paginator := .Paginate $listed -}}
+{{- $indexed := slice -}}
+{{- $indexed = $indexed | append .RegularPagesRecursive -}}
+{{- range where .Pages "Kind" "section" -}}
+  {{- $indexed = $indexed | append . -}}
+{{- end -}}
+{{- $categories := slice -}}
+{{- range $indexed }}
+  {{- with .Params.category }}
+    {{- if not (in $categories .) }}
+      {{- $categories = $categories | append . -}}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $categories = sort $categories -}}
+{{- $entries := slice -}}
+{{- range $indexed }}
+  {{- $card := partial "article-card.html" . -}}
+  {{- $entry := dict
+    "title" .Title
+    "url" .RelPermalink
+    "kind" .Kind
+    "weight" .Weight
+    "sortDate" (cond .Date (.Date.Unix) 0)
+    "category" (.Params.category | default "")
+    "search" (printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower)
+    "card" $card
+  -}}
+  {{- $entries = $entries | append $entry -}}
+{{- end -}}
+{{- $hasPaginatorPages := gt (len $paginator.Pages) 0 -}}
+{{- $showPagination := gt $paginator.TotalPages 1 -}}
+{{- $searchFilter := partial "search-filter.html" (dict
+  "id" "catalog-search"
+  "label" "Search posts"
+  "placeholder" "Search posts"
+  "filterId" "catalog-category-filter"
+  "filterLabel" "Filter posts by category"
+  "categories" $categories
+  "catalog" true)
+-}}
+<main data-catalog>
+  {{- partial "hero.html" (dict "page" . "slot" $searchFilter) -}}
+  {{- if $hasPaginatorPages }}
+  <section aria-label="{{ .Title }}" data-list>
+    <ul id="catalog-list" data-catalog-list>{{- range $paginator.Pages -}}
+      {{- $hay := printf "%s %s %s" .Title (.Description | default "") .RelPermalink | replaceRE `\s+` " " | strings.TrimSpace | lower -}}
+      {{- $category := .Params.category | default "" -}}
+      <li data-search="{{ $hay }}" data-category="{{ $category }}">{{ partial "article-card.html" . }}</li>
+      {{- end }}
+    </ul>
+    <p id="catalog-search-status" data-catalog-status hidden data-message>No matching posts.</p>
+    {{- if $showPagination }}
+    <footer aria-label="{{ .Title }}">
+      <div id="catalog-pagination" data-catalog-pagination>
+        {{- partial "pagination.html" $paginator -}}
+      </div>
+    </footer>
+    {{- end }}
+  </section>
+  {{- end }}
+  {{- partial "article.html" . -}}
+  <script type="application/json" id="catalog-entries" data-catalog-entries>
+    {{- $entries | jsonify | safeJS -}}
+  </script>
+</main>
+{{- partial "js.html" (dict
+  "page" .
+  "storeKey" "hasCatalogFilter"
+  "bundleName" "catalog-filter"
+  "files" (slice "js/filter-utils.js" "js/catalog-filter.js"))
+-}}
+{{ end }}

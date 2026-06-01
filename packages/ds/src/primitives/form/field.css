@@ -1,0 +1,28 @@
+/* Field */
+
+@scope (:is(fieldset, [data-field])) {
+  /* Field Base */
+  @layer base {
+    :scope {
+      --space: var(--spacing-8-16);
+      --background-color: transparent;
+      --color: currentColor;
+
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space);
+
+      & :is(label, legend) {
+        flex-direction: row;
+        gap: var(--space);
+      }
+
+      &:is([role="group"], [role="search"]) {
+        display: inline-flex;
+        flex-direction: row;
+      }
+    }
+  }
+}

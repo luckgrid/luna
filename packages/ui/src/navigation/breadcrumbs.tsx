@@ -1,0 +1,36 @@
+import { For, Show, splitProps } from "solid-js";
+
+import { Brand, type BrandProps } from "../display/brand";
+import { Link } from "./link";
+
+export type BreadcrumbItem = {
+  label: string;
+  href?: string;
+};
+
+export type BreadcrumbsProps = {
+  items: BreadcrumbItem[];
+  brand?: BrandProps;
+  showBrandName?: boolean;
+};
+
+export function Breadcrumbs(props: BreadcrumbsProps) {
+  const [local] = splitProps(props, ["brand", "showBrandName"]);
+
+  return (
+    <ol data-breadcrumbs>
+      <li>
+        <Brand showName={local.showBrandName ?? false} {...local.brand} />
+      </li>
+      <For each={props.items}>
+        {(item) => (
+          <li aria-current={item.href ? undefined : "page"}>
+            <Show when={item.href} fallback={item.label}>
+              <Link href={item.href}>{item.label}</Link>
+            </Show>
+          </li>
+        )}
+      </For>
+    </ol>
+  );
+}

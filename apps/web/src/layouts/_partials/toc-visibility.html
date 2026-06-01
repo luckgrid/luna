@@ -1,0 +1,26 @@
+{{- $showToc := false -}}
+{{- if in .Params "toc" -}}
+  {{- $showToc = .Params.toc -}}
+{{- else -}}
+  {{- $h2Count := 0 -}}
+  {{- range .Fragments.Headings -}}
+    {{- if eq .Level 2 -}}{{- $h2Count = add $h2Count 1 -}}{{- end -}}
+    {{- range (.Headings | default slice) -}}
+      {{- if eq .Level 2 -}}{{- $h2Count = add $h2Count 1 -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $showToc = ge $h2Count 2 -}}
+{{- end -}}
+
+{{- $roots := slice -}}
+{{- range .Fragments.Headings -}}
+  {{- if eq .Level 2 -}}
+    {{- $roots = $roots | append . -}}
+  {{- else -}}
+    {{- range (.Headings | default slice) -}}
+      {{- if eq .Level 2 -}}{{- $roots = $roots | append . -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return dict "show" (and $showToc (gt (len $roots) 0)) "roots" $roots -}}

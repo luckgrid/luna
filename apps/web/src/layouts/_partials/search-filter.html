@@ -1,0 +1,34 @@
+{{- /*
+  Params (dict):
+    id, label, placeholder?, name?, categories?
+    filterId?, filterLabel?, filterName?, filterAll?
+*/ -}}
+{{- $id := .id | default "search" -}}
+{{- $label := .label | default "Search" -}}
+{{- $placeholder := .placeholder | default $label -}}
+{{- $name := .name | default "q" -}}
+{{- $filterId := .filterId | default "category-filter" -}}
+{{- $filterLabel := .filterLabel | default "Filter by category" -}}
+{{- $filterName := .filterName | default "category" -}}
+{{- $filterAll := .filterAll | default "All categories" -}}
+{{- $categories := .categories | default slice -}}
+<form role="search" aria-label="{{ $label }}"{{- with .catalog }} data-catalog-search{{ end }}>
+  <input
+    type="search"
+    id="{{ $id }}"
+    name="{{ $name }}"
+    placeholder="{{ $placeholder }}"
+    autocomplete="off"
+    aria-label="{{ $label }}"
+    {{- with .catalog }} data-catalog-input{{ end }}
+  />
+  <select id="{{ $filterId }}" name="{{ $filterName }}" aria-label="{{ $filterLabel }}"{{- with .catalog }} data-catalog-category{{ end }}>
+    <button type="button">
+      <selectedcontent></selectedcontent>
+    </button>
+    <option value="">{{ $filterAll }}</option>
+    {{- range $categories }}
+    <option value="{{ . }}">{{ . | humanize }}</option>
+    {{- end }}
+  </select>
+</form>

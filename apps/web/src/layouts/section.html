@@ -1,0 +1,15 @@
+{{ define "main" }}
+<main>
+  {{- partial "hero.html" . -}}
+  {{- partial "article.html" . -}}
+  {{- with .Pages }}
+  <section data-list aria-label="{{ $.Title }}">
+    <ul>
+      {{- range . }}
+      <li>{{ partial "article-card.html" . }}</li>
+      {{- end }}
+    </ul>
+  </section>
+  {{- end }}
+</main>
+{{ end }}

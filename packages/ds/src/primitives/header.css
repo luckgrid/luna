@@ -1,0 +1,77 @@
+/* Header */
+
+@scope (:is(header, [data-header])) {
+  /* Header Base */
+  @layer base {
+    :scope {
+      min-inline-size: 0;
+
+      & > :is(nav, [role="navigation"]) {
+        flex: 1 1 auto;
+        min-inline-size: 0;
+      }
+
+      & > :is(hgroup, [data-hgroup]) {
+        min-inline-size: 0;
+      }
+
+      /*
+       * Sticky header scroll-shadow (scroll-driven animation, CSS-only).
+       *
+       * Every `[data-sticky]` header gets a box-shadow once its scrollport moves
+       * past the resting position at the top — not before. `animation-range: 0 1px`
+       * maps the `dropshadow` keyframes (none → `--shadow-1`) to the first pixel of
+       * scroll in the block axis.
+       *
+       * Scrollport is chosen per header location (each header tracks only its own
+       * scroll context; they do not share or hand off timelines):
+       *
+       *   • Layout chrome — `body > header[data-sticky]` (site header / breadcrumbs):
+       *     `scroll(root block)` — document scroll (e.g. long article or collection page).
+       *
+       *   • Panel / sidebar chrome — `aside > header[data-sticky]` (mobile off-canvas
+       *     close bar): `scroll(nearest block)` — the scrolling `<aside>` (see
+       *     primitives/aside.css), not the document. Scrolling the panel does not affect
+       *     the layout header, and closing the panel does not leave the layout header
+       *     bound to panel scroll.
+       *
+       * Do not re-point the layout header at panel scroll via named timelines or
+       * `:has(dialog:popover-open)` overrides — that breaks document scroll-shadow
+       * after the panel closes.
+       *
+       * Unsupported browsers and `prefers-reduced-motion: reduce` use a static
+       * box-shadow instead (`--shadow-2` layout, `--shadow-1` panel).
+       */
+      &:is([data-sticky], .sticky) {
+        top: 0;
+        flex-shrink: 0;
+        -webkit-backdrop-filter: var(--filter-backdrop);
+        backdrop-filter: var(--filter-backdrop);
+        background-color: color-mix(in oklch, var(--color-bg), transparent 20%);
+
+        @supports (animation-timeline: scroll(root block)) {
+          animation: dropshadow linear both;
+          animation-timeline: scroll(root block);
+          animation-range: 0 1px;
+
+          :is(aside, [data-aside]) > & {
+            animation-timeline: scroll(nearest block);
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            animation: none;
+            box-shadow: var(--shadow-2);
+          }
+        }
+
+        @supports not (animation-timeline: scroll(root block)) {
+          box-shadow: var(--shadow-2);
+
+          :is(aside, [data-aside]) > & {
+            box-shadow: var(--shadow-1);
+          }
+        }
+      }
+    }
+  }
+}

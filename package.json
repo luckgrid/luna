@@ -8,28 +8,32 @@
   ],
   "type": "module",
   "scripts": {
+    "setup": "proto install && bun install --ignore-scripts && moon run web:setup && moon run api:build",
     "build": "moon run :build --query \"projectLayer=application\"",
     "dev": "moon run :dev --query \"projectLayer=application\"",
     "start": "moon run :start --query \"projectLayer=application\"",
     "typecheck": "tsc --build --verbose",
     "check": "bun run lint && bun run format:check && bun run typecheck",
     "fix": "bun run lint:fix && bun run format",
-    "format": "oxfmt . && moon run api:format web:format",
-    "format:check": "oxfmt --list-different . && moon run api:format-check web:format-check",
-    "lint": "oxlint . && moon run api:lint web:lint",
-    "lint:fix": "oxlint --fix . && moon run api:lint-fix web:lint-fix",
-    "clean": "moon run :clean && moon clean --all && git clean -fdx -- .cache node_modules",
-    "outdated:check": "bash scripts/outdated.sh",
-    "outdated": "bash scripts/outdated.sh --strict",
-    "update": "bash scripts/update.sh"
+    "format": "oxfmt . && moon run api:format",
+    "format:check": "oxfmt --list-different . && moon run api:format-check",
+    "lint": "oxlint . && moon run api:lint",
+    "lint:fix": "oxlint --fix . && moon run api:lint-fix",
+    "clean": "moon run :clean && moon clean --all && git clean -fdx -- .cache .moon/cache node_modules",
+    "outdated": "luna outdated",
+    "update": "luna update"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.2.4",
-    "@types/bun": "^1.3.13",
-    "oxfmt": "^0.47.0",
-    "oxlint": "^1.62.0",
-    "oxlint-tsgolint": "^0.22.1",
+    "@luna/cli": "workspace:*",
+    "@tailwindcss/cli": "^4.3.0",
+    "@types/bun": "^1.3.14",
+    "oxfmt": "^0.52.0",
+    "oxlint": "^1.67.0",
+    "oxlint-tsgolint": "^0.23.0",
     "typescript": "^6.0.3"
   },
-  "packageManager": "bun@1.3.13"
+  "overrides": {
+    "vite": "7.3.3"
+  },
+  "packageManager": "bun@1.3.14"
 }

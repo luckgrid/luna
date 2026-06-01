@@ -1,0 +1,19 @@
+{{- $layout := .Layout -}}
+{{- $isCollection := eq $layout "collection" -}}
+{{- $hasToc := false -}}
+{{- if in (slice "article" "collection") $layout -}}
+  {{- $hasToc = (partial "toc-visibility.html" .).show -}}
+{{- end -}}
+{{- $hasSidePanel := or $isCollection $hasToc -}}
+
+<header data-sticky>
+  <nav aria-label="Header navigation">
+    {{- partial "breadcrumbs.html" . -}}
+    {{- if $hasSidePanel -}}
+    <button type="button" data-button="icon" popovertarget="side-panel" aria-label="Open side panel">
+      <i data-icon="menu" aria-hidden="true"></i>
+    </button>
+    {{- end -}}
+  </nav>
+  {{- with .Params.slot }}{{- . }}{{ end -}}
+</header>

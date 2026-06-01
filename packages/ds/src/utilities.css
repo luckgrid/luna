@@ -1,3 +1,14 @@
+/* Utilities */
+
+@layer utilities {
+  /* Sticky Utility */
+  [data-sticky],
+  .sticky {
+    position: sticky;
+    z-index: 10;
+  }
+}
+
 @utility no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

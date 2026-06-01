@@ -1,0 +1,72 @@
+/* Article */
+
+@scope (:is(article)) {
+  /* Article Base */
+  @layer base {
+    :scope {
+      --grid-cols: 12;
+
+      @container (min-width: 90rem) {
+        --grid-cols: 16;
+      }
+
+      container-type: inline-size;
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+      gap: 0;
+      align-content: start;
+      font-family: var(--font-serif);
+      text-wrap: pretty;
+
+      &:dir(rtl) {
+        align-content: end;
+      }
+
+      /* Article Typography */
+      & :is(h1, h2, h3, h4, h5, h6) {
+        display: inline-flex;
+        align-items: center;
+
+        &[id] {
+          scroll-margin-top: var(--spacing-toolbar);
+        }
+      }
+
+      & pre {
+        border: var(--border-width-2) solid var(--color-fg-4);
+      }
+
+      & > * {
+        grid-column: 1 / -1;
+      }
+    }
+
+    :scope > :is(header, footer, aside, section) {
+      --space: var(--spacing-surface);
+
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+      gap: var(--space);
+
+      & > * {
+        grid-column: 1 / -1;
+      }
+    }
+
+    :scope > section {
+      padding-block: var(--space);
+
+      &:first-child {
+        padding-block-start: 0;
+      }
+
+      &:last-child {
+        padding-block-end: 0;
+      }
+    }
+
+    :scope :is(figure, [role="figure"]):not([data-card], .card) > :is(img, svg) {
+      border: var(--border-width-2) dotted color-mix(in oklab, var(--color-fg-4) 80%, transparent);
+    }
+  }
+}

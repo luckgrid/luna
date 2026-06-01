@@ -8,17 +8,15 @@
   ],
   "exports": {
     "./tailwind.css": "./tailwind.css",
-    "./vite.config": "./vite.config.ts"
-  },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
+    "./vite.config": "./vite.config.ts",
+    "./icons/*": "./src/icons/*"
   },
   "dependencies": {},
   "devDependencies": {
-    "@tailwindcss/cli": "^4.2.4",
-    "@tailwindcss/vite": "^4.2.4",
-    "tailwindcss": "^4.2.4",
-    "typescript": "^6",
-    "vite": "^8.0.0"
+    "@tailwindcss/cli": "^4.3.0",
+    "@tailwindcss/vite": "^4.3.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^7.3.3"
   }
 }

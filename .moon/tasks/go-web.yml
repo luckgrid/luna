@@ -2,128 +2,93 @@ inheritedBy:
   language: go
   layer: application
   stack: frontend
+  tags:
+    - ssg-web-app
 
 fileGroups:
   configs:
+    - "config/**/*"
     - "go.mod"
     - "go.sum"
-    - "*.yml"
+    - "hugo.toml"
+    - "package.json"
+    - ".env*"
   sources:
-    - "main.go"
     - "src/**/*"
   assets:
     - "public/**/*"
-    - "**/*.css"
 
 tasks:
-  install:
-    command: "go"
+  setup:
+    command: go
     args: ["mod", "download"]
     inputs:
       - "go.mod"
       - "go.sum"
 
-  templates:
-    command: "go"
-    args: ["tool", "templ", "generate"]
+  install:
+    command: bun
+    args: ["install"]
     deps:
-      - "install"
+      - "~:setup"
     inputs:
-      - "src/**/*.templ"
-    outputs:
-      - "src/**/*_templ.go"
+      - "package.json"
+      - "go.mod"
+      - "go.sum"
 
-  styles:
-    command: "bunx"
+  typecheck:
+    command: sh
     args:
-      - "@tailwindcss/cli"
-      - "-i"
-      - "src/styles.css"
-      - "-o"
-      - "dist/styles.css"
-      - "--minify"
+      - "-c"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo config'
+    deps:
+      - "~:install"
     inputs:
-      - "src/**/*.css"
-      - "src/**/*.templ"
-      - "src/**/*_templ.go"
-      - "main.go"
-      - "/packages/ds/**/*.css"
-    outputs:
-      - "dist/styles.css"
+      - "@group(configs)"
 
   build:
-    command: "go"
-    args: ["run", "."]
+    command: sh
+    args:
+      - "-c"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo --gc --minify'
     deps:
-      - "templates"
-      - "styles"
+      - "~:install"
     inputs:
       - "@group(sources)"
       - "@group(configs)"
+      - "/packages/ds/**/*.css"
     outputs:
       - "dist"
 
   dev:
-    command: "go"
+    command: sh
     args:
-      - "tool"
-      - "templ"
-      - "generate"
-      - "--watch"
-      - "--open-browser=false"
-      - "--proxy=http://localhost:${WEB_PORT:-3000}"
-      - "--cmd"
-      - "go run . --serve --port ${WEB_PORT:-3000}"
+      - "-c"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo server --bind 0.0.0.0 --port "${WEB_PORT:-3001}"'
     deps:
-      - "build"
+      - "~:install"
     options:
       envFile: "/.env.local"
       persistent: true
       runInCI: false
 
-  lint:
-    command: "go"
-    args: ["vet", "./..."]
-    deps:
-      - "build"
-    inputs:
-      - "@group(sources)"
-      - "main.go"
-
-  lint-fix:
-    command: "go"
-    args: ["fmt", "./..."]
-    deps:
-      - "build"
-    inputs:
-      - "@group(sources)"
-      - "main.go"
-
-  format:
-    command: "go"
-    args: ["fmt", "./..."]
-    deps:
-      - "build"
-    inputs:
-      - "@group(sources)"
-      - "main.go"
-
-  format-check:
+  preview:
     command: sh
     args:
       - "-c"
-      - "if gofmt -l -e main.go src | grep -q .; then echo 'Files need gofmt:'; gofmt -l -e main.go src; exit 1; fi"
+      - 'export PATH="$PWD/node_modules/.bin:$PWD/../../node_modules/.bin:$PATH" && exec go tool hugo server --bind 0.0.0.0 --port "${WEB_PORT:-3001}"'
     deps:
-      - "build"
-    inputs:
-      - "@group(sources)"
-      - "main.go"
+      - "~:build"
+    preset: "server"
 
   clean:
-    command: "git"
+    command: git
     args:
       - "clean"
       - "-fdx"
       - "--"
       - "dist"
-      - ":(glob)src/**/*_templ.go"
+      - "node_modules"
+      - "resources"
+    options:
+      cache: false

@@ -5,7 +5,7 @@
     "jsxImportSource": "solid-js",
     "noEmit": true,
     "tsBuildInfoFile": "../../.cache/app.tsbuildinfo",
-    "types": ["vite/client"],
+    "types": ["vite/client", "@solidjs/start/env"],
     "paths": {
       "~/*": ["./src/*"]
     }

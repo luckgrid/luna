@@ -1,31 +1,25 @@
 import { Accordion } from "@luna/ui/accordion";
 import { Button } from "@luna/ui/button";
 import { Input } from "@luna/ui/input";
-import { Link } from "@luna/ui/link";
-import { Tooltip } from "@luna/ui/tooltip";
-import { Title } from "@solidjs/meta";
 import Counter from "~/components/counter";
+import { Hero } from "~/components/hero";
 
 export default function Home() {
   return (
     <main>
-      <Title>UI | Luna</Title>
-      <header>
-        <hgroup>
-          <h1>Luna UI</h1>
-          <p>Reusable Solid UI/UX patterns and component.</p>
-        </hgroup>
-        <div role="toolbar" aria-label="Button examples">
+      <Hero title="Luna UI" description="Reusable Solid UI/UX patterns and component.">
+        <div role="group" aria-label="Button examples">
           <Button>Default</Button>
-          <Button class="button-primary">Primary</Button>
-          <Button class="button-secondary">Secondary</Button>
-          <Button class="button-alert">Alert</Button>
-          <Tooltip content="This is a custom tooltip from @luna/ui">
-            <Button class="button-ghost">Ghost</Button>
-          </Tooltip>
-          <Button class="button-text">Text</Button>
+          <Button data-button="hollow">Hollow</Button>
+          <Button data-button="ghost">Ghost</Button>
+          <Button data-button="text">Text</Button>
+          <Button data-button="alert">Alert</Button>
+          <Button data-button="icon">
+            <i data-icon="menu" />
+          </Button>
+          <Button data-button="wrapper">Wrapper</Button>
         </div>
-      </header>
+      </Hero>
 
       <section>
         <Input aria-label="Email" placeholder="email@example.com" type="email" />
@@ -50,15 +44,6 @@ export default function Home() {
           <Counter />
         </div>
       </section>
-
-      <footer>
-        <p>
-          <Link href="https://start.solidjs.com" target="_blank" rel="noopener noreferrer">
-            SolidStart docs
-          </Link>{" "}
-          and shared packages now work together.
-        </p>
-      </footer>
     </main>
   );
 }

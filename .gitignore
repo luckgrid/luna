@@ -1,4 +1,4 @@
-# local cache
+# cache
 .cache/
 .factory/
 
@@ -6,36 +6,21 @@
 .moon/cache
 .moon/docker
 
-# build
-.output/
-.vinxi/
-build/
-dist/
-app.config.timestamp_*.js
-
-# templ generated files
-*_templ.go
-
 # environment
 .env.keys
 .env*.local
 
-# virtual environments
-.venv/
+# build
+build/
+dist/
 
-# node
+# modules
 node_modules/
 
-# python
-__pycache__/
-*.py[cod]
-*$py.class
-*.pyc
-*.egg-info/
-.eggs/
-.pytest_cache/
-.ruff_cache/
+# logs
+**/**/logs/
+*.log
 
-# OS
+# misc
 .DS_Store
 Thumbs.db

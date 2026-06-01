@@ -1,0 +1,22 @@
+/* Section */
+
+@scope (:is(section, [data-section])) {
+  /* Section Variants */
+  @layer variants {
+    /* List Section */
+    :scope:is([data-list], .list) {
+      padding-block-start: var(--spacing-24-48);
+
+      & :is(ul, ol) {
+        display: grid;
+        gap: var(--spacing-24-48);
+        padding: 0;
+        list-style: none;
+      }
+
+      & footer {
+        align-items: end;
+      }
+    }
+  }
+}

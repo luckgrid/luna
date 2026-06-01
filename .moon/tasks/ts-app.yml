@@ -2,6 +2,8 @@ inheritedBy:
   language: typescript
   layer: application
   stack: frontend
+  tags:
+    - solid-web-app
 
 fileGroups:
   configs:
@@ -55,6 +57,12 @@ tasks:
       - "clean"
       - "-fdx"
       - "--"
+      - ".nitro"
       - ".output"
+      - ".solid-start"
+      - ".vinxi"
+      - ".vite"
       - "dist"
       - "node_modules"
+    options:
+      cache: false

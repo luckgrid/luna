@@ -1,0 +1,182 @@
+/* Tooltip
+ *
+ * Tooltip motion: theme `fade-in-{top|bottom|left|right}` end at transform: translate(0, 0).
+ * Resting placement uses `translate` so the slide runs on `transform` only.
+ */
+
+@scope (:is([role="tooltip"], [data-tooltip], .tooltip)) {
+  /* Tooltip Base */
+  @layer base {
+    :scope {
+      --space: var(--spacing-6-12);
+
+      position: relative;
+
+      &::before,
+      &::after {
+        z-index: 99;
+        display: block;
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0;
+        transform: translate(0, -100%);
+        animation: none;
+        transition: var(--transition-action);
+      }
+
+      &::before {
+        translate: -50% calc(var(--space) * -1);
+        padding: var(--spacing-6-12) var(--spacing-12-24);
+        border-width: var(--border-width-1);
+        border-style: solid;
+        border-color: color-mix(in oklab, var(--color-bg) 20%, transparent);
+        background-color: color-mix(in oklab, var(--color-fg) 90%, var(--color-bg-2));
+        color: var(--color-bg);
+        content: attr(data-tooltip);
+        font-family: var(--font-sans);
+        font-size: var(--text-xs);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--text-xs--line-height);
+        letter-spacing: var(--text-xs--letter-spacing);
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @container (max-width: 28rem) {
+          box-sizing: border-box;
+          inline-size: 100%;
+          max-inline-size: 100%;
+          white-space: normal;
+          overflow-wrap: anywhere;
+          text-overflow: clip;
+        }
+      }
+
+      &::after {
+        --caret: calc(var(--space) * 0.55);
+
+        transform: translate(-50%, -100%);
+        translate: -50% calc(var(--caret) * -0.75);
+        border-top: var(--caret) solid color-mix(in oklab, var(--color-fg) 90%, var(--color-bg-2));
+        border-right: var(--caret) solid transparent;
+        border-left: var(--caret) solid transparent;
+        content: "";
+      }
+
+      &:is(:focus, :hover) {
+        &::before,
+        &::after {
+          animation: var(--animation-fade-in-top);
+        }
+      }
+
+      &:not(a, button, input, [role="button"], [role="link"]) {
+        text-decoration: none;
+        cursor: help;
+      }
+    }
+  }
+
+  /* Tooltip Variants */
+  @layer variants {
+    /* Tooltip placement reset (before side-specific borders) */
+    @scope (
+      :scope:is(
+        [data-placement="top"],
+        .tooltip-top,
+        [data-placement="bottom"],
+        .tooltip-bottom,
+        [data-placement="left"],
+        .tooltip-left,
+        [data-placement="right"],
+        .tooltip-right
+      )
+    ) {
+      :scope::before,
+      :scope::after {
+        bottom: auto;
+      }
+
+      :scope::after {
+        border: var(--caret) solid transparent;
+      }
+    }
+
+    /* Tooltip Bottom Placement Variant */
+    @scope (:scope:is([data-placement="bottom"], .tooltip-bottom)) {
+      :scope::before,
+      :scope::after {
+        transform: translate(0, 100%);
+      }
+
+      :scope::before {
+        translate: -50% var(--space);
+      }
+
+      :scope::after {
+        transform: translate(-50%, 100%);
+        translate: -50% calc(var(--caret) * -1);
+        border-bottom: var(--caret) solid
+          color-mix(in oklab, var(--color-fg) 90%, var(--color-bg-2));
+      }
+
+      :scope:is(:focus, :hover) {
+        &::before,
+        &::after {
+          animation: var(--animation-fade-in-bottom);
+        }
+      }
+    }
+
+    /* Tooltip Left Placement Variant */
+    @scope (:scope:is([data-placement="left"], .tooltip-left)) {
+      :scope::before,
+      :scope::after {
+        transform: translate(-100%, 0);
+      }
+
+      :scope::before {
+        translate: calc(var(--space) * -1) -50%;
+      }
+
+      :scope::after {
+        translate: var(--caret) -50%;
+        border-left: var(--caret) solid color-mix(in oklab, var(--color-fg) 90%, var(--color-bg-2));
+      }
+
+      :scope:is(:focus, :hover) {
+        &::before,
+        &::after {
+          animation: var(--animation-fade-in-left);
+        }
+      }
+    }
+
+    /* Tooltip Right Placement Variant (scoped subtree) */
+    @scope (:scope:is([data-placement="right"], .tooltip-right)) {
+      :scope::before,
+      :scope::after {
+        transform: translate(100%, 0);
+      }
+
+      :scope::before {
+        translate: var(--space) -50%;
+      }
+
+      :scope::after {
+        translate: calc(var(--caret) * -1) -50%;
+        border-right: var(--caret) solid color-mix(in oklab, var(--color-fg) 90%, var(--color-bg-2));
+      }
+
+      :scope:is(:focus, :hover) {
+        &::before,
+        &::after {
+          animation: var(--animation-fade-in-right);
+        }
+      }
+    }
+  }
+}

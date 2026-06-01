@@ -1,5 +1,13 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 100,
-  "ignorePatterns": ["**/node_modules/**", "**/.moon/cache/**", "**/.output/**", "**/.vinxi/**"]
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.moon/cache/**",
+    "**/.output/**",
+    "**/.vinxi/**",
+    "**/hugo_stats.json",
+    "**/layouts/**/*.html",
+    "**/templates/**/*.html"
+  ]
 }

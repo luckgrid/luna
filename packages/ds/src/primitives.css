@@ -1,0 +1,16 @@
+@layer primitives.base, primitives.variants, primitives.patterns;
+
+@import "./primitives/article.css";
+@import "./primitives/aside.css";
+@import "./primitives/button.css";
+@import "./primitives/details.css";
+@import "./primitives/dialog.css";
+@import "./primitives/figure.css";
+@import "./primitives/form.css";
+@import "./primitives/header.css";
+@import "./primitives/link.css";
+@import "./primitives/nav.css";
+@import "./primitives/progress.css";
+@import "./primitives/section.css";
+@import "./primitives/table.css";
+@import "./primitives/text.css";

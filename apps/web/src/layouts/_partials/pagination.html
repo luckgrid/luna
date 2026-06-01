@@ -1,0 +1,28 @@
+{{- $p := . -}}
+{{- if gt $p.TotalPages 1 -}}
+<nav aria-label="Pagination" data-pagination>
+  {{- if $p.HasPrev }}
+  <a href="{{ $p.Prev.URL }}" rel="prev" data-prev>
+    <small>Previous</small>
+    <span>Page {{ $p.Prev.PageNumber }}</span>
+  </a>
+  {{- end }}
+  <ol>
+    {{- range $p.Pagers }}
+    <li>
+      {{- if eq .PageNumber $p.PageNumber }}
+      <span aria-current="page">{{ .PageNumber }}</span>
+      {{- else }}
+      <a href="{{ .URL }}">{{ .PageNumber }}</a>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ol>
+  {{- if $p.HasNext }}
+  <a href="{{ $p.Next.URL }}" rel="next" data-next>
+    <small>Next</small>
+    <span>Page {{ $p.Next.PageNumber }}</span>
+  </a>
+  {{- end }}
+</nav>
+{{- end -}}

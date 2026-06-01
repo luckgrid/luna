@@ -1,0 +1,139 @@
+/* Aside */
+
+@scope (:is(aside, [data-aside])) {
+  /* Aside Base */
+  @layer base {
+    :scope {
+      min-inline-size: 0;
+      background-color: var(--color-bg);
+
+      /* Panel aside with mobile close bar — full-height scroll on small screens. */
+      &:has(> :is(header, [data-header])) {
+        padding-block-end: var(--spacing-container);
+
+        @media (max-width: 63.99rem) {
+          block-size: 100%;
+          min-block-size: 0;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+        }
+
+        @media (min-width: 64rem) {
+          block-size: auto;
+        }
+      }
+
+      /* aside children spacing resets */
+      & > * {
+        gap: var(--spacing-tap);
+        padding-inline: var(--aside-child-padding-inline, var(--spacing-container));
+      }
+
+      /* Mobile-only close bar inside panel — hidden once dialog is in-flow at ≥lg. */
+      & > :is(header, [data-header]) {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        min-block-size: var(--spacing-toolbar);
+        padding-block: var(--spacing-panel);
+
+        /* `@media` (not `@container`): lg uses initial rem (1024px); matches panel `@media`. */
+        @media (min-width: 64rem) {
+          display: none;
+        }
+
+        & :is(h1, h2, h3, h4, h5, h6) {
+          font-size: var(--text-xs);
+          font-weight: var(--font-weight-medium);
+          line-height: var(--text-xs--line-height);
+          letter-spacing: var(--text-xs--letter-spacing);
+          text-transform: uppercase;
+        }
+      }
+
+      & :is(nav, [role="navigation"]) {
+        flex-direction: column;
+        align-items: stretch;
+
+        & > :is(ol, ul) {
+          flex-direction: column;
+          align-items: stretch;
+          gap: var(--spacing-6-12);
+        }
+      }
+    }
+
+    /* TODO: move toc and details styles to separate component/primitive stylesheet */
+
+    /* Table of Contents — nested scope keeps TOC styles co-located with aside primitive. */
+    @scope (:is([data-toc])) {
+      :scope {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-6-12);
+        text-wrap: pretty;
+      }
+
+      /* TOC items (links, summaries, leaves) */
+      :scope :is([data-toc-item]) {
+        width: 100%;
+        color: currentColor;
+        font-size: var(--text-md);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--text-md--line-height);
+        letter-spacing: var(--text-md--letter-spacing);
+
+        & [data-toc-item] {
+          color: color-mix(in oklab, currentColor 80%, transparent);
+          font-size: var(--text-sm);
+          font-weight: var(--font-weight-medium);
+        }
+
+        &:is(a:not([role="button"])) {
+          text-decoration: none;
+          outline: none;
+
+          &:is(:hover, :focus, :active, :focus-visible) {
+            color: var(--color-accent);
+          }
+
+          &:focus-visible {
+            text-decoration: underline;
+          }
+
+          &[aria-current]:not([aria-current="false"]) {
+            color: var(--color-accent);
+            text-decoration: underline;
+          }
+        }
+      }
+
+      /* Nested groups rendered as <details> */
+      :scope :is(details, [data-collapsible]) {
+        border: none;
+        background-color: transparent;
+        overflow: visible;
+
+        & :is(summary, [data-trigger]) {
+          position: relative;
+          padding: 0;
+          justify-content: flex-start;
+          font-size: inherit;
+          font-weight: inherit;
+          line-height: inherit;
+          letter-spacing: inherit;
+        }
+
+        & :is([data-content], [data-slot]) {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-6-12);
+          padding-block: var(--spacing-6-12) 0;
+          padding-inline: var(--spacing-8-16) 0;
+        }
+      }
+    }
+  }
+}

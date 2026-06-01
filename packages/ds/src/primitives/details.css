@@ -1,0 +1,56 @@
+/* Details */
+
+@scope (:is(details)) {
+  /* Details Base */
+  @layer base {
+    :scope {
+      display: grid;
+      gap: 0;
+
+      /* Details Summary / Trigger */
+      & :is(summary, [data-trigger]) {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-4-6);
+        list-style-type: none;
+
+        &:focus-visible {
+          outline: var(--outline-width-2) solid
+            color-mix(in oklab, var(--color-accent) 80%, transparent);
+          outline-offset: var(--outline-offset-4);
+        }
+
+        /* Reset Marker */
+        &::-webkit-details-marker,
+        &::marker {
+          display: none;
+        }
+
+        &::-moz-list-bullet {
+          list-style-type: none;
+        }
+      }
+
+      /* Content / slot region */
+      & :is([data-content], [data-slot]) {
+        min-width: 0;
+      }
+
+      /* Open Details State */
+      &:is([open], [data-open]) {
+        &:has(:focus-visible) {
+          outline: var(--outline-width-2) solid
+            color-mix(in oklab, var(--color-accent) 80%, transparent);
+          outline-offset: var(--outline-offset-2);
+        }
+
+        & :is(summary, [data-trigger]) {
+          &:focus-visible {
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+}

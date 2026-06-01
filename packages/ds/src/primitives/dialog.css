@@ -1,0 +1,475 @@
+/* Dialog */
+
+@scope (:is(dialog)) {
+  /* Dialog Base */
+  @layer base {
+    :scope {
+      padding: 0;
+      border: 0;
+      outline: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background-color: transparent;
+      color: var(--color-fg);
+
+      /* Modal / centered dialogs — `[data-panel]` owns its own placement in variants. */
+      &:not(:is([data-panel], .panel)) {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: inherit;
+        height: inherit;
+        min-width: 100%;
+        min-height: 100%;
+      }
+
+      &::backdrop {
+        border: 0;
+        outline: none;
+        background-color: var(--color-backdrop);
+        -webkit-backdrop-filter: var(--filter-backdrop);
+        backdrop-filter: var(--filter-backdrop);
+      }
+
+      /* Hidden when neither dialog `[open]` nor popover showing (`:popover-open`).
+       * `[data-panel]` is excluded — popover UA + panel variant own show/hide. */
+      &:not(:is(:popover-open, [open])):not(:is([data-panel], .panel)),
+      &[open="false"] {
+        display: none;
+
+        &::backdrop {
+          display: none;
+        }
+      }
+
+      & > :is(article, [data-article], [data-card], .card) {
+        --size: var(--spacing-container);
+
+        overflow: auto;
+        position: relative;
+        width: 100%;
+        max-width: calc(100svw - var(--size) * 2);
+        max-height: calc(100svh - var(--size) * 2);
+        margin: var(--size);
+        background-color: var(--color-bg);
+
+        /* Close Button */
+        & :is(button, [role="button"])[rel="prev"] {
+          opacity: 0.5;
+
+          &:is(
+            [aria-current]:not([aria-current="false"]),
+            :hover,
+            :active,
+            :focus,
+            :focus-visible
+          ) {
+            opacity: 1;
+          }
+        }
+
+        /* Layout Slots */
+        & > :is(aside, [data-aside], header, [data-header], section, [data-section]) {
+          gap: var(--spacing-surface);
+        }
+
+        & > :is(footer, [data-footer]) {
+          gap: var(--spacing-8-16);
+
+          & :is([data-button="outline"], [data-button="ghost"], [data-button="text"]) {
+            order: 999;
+          }
+        }
+
+        @container (min-width: 30rem) {
+          & > footer {
+            flex-direction: row;
+            justify-content: flex-end;
+
+            & :is([data-button="outline"], [data-button="ghost"], [data-button="text"]) {
+              order: initial;
+            }
+          }
+        }
+
+        @container (min-width: 64rem) {
+          max-width: calc(60rem - var(--size) * 2);
+        }
+      }
+    }
+  }
+}
+
+/* Dialog Popover Variant
+ *
+ * Popover dialog with preview mode (hover) support.
+ */
+@scope (:is(dialog):is([data-popover], .popover)) {
+  @layer base {
+    :scope {
+      justify-content: end;
+      padding: var(--size);
+      background-color: transparent;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      pointer-events: none;
+
+      &::backdrop {
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          transparent 60%,
+          var(--color-backdrop) 80%,
+          var(--color-dark) 100%
+        );
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      /*
+       * Dialog popover preview: article clones inherit body heading breaks (layout.css);
+       * reset so anchor-sized hover cards do not degenerate into single-glyph lines.
+       */
+      & :where(h1, h2, h3, h4, h5, h6, hgroup, summary, figcaption) {
+        hyphens: manual;
+        word-break: normal;
+        overflow-wrap: normal;
+      }
+    }
+
+    /* Dialog popover card (preview / footnote content) */
+    @scope (:scope > :is(article, [data-article], [data-card], .card)) {
+      :scope {
+        position: relative;
+        display: flex;
+        flex: 0 1 auto;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        padding: var(--spacing-surface);
+        gap: var(--spacing-surface);
+        border-color: var(--color-accent);
+        overflow-x: visible;
+        overflow-y: auto;
+        overflow-wrap: anywhere;
+        color: var(--color-fg-1);
+
+        & :is(a:not([role="button"])) {
+          pointer-events: none;
+          color: inherit;
+          text-decoration: underline;
+          cursor: default;
+
+          /* Preview clones duplicate in-article links; keep them non-interactive and focus-free. */
+          &:is(:focus, :focus-visible) {
+            outline: none;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    /* Dialog popover footer (sibling of card, not inside) */
+    @scope (:scope > :is(footer, [data-footer])) {
+      :scope {
+        position: relative;
+        inline-size: 100%;
+        min-inline-size: 0;
+        display: flex;
+        flex-direction: row;
+        flex-shrink: 0;
+        justify-content: flex-end;
+        gap: var(--spacing-6-12);
+        margin-bottom: var(--spacing-container);
+        padding: 0;
+
+        & > :is(button, [role="button"]) {
+          --size: 1.25em;
+
+          min-inline-size: 0;
+          min-block-size: var(--size);
+          padding: var(--spacing-6-12);
+        }
+      }
+    }
+  }
+
+  @layer variants {
+    :scope:is(:popover-open, [open], [open="true"]) {
+      pointer-events: auto;
+
+      &[data-preview-mode="hover"] {
+        display: block;
+        pointer-events: none;
+
+        /* Reset backdrop styles for popover */
+        &::backdrop {
+          background: transparent;
+          pointer-events: none;
+        }
+
+        & > :is(article, [data-article], [data-card], .card) {
+          pointer-events: auto;
+        }
+      }
+    }
+
+    @container (min-width: 64rem) {
+      :scope::backdrop {
+        /* Dialog popover wide backdrop reset */
+        background: transparent;
+      }
+
+      :scope > :is(article, [data-article], [data-card], .card) {
+        inline-size: fit-content;
+        min-inline-size: min(100%, 20rem);
+        max-inline-size: calc(100svw - var(--size) * 2);
+        max-block-size: min(80svh, calc(100svh - var(--size) * 2));
+        overflow-x: visible;
+        overflow-y: auto;
+        word-break: normal;
+        overflow-wrap: normal;
+      }
+    }
+
+    /*
+     * Dialog popover hover preview: viewport + interaction media (match `canOpenHoverPreview()`
+     * in footnotes.ts — `matchMedia('(min-width: 64rem)')`, not `@container`).
+     */
+    @media (min-width: 64rem) {
+      @media (hover: hover) and (pointer: fine) and (any-pointer: fine) and (any-hover: hover) {
+        :scope {
+          justify-content: unset;
+          align-items: unset;
+        }
+
+        :scope > :is(footer, [data-footer]) {
+          display: none;
+          pointer-events: none;
+        }
+
+        :scope[data-preview-mode="hover"] > :is(article, [data-article], [data-card], .card) {
+          position: fixed;
+          inset: auto auto max(var(--size), 10svh) 50%;
+          translate: -50% 0;
+          inline-size: fit-content;
+          min-inline-size: min(100%, 20rem);
+          max-inline-size: calc(80svw - var(--size) * 2);
+          max-block-size: min(80svh, calc(100svh - var(--size) * 2));
+          width: 100%;
+          overflow-x: visible;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          justify-content: flex-start;
+          gap: var(--spacing-surface);
+          margin: 0;
+          word-break: normal;
+          overflow-wrap: normal;
+
+          /*
+           * Dialog popover hover card: anchor above trigger; `flip-block` / `flip-inline` fallbacks;
+           * `margin-block` gaps from ref; `position-visibility` avoids overflow (footnotes.ts anchor).
+           */
+          @supports (anchor-name: --fn-preview) {
+            position-anchor: --fn-preview;
+            position-visibility: no-overflow;
+            inset: auto;
+            translate: none;
+            top: auto;
+            right: auto;
+            bottom: anchor(top);
+            left: auto;
+            margin: var(--size);
+            justify-self: anchor-center;
+            position-try-fallbacks: flip-block, flip-inline;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Dialog Panel Variant
+ *
+ * Side panel / off-canvas drawer driven by the HTML popover API
+ * (`<dialog popover="auto">` + `<button popovertarget="…">`), no JS required.
+ * Wrap an <aside> (or any content) inside to keep complementary-landmark
+ * semantics — the dialog handles open/close + animation.
+ *
+ *   1. Mobile closed: popover UA `display: none`; exit uses discrete transitions.
+ *   2. Mobile open: `:popover-open` slides in (transform + opacity) + backdrop fade;
+ *      background scroll on `<main>` is locked (see `@layer patterns` below).
+ *   3. ≥lg: in-flow shell (position/static, no backdrop). Layout placement lives in
+ *      layouts/article.css patterns. Top-layer `:popover-open` cannot join grid —
+ *      apps/web syncs viewport in dialog-panel-viewport.js (loaded from baseof.html).
+ */
+@scope (:is(dialog):is([data-panel], .panel)) {
+  @layer base {
+    :scope {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    @scope (:scope > :is(aside, [data-aside])) {
+      :scope {
+        flex: 1 1 auto;
+        align-self: stretch;
+        block-size: 100%;
+        min-block-size: 0;
+
+        &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
+          padding-block-start: 0;
+        }
+      }
+    }
+  }
+
+  @layer variants {
+    /* Mobile off-canvas — scoped to small viewports only. */
+    @media (max-width: 63.99rem) {
+      :scope {
+        position: fixed;
+        inset-block: 0;
+        inset-inline-start: auto;
+        inset-inline-end: 0;
+        z-index: 90;
+        width: min(20rem, 100svw);
+        max-width: 100svw;
+        height: 100svh;
+        max-height: 100svh;
+        min-height: 0;
+        overflow: hidden;
+        background-color: var(--color-bg);
+        box-shadow: var(--shadow-2);
+        opacity: 0;
+        transform: translateX(100%);
+        transition: var(--transition-panel);
+
+        &::backdrop {
+          background-color: transparent;
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+          transition: var(--transition-backdrop);
+        }
+
+        &:is(:popover-open, [open], [open="true"]) {
+          opacity: 1;
+          transform: translateX(0);
+
+          &::backdrop {
+            background-color: var(--color-backdrop);
+            -webkit-backdrop-filter: var(--filter-backdrop);
+            backdrop-filter: var(--filter-backdrop);
+          }
+        }
+
+        @starting-style {
+          &:is(:popover-open, [open], [open="true"]) {
+            opacity: 0;
+            transform: translateX(100%);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          transition-duration: 0.01ms;
+        }
+      }
+    }
+
+    /* ≥lg — in-flow shell (open + closed); off-canvas rules are mobile-only above.
+     * Omit `position` / `top` / `inset` here — layouts.article.css patterns set static vs sticky. */
+    @media (min-width: 64rem) {
+      :scope,
+      :scope:is(:popover-open, [open], [open="true"]) {
+        /* Beat UA `[popover]:not(:popover-open) { display: none }` on desktop panels. */
+        display: flex;
+        z-index: auto;
+        align-items: flex-start;
+        justify-content: flex-start;
+        min-inline-size: 0;
+        min-block-size: 0;
+        inline-size: auto;
+        width: auto;
+        max-inline-size: none;
+        max-width: none;
+        min-width: 0;
+        block-size: auto;
+        height: auto;
+        max-block-size: none;
+        max-height: none;
+        min-height: 0;
+        margin: initial;
+        overflow: visible;
+        background-color: transparent;
+        box-shadow: none;
+        opacity: 1;
+        transform: none;
+        transition: none;
+        pointer-events: auto;
+
+        &::backdrop {
+          display: none;
+          background: transparent;
+          background-color: transparent;
+          pointer-events: none;
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+          transition: none;
+        }
+      }
+
+      :scope > :is(aside, [data-aside]) {
+        flex: none;
+        align-self: auto;
+        block-size: auto;
+        min-inline-size: 0;
+
+        &:is([data-sticky], .sticky) {
+          align-self: start;
+          flex: none;
+          block-size: auto;
+          min-block-size: 0;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+        }
+
+        &:has(> :is(header, [data-header]):is([data-sticky], .sticky)) {
+          padding-block-start: var(--spacing-container);
+        }
+      }
+    }
+  }
+
+  @layer patterns {
+    @starting-style {
+      :scope:popover-open::backdrop {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+/* Panel open — lock background scroll on `<main>` while mobile off-canvas is open. */
+@layer patterns {
+  :is(body, [data-body]):has(> :is(dialog):is([data-panel], .panel):popover-open)
+    > :is(main, [data-main]),
+  :is(main, [data-main]):has(> :is(dialog):is([data-panel], .panel):popover-open) {
+    overflow: hidden;
+
+    @media (min-width: 64rem) {
+      overflow: visible;
+    }
+  }
+}

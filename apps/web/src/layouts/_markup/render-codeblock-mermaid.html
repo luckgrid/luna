@@ -1,0 +1,15 @@
+{{- /*
+  Render hook: code block — language=mermaid.
+  Emits <pre class="mermaid"> with the source escaped; loads the mermaid CDN lib once per page
+  (gated via .Page.Store) so pages without mermaid don't pay the cost.
+  Hugo: https://gohugo.io/render-hooks/code-blocks/
+  Theme reference: https://github.com/alex-shpak/hugo-book/blob/main/layouts/_markup/render-codeblock-mermaid.html
+*/ -}}
+<pre class="mermaid" data-mermaid>{{- .Inner | htmlEscape | safeHTML -}}</pre>
+{{- if not (.Page.Store.Get "hasMermaid") -}}
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  </script>
+  {{- .Page.Store.Set "hasMermaid" true -}}
+{{- end -}}

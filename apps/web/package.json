@@ -1,8 +1,13 @@
 {
   "name": "web",
   "private": true,
-  "description": "Luna static marketing/content site (Go + templ + goldmark).",
-  "devDependencies": {
+  "description": "Luna static marketing/content site (Hugo + Tailwind v4 + @luna/ds).",
+  "type": "module",
+  "dependencies": {
     "@luna/ds": "workspace:*"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
   }
 }

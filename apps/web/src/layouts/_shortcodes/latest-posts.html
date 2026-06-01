@@ -1,0 +1,24 @@
+{{- $path := .Get "section" | default "/posts" -}}
+{{- $count := .Get "count" | default "3" | int -}}
+{{- $label := .Get "label" | default "Latest posts" -}}
+{{- with site.GetPage $path -}}
+  {{- $listed := where .Pages "Kind" "page" -}}
+  {{- $sorted := sort $listed "Date" "desc" -}}
+  {{- with first $count $sorted }}
+  <section data-list aria-label="{{ $label }}">
+    <header>
+      <hgroup>
+        <h2>{{ $label }}</h2>
+      </hgroup>
+    </header>
+    <ul>
+      {{- range . }}
+      <li>{{ partial "article-card.html" . }}</li>
+      {{- end }}
+    </ul>
+    <footer>
+      <a href="{{ $path }}" data-button="ghost" role="button">Browse the catalog</a>
+    </footer>
+  </section>
+  {{- end -}}
+{{- end -}}

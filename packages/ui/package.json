@@ -7,23 +7,22 @@
   "exports": {
     "./button": "./src/action/button.tsx",
     "./accordion": "./src/display/accordion.tsx",
+    "./brand": "./src/display/brand.tsx",
     "./input": "./src/form/input.tsx",
     "./link": "./src/navigation/link.tsx",
+    "./breadcrumbs": "./src/navigation/breadcrumbs.tsx",
     "./tooltip": "./src/feedback/tooltip.tsx",
     "./utils": "./src/utils/core.ts",
     "./utils/*": "./src/utils/*.ts"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
   "dependencies": {
     "clsx": "^2.1.1",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "typescript": "^6"
+    "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "solid-js": "^1.9.12"
+    "solid-js": "^1.9.13"
   }
 }

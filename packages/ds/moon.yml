@@ -2,6 +2,9 @@ language: typescript
 layer: library
 stack: "frontend"
 
+tags:
+  - bun-ts-lib
+
 project:
   name: "ds"
   description: "Luna design-system styles and CSS-first tokens."
@@ -9,4 +12,5 @@ project:
 workspace:
   inheritedTasks:
     include:
+      - "clean"
       - "typecheck"

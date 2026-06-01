@@ -2,9 +2,15 @@
 # In moon v2, package manager and JS-wide settings live under `javascript:`.
 javascript:
   packageManager: bun
+  # Moon’s InstallDependencies runs before tasks; redundant after `bun install` in `bun run setup`,
+  # and it slows persistent targets (`dev`). Safe now that the root lifecycle is `setup`, not `install`.
+  installDependencies: false
 
 # Enable Bun (proto-pinned via `.prototools`).
-bun: {}
+bun:
+  # Belt-and-suspenders if InstallDependencies is ever re-enabled.
+  installArgs:
+    - "--ignore-scripts"
 
 # Python is still unstable in moon v2 and is intentionally NOT enabled here.
 # `apps/api` declares `language: python` and uses an explicit `uv sync` `build`

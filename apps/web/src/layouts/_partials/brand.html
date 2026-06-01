@@ -1,0 +1,11 @@
+{{- $page := .page | default . -}}
+{{- $showName := .showName | default false -}}
+<a href='{{ "/" | relURL }}' aria-label="{{ $page.Site.Title }}" data-brand>
+  <img
+    src='{{ ($page.Site.Params.og_image | default "/favicon.svg") | relURL }}'
+    alt=""
+    width="24"
+    height="24"
+  />
+  {{- if $showName }}<span>{{ $page.Site.Title }}</span>{{ end -}}
+</a>

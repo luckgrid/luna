@@ -1,0 +1,8 @@
+<footer>
+  <nav aria-label="Footer navigation">
+    {{- partial "navigation.html" (dict "page" .) -}}
+  </nav>
+  <small>
+    &copy; {{ now.Format "2006" }} {{ .Site.Title }}</a>
+  </small>
+</footer>

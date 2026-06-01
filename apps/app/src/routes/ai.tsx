@@ -1,8 +1,9 @@
 import { createSignal, For } from "solid-js";
-import { Title } from "@solidjs/meta";
 
-// API URL from Nitro public config (no VITE_ prefix needed)
-const API_BASE_URL = import.meta.env.NITRO_PUBLIC_API_BASE_URL || "http://localhost:8080";
+import { Hero } from "~/components/hero";
+
+// Python FastAPI (`apps/api`, default API_PORT 8000); see vite.config.ts + root .env.local
+const API_BASE_URL = import.meta.env.NITRO_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 type Message = {
   role: "user" | "assistant";
@@ -20,6 +21,7 @@ export default function AI() {
     const userMessage = message().trim();
     if (!userMessage || loading()) return;
 
+    const history = messages();
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setMessage("");
     setLoading(true);
@@ -30,8 +32,8 @@ export default function AI() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          history,
           message: userMessage,
-          history: messages(),
         }),
       });
 
@@ -90,13 +92,7 @@ export default function AI() {
 
   return (
     <main>
-      <Title>AI | Luna</Title>
-      <header>
-        <hgroup>
-          <h1>Luna AI</h1>
-          <p>Chat with AI powered by Pydantic AI + FastAPI.</p>
-        </hgroup>
-      </header>
+      <Hero title="Luna AI" description="Chat with AI powered by Pydantic AI + FastAPI." />
 
       <section class="chat-container">
         <div class="chat-messages">
@@ -111,7 +107,7 @@ export default function AI() {
           </For>
           {loading() && (
             <div class="message message-assistant">
-              <div class="message-content loading">Thinking...</div>
+              <div class="message-content loading">Thinking</div>
             </div>
           )}
           {error() && (

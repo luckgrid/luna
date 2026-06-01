@@ -1,0 +1,119 @@
+/* Card */
+
+@scope (:is([data-card], .card)) {
+  /* Card Base */
+  @layer base {
+    :scope {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: end;
+      gap: var(--spacing-surface);
+      padding: var(--spacing-surface);
+      box-shadow: var(--shadow-3);
+      border-style: solid;
+      border-width: var(--border-width-2);
+      border-color: var(--color-fg);
+      background-color: color-mix(in oklab, var(--color-bg-1) 2%, transparent);
+      color: var(--color-fg);
+      font-family: var(--font-sans);
+
+      /* Card Typography */
+      & :is(p, small) {
+        color: var(--color-fg-3);
+      }
+
+      & hgroup {
+        gap: var(--spacing-12-24);
+      }
+
+      /* Card Layout */
+      & :is(header, footer, aside, section) {
+        gap: var(--spacing-surface);
+      }
+    }
+  }
+
+  /* Card Variants */
+  @layer variants {
+    /* Card Form Variant (scoped subtree) */
+    @scope (:scope:is(form)) {
+      :scope {
+        gap: var(--spacing-16-32);
+        justify-content: stretch;
+      }
+
+      :scope > footer {
+        position: sticky;
+        bottom: calc(-1 * var(--spacing-surface));
+        margin: calc(-1 * var(--spacing-surface));
+        padding: var(--spacing-surface);
+        background-color: var(--color-bg-1);
+      }
+    }
+
+    /* Card Action Variant (scoped subtree) */
+    @scope (:scope:is(a, button, [role="button"])) {
+      :scope {
+        text-decoration: none;
+        transition: var(--transition-action);
+
+        &:is(:hover, :focus, :active, :focus-visible) {
+          border-color: var(--color-accent);
+          background-color: color-mix(in oklab, var(--color-accent) 2%, transparent);
+          box-shadow: var(--shadow-2);
+          text-decoration: none;
+        }
+
+        &:is(:focus, :active) {
+          box-shadow: var(--shadow-1);
+        }
+
+        &:focus-visible {
+          box-shadow: none;
+          outline: var(--outline-width-2) solid
+            color-mix(in oklab, var(--color-accent) 80%, transparent);
+          outline-offset: var(--outline-offset-2);
+        }
+      }
+    }
+  }
+
+  /* Card Patterns */
+  @layer patterns {
+    /* Card Action Pattern */
+    @scope (:scope:is(a, button, [role="button"], [role="link"])) {
+      :scope {
+        position: relative;
+
+        & [data-icon="arrow"] {
+          opacity: 0;
+          pointer-events: none;
+          position: absolute;
+          right: var(--spacing-surface);
+          top: 50%;
+          transform: translate(-0.5em, -50%);
+          transition: var(--transition-action);
+        }
+
+        &:is(:hover, :focus, :active, :focus-visible) [data-icon="arrow"] {
+          opacity: 0.5;
+          transform: translate(0.5em, -50%);
+        }
+      }
+    }
+
+    /* Card List Pattern */
+    @scope (:scope :is([data-list])) {
+      :scope {
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: space-between;
+
+        & hgroup {
+          gap: var(--spacing-8-16);
+        }
+      }
+    }
+  }
+}

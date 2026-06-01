@@ -1,0 +1,17 @@
+language: typescript
+stack: systems
+
+tags:
+  - bun-ts-lib
+
+project:
+  name: cli
+  description: "Bun-native `luna` CLI: dependency tooling today; design-system / UI commands later."
+
+workspace:
+  inheritedTasks:
+    include:
+      - "clean"
+      - "typecheck"
+      - "build"
+      - "dev"

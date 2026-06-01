@@ -1,0 +1,39 @@
+{{- /*
+  Load ordered JS assets once per page (optionally concatenated in production).
+
+  Params (dict):
+    page       — Hugo Page (for .Store)
+    storeKey   — unique Store gate key
+    files      — slice of asset paths under src/assets/ (e.g. "js/filter-utils.js")
+    bundleName — output basename for concat (defaults to storeKey)
+*/ -}}
+{{- $page := .page -}}
+{{- $storeKey := .storeKey -}}
+{{- $bundleName := .bundleName | default $storeKey -}}
+{{- if not ($page.Store.Get $storeKey) -}}
+  {{- $assets := slice -}}
+  {{- range .files -}}
+    {{- with resources.Get . -}}
+      {{- $assets = $assets | append . -}}
+    {{- else -}}
+      {{- warnf "js asset missing: %s" . -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if gt (len $assets) 0 -}}
+    {{- if hugo.IsDevelopment -}}
+      {{- range $assets -}}
+    <script src="{{ .RelPermalink }}" defer></script>
+      {{- end -}}
+    {{- else -}}
+      {{- with $assets | resources.Concat (printf "js/%s.bundle.js" $bundleName) | minify | fingerprint -}}
+    <script
+      src="{{ .RelPermalink }}"
+      integrity="{{ .Data.Integrity }}"
+      crossorigin="anonymous"
+      defer
+    ></script>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $page.Store.Set $storeKey true -}}
+{{- end -}}

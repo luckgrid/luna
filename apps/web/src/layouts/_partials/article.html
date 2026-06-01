@@ -1,0 +1,14 @@
+{{- $page := . -}}
+{{- $footer := false -}}
+{{- if isset . "footer" -}}
+  {{- $page = .page -}}
+  {{- $footer = .footer -}}
+{{- end -}}
+{{- with $page.Content -}}
+<article>
+  {{ . }}
+  {{- if $footer -}}
+  {{- partial "article-footer.html" $page -}}
+  {{- end -}}
+</article>
+{{- end -}}

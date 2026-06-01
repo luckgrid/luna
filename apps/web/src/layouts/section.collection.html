@@ -1,0 +1,22 @@
+{{ define "main" }}
+{{- partial "header.html" . -}}
+<dialog id="side-panel" popover="auto" data-panel data-side="end">
+  <aside aria-label="Collection navigation" data-sticky>
+    {{- partial "article-collection.html" . -}}
+    {{- $toc := partial "toc-visibility.html" . -}}
+    {{- if $toc.show -}}
+    {{- partial "article-toc.html" . -}}
+    {{- end -}}
+  </aside>
+</dialog>
+<main>
+  {{- partial "article-header.html" . -}}
+  {{- partial "article.html" . -}}
+  {{- $toc := partial "toc-visibility.html" . -}}
+  {{- if $toc.show -}}
+  <aside aria-label="Article table of contents" data-sticky>
+    {{- partial "article-toc.html" . -}}
+  </aside>
+  {{- end -}}
+</main>
+{{ end }}

@@ -2,6 +2,9 @@ language: typescript
 layer: application
 stack: frontend
 
+tags:
+  - solid-web-app
+
 project:
   name: app
   description: Luna interactive/SSR app built with SolidStart.

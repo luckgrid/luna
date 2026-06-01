@@ -1,7 +1,6 @@
 import type { JSX, ParentProps } from "solid-js";
 
 import { Link } from "../navigation/link";
-import { cx } from "../utils/core";
 
 export type ButtonProps = ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>;
 
@@ -13,46 +12,46 @@ export function Button(props: ButtonProps) {
   return <button type="button" {...props} />;
 }
 
-export function PrimaryButton(props: ButtonProps) {
-  return <Button {...props} class={cx("button-primary", props.class)} />;
-}
-
-export function SecondaryButton(props: ButtonProps) {
-  return <Button {...props} class={cx("button-secondary", props.class)} />;
-}
-
-export function AlertButton(props: ButtonProps) {
-  return <Button {...props} class={cx("button-alert", props.class)} />;
-}
-
 export function GhostButton(props: ButtonProps) {
-  return <Button {...props} class={cx("button-ghost", props.class)} />;
+  return <Button {...props} data-button="ghost" />;
+}
+
+export function HollowButton(props: ButtonProps) {
+  return <Button {...props} data-button="hollow" />;
+}
+
+export function IconButton(props: ButtonProps) {
+  return <Button {...props} data-button="icon" />;
 }
 
 export function TextButton(props: ButtonProps) {
-  return <Button {...props} class={cx("button-text", props.class)} />;
+  return <Button {...props} data-button="text" />;
+}
+
+export function WrapperButton(props: ButtonProps) {
+  return <Button {...props} data-button="wrapper" />;
 }
 
 export function ButtonLink(props: ButtonLinkProps) {
   return <Link role="button" {...props} />;
 }
 
-export function PrimaryButtonLink(props: ButtonLinkProps) {
-  return <ButtonLink {...props} class={cx("button-primary", props.class)} />;
-}
-
-export function SecondaryButtonLink(props: ButtonLinkProps) {
-  return <ButtonLink {...props} class={cx("button-secondary", props.class)} />;
-}
-
-export function AlertButtonLink(props: ButtonLinkProps) {
-  return <ButtonLink {...props} class={cx("button-alert", props.class)} />;
-}
-
 export function GhostButtonLink(props: ButtonLinkProps) {
-  return <ButtonLink {...props} class={cx("button-ghost", props.class)} />;
+  return <ButtonLink {...props} data-button="ghost" />;
+}
+
+export function HollowButtonLink(props: ButtonLinkProps) {
+  return <ButtonLink {...props} data-button="hollow" />;
+}
+
+export function IconButtonLink(props: ButtonLinkProps) {
+  return <ButtonLink {...props} data-button="icon" />;
 }
 
 export function TextButtonLink(props: ButtonLinkProps) {
-  return <ButtonLink {...props} class={cx("button-text", props.class)} />;
+  return <ButtonLink {...props} data-button="text" />;
+}
+
+export function WrapperButtonLink(props: ButtonLinkProps) {
+  return <ButtonLink {...props} data-button="wrapper" />;
 }

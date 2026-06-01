@@ -1,0 +1,2 @@
+{{- $kind := .Get 0 | default "note" -}}
+<div role="note" data-alert="{{ $kind }}">{{- .Inner | markdownify -}}</div>
