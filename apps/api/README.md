@@ -1,30 +1,70 @@
-# API
+# `api`
 
-FastAPI + Pydantic AI backend for AI features.
+FastAPI + Pydantic AI backend for Luna.
 
-## Setup
+## Purpose
+
+The Python API service for Luna's AI features and backend logic. Provides REST endpoints, Pydantic validation, and AI agent patterns. Communicates with the SolidStart app (`apps/app`) and static site (`apps/web`) as separate processes.
+
+## Stack
+
+- 🐍 [Python](https://www.python.org/) — runtime
+- 🚀 [FastAPI](https://fastapi.tiangolo.com/) — API framework
+- 🤖 [Pydantic AI](https://ai.pydantic.dev/) — AI agent patterns
+- ✅ [Pydantic](https://docs.pydantic.dev/) — schemas and validation
+- ⚙️ [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) — environment-driven settings
+- 🌐 [Uvicorn](https://www.uvicorn.org/) — ASGI server
+
+See root [README Tech Stacks](../../README.md#tech-stacks) for toolchain details.
+
+## Features
+
+- **REST endpoints** — health check, AI chat with SSE streaming
+- **Pydantic models** — request/response validation
+- **AI integration** — Pydantic AI agent patterns for backend AI features
+- **CORS configuration** — cross-service communication with app and web
+- **Environment-driven config** — settings via pydantic-settings
+
+## Local Development
+
+From the workspace root:
 
 ```sh
-# Install dependencies
-cd apps/api
-uv sync
+moon run api:dev
 ```
 
-## Run
+From this directory:
 
 ```sh
-# Via moon (recommended - uses root .env.local)
-moon run api:dev
-
-# Or directly with uvicorn
+uv sync
 uv run uvicorn src.main:app --reload --port 8000
 ```
 
-## Configuration
+Default port: `API_PORT` (`8000`).
 
-Configuration is managed via environment variables from the root `.env.local` file. This ensures consistent config across all apps in the monorepo.
+## Build and run
 
-### Environment Variables
+From the workspace root:
+
+```sh
+moon run api:build
+moon run api:start
+```
+
+From this directory:
+
+```sh
+uv sync
+uv run uvicorn src.main:app --port 8000
+```
+
+## App Configs
+
+- project config: [`moon.yml`](moon.yml)
+- Python config: [`pyproject.toml`](pyproject.toml)
+- environment: root [`.env.local`](../../.env.local)
+
+## Environment Variables
 
 | Variable         | Description                                  | Default     |
 | ---------------- | -------------------------------------------- | ----------- |
@@ -38,69 +78,24 @@ Configuration is managed via environment variables from the root `.env.local` fi
 | `AI_MODEL`       | AI model to use (e.g., `openai:gpt-4o-mini`) | -           |
 | `OPENAI_API_KEY` | API key for the AI provider                  | -           |
 
-### Root .env.local
-
-All apps share a single `.env.local` in the repository root. This file contains environment-specific values for all services:
-
-```sh
-# Ports
-API_PORT=8000
-APP_PORT=3000
-WEB_PORT=3001
-
-# Hosts
-API_HOST=localhost
-APP_HOST=localhost
-WEB_HOST=localhost
-
-# URLs
-API_BASE_URL=http://localhost:8000
-APP_BASE_URL=http://localhost:3000
-WEB_BASE_URL=http://localhost:3001
-
-# Database
-DATABASE_URL=sqlite+aiosqlite:///./data.db
-
-# AI
-AI_MODEL=openai:gpt-4o-mini
-OPENAI_API_KEY=your-api-key-here
-
-# Dev
-DEBUG=true
-```
-
-Moon automatically loads the root `.env.local` into tasks (`dev`, `start`, `test`) using the `envFile` option in `moon.yml`. This passes all environment variables to the running application.
-
-### App-level .env (Fallback)
-
-The API app also has its own `.env.local` for local development fallback. Variable names should match the root for consistency.
-
 ## Project Structure
 
 ```text
-src/
-├── ai/                    # AI domain
-│   ├── config.py          # AI-specific configuration
-│   ├── router.py          # API endpoints
-│   ├── schemas.py         # Pydantic models
-│   └── service.py         # Business logic
-├── config.py              # Global application configuration
-├── database.py            # Database connection
-├── exceptions.py          # Global exceptions
-├── main.py                # FastAPI app initialization
-└── models.py              # Global models
+api/
+├── src/
+│   ├── ai/               # AI domain (config, router, schemas, service)
+│   ├── config.py         # Application configuration
+│   ├── database.py       # Database connection
+│   ├── exceptions.py     # Global exceptions
+│   ├── main.py           # FastAPI app initialization
+│   └── models.py         # Global models
+├── tests/                # Test files
+└── data.db               # SQLite database (local dev)
 ```
 
 ## API Endpoints
 
-- `GET /health` - Health check
-- `GET /docs` - API documentation (Swagger UI)
-- `GET /redoc` - API documentation (ReDoc)
-- `POST /api/v1/chat` - Chat endpoint with SSE streaming
-
-## Resources
-
-- [FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices)
-- [Pydantic AI Documentation](https://ai.pydantic.dev/)
-- [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
-- [Moon Repository Manager](https://moonrepo.dev/docs)
+- `GET /health` — Health check
+- `GET /docs` — API documentation (Swagger UI)
+- `GET /redoc` — API documentation (ReDoc)
+- `POST /api/v1/chat` — Chat endpoint with SSE streaming
