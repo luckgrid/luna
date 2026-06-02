@@ -23,13 +23,13 @@ Commands:
   update
       Refreshes toolsets that have actionable upgrades under the current policy (skips tiers already up to date):
         Proto (\`proto outdated --update\`, then per-pin \`proto install\` from \`.proto/logs/\` so failure logs stay out of the repo root; Python may fall back to \`--build\` if no pre-built exists);
-        Bun (\`bun update --recursive\` and per-workspace manifests, then \`bun add pkg@latest\` per workspace for non-major bumps that caret semver leaves stuck — e.g. 0.x → 0.x+1);
+        Bun (\`bun update --recursive\` and per-workspace manifests, then \`bun add pkg@newest\` for the \`Update\` column and optional range-widen adds);
         uv (\`uv lock --upgrade\` + \`uv sync\`) per Python project;
-        Go per module root: tool-only (\`go get -u=patch\` per \`tool\` line, or \`go get -tool @latest\` with \`--major\`) +
+        Go per module root: tool-only (\`go get -tool @newest\` from \`go list -m -u\`, or \`@latest\` with \`--major\`) +
           \`go mod tidy\` + \`go tool\` smoke-test; code modules (\`go get -u all\` + tidy + \`go build ./...\` when packages exist);
         then \`bun run setup\` (root \`package.json\` script: proto, workspaces, \`moon run web:setup\`, api build).
       Only true major bumps (leading non-zero version digit changing, e.g. 1.x → 2.x) are blocked — use \`--major\` to apply them.
-      Precheck reuses \`.cache/outdated-snapshot.json\` when the fingerprint matches (run \`luna outdated\` first). Pass \`--refresh-outdated\` (or \`LUNA_UPDATE_REFRESH_OUTDATED=1\`) to rescan live. Exits early when nothing is actionable (e.g. only major bumps remain).
+      Precheck reuses \`.cache/outdated-snapshot.json\` when the fingerprint matches and \`writtenAt\` is under 12 hours old (otherwise rescans automatically). Pass \`--refresh-outdated\` (or \`LUNA_UPDATE_REFRESH_OUTDATED=1\`) to force a live rescan. Exits early when nothing is actionable (e.g. only major bumps remain).
 
   update --major
       Same pipeline with Proto \`--latest\`, Bun \`update --latest\`, plus Bun prerelease catch-up where needed;

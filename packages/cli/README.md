@@ -7,7 +7,7 @@
 | Command               | Description                                                                                                                                                                                                                                                                                                 |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `luna outdated`       | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins (proto, moon, bun, python, go), Bun workspaces, uv lock, or Go modules have upgrades (CI-friendly). Tool-only Go modules use `go list -m -u` on `tool` lines; code modules use `go get -n -u all`. |
-| `luna update`         | Refresh proto pins **within manifest constraints**, Bun workspaces **within semver ranges** (no major bumps), uv lock + sync, Go modules (tool-only: `go get -u=patch` per tool; code: `go get -u all`), then root `bun run setup`. Safe default for CI/dev.                                                |
+| `luna update`         | Refresh proto pins **within manifest constraints**, Bun workspaces to **newest within ranges** (`bun add pkg@newest` after `bun update`), uv lock + sync, Go modules (tool-only: `go get -tool @newest` from `go list -m -u`; code: `go get -u all`), then root `bun run setup`. Safe default for CI/dev.   |
 | `luna update --major` | Same as `luna update` but also applies **major-version bumps** (`bun update --latest`, `proto outdated --update --latest`) and runs the prerelease catch-up step.                                                                                                                                           |
 
 Root shortcuts: `bun run outdated`, `bun run update` (no major). For majors, run `bunx luna update --major` (or add a `update:major` script).
@@ -19,7 +19,7 @@ Global flags: `-h` / `--help`, `-v` / `-V` / `--version`.
 ## Go modules (Hugo / `go tool`)
 
 - **Moon**: same discovery as Python, filtered by `language: go` and `go.mod` (e.g. `apps/web`).
-- **Tool-only** (no local `.go` packages, only `tool` lines in `go.mod`): `luna outdated` runs `go list -m -u` on each tool path (~1s); `luna update` runs `go get -u=patch` per tool (not `go get -u all` across Hugo’s transitive graph).
+- **Tool-only** (no local `.go` packages, only `tool` lines in `go.mod`): `luna outdated` runs `go list -m -u` on each tool path (~1s); `luna update` runs `go get -tool @newest` per tool (not `go get -u all` across Hugo’s transitive graph).
 - **Code modules**: full-graph `go get -n -u all` / `go get -u all` plus `go build ./...` when packages exist.
 - **`LUNA_GO_FULL_GRAPH=1`**: force the legacy full-graph probe/update on tool-only modules.
 

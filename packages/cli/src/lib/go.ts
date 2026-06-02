@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { isRealMajorBump } from "./bun";
 import {
   envFlagEnabled,
   nonEmptyLines,
-  semverCoreParts,
   spawnSyncCaptured,
   spawnText,
   spawnTextAsync,
@@ -135,15 +135,9 @@ export function goModuleOutdatedHasChanges(
   return goGetDryRunHasModuleChanges(out);
 }
 
-function isPatchOnlyBump(from: string, to: string): boolean {
-  const [fMaj, fMin] = semverCoreParts(from);
-  const [tMaj, tMin, tPat] = semverCoreParts(to);
-  const [, , fPat] = semverCoreParts(from);
-  return fMaj === tMaj && fMin === tMin && tPat > fPat;
-}
-
 /**
- * True when `luna update` would change this module (respects `--major` and tool-only patch policy).
+ * True when `luna update` would change this module (respects `--major` policy).
+ * Default mode applies `go list -m -u` newest (`[v…]`), not registry-latest majors.
  */
 export function goModuleHasActionableUpdates(
   out: string,
@@ -151,15 +145,29 @@ export function goModuleHasActionableUpdates(
   major: boolean,
 ): boolean {
   if (!goModuleOutdatedHasChanges(out, probe)) return false;
-  if (major || probe !== "tool-list") return true;
+  if (major) return true;
+  if (probe !== "tool-list") return true;
+  for (const bump of parseGoListModuleUpgradeTargets(out)) {
+    if (bump.current === bump.newest) continue;
+    if (!isRealMajorBump(bump.current, bump.newest)) return true;
+  }
+  return false;
+}
+
+export type GoToolNewestBump = { module: string; current: string; newest: string };
+
+/** Tool module paths and newest versions from `go list -m -u` (`[v…]` column). */
+export function parseGoListModuleUpgradeTargets(out: string): GoToolNewestBump[] {
+  const rows: GoToolNewestBump[] = [];
   for (const line of out.split("\n")) {
     const m = /^(\S+)\s+(\S+)\s+\[(\S+)\]/.exec(line.trim());
     if (!m) continue;
+    const module = m[1];
     const current = m[2];
     const newest = m[3];
-    if (current && newest && isPatchOnlyBump(current, newest)) return true;
+    if (module && current && newest) rows.push({ module, current, newest });
   }
-  return false;
+  return rows;
 }
 
 /** Parse `go list -m -u` lines with `[v…]` upgrade hints (tool-only modules). */

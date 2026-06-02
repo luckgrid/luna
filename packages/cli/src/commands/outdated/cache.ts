@@ -105,8 +105,24 @@ export function writeOutdatedCache(repoRoot: string, snap: StoredOutdatedSnapsho
   renameSync(tmpPath, finalPath);
 }
 
+/** Max age before `luna update` refreshes a fingerprint-valid snapshot automatically. */
+export const OUTDATED_SNAPSHOT_STALE_MS = 12 * 60 * 60 * 1000;
+
+export type OutdatedCacheEntry = {
+  snap: StoredOutdatedSnapshot;
+  writtenAt: string;
+};
+
+export function isOutdatedSnapshotStale(
+  writtenAt: string,
+  maxAgeMs = OUTDATED_SNAPSHOT_STALE_MS,
+): boolean {
+  const t = Date.parse(writtenAt);
+  if (Number.isNaN(t)) return true;
+  return Date.now() - t >= maxAgeMs;
+}
 /** Returns cached snapshot only when file exists, schema matches, and fingerprint still matches disk. */
-export function tryReadOutdatedCache(repoRoot: string): StoredOutdatedSnapshot | null {
+export function tryReadOutdatedCacheEntry(repoRoot: string): OutdatedCacheEntry | null {
   const finalPath = cacheJsonPath(repoRoot);
   if (!existsSync(finalPath)) return null;
   let raw: unknown;
@@ -119,7 +135,12 @@ export function tryReadOutdatedCache(repoRoot: string): StoredOutdatedSnapshot |
   const o = raw;
   if (o.lunaSchema !== CACHE_SCHEMA) return null;
   if (typeof o.fingerprint !== "string") return null;
+  if (typeof o.writtenAt !== "string") return null;
   if (o.fingerprint !== computeOutdatedFingerprint(repoRoot)) return null;
   if (!isStoredSnapshot(o.snap)) return null;
-  return o.snap;
+  return { snap: o.snap, writtenAt: o.writtenAt };
+}
+
+export function tryReadOutdatedCache(repoRoot: string): StoredOutdatedSnapshot | null {
+  return tryReadOutdatedCacheEntry(repoRoot)?.snap ?? null;
 }

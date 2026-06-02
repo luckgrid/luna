@@ -54,7 +54,7 @@ export function printUpdatePlanSummary(
     strictOk(
       major
         ? "Go — skip (no actionable module bumps)"
-        : "Go — skip (only non-patch upgrades on tool-only modules; use --major)",
+        : "Go — skip (only major bumps available on tool-only modules; use --major)",
     );
   } else if (snap.goModules.length === 0) {
     strictOk("Go — skip (no go.mod projects discovered)");

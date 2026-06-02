@@ -2,14 +2,17 @@ import {
   bunWorkspaceOutdatedFromOutput,
   captureBunOutdatedRecursive,
   collectInRangeMinorBumps,
+  collectNewestBumps,
   collectPrereleaseBumps,
   listBunWorkspacePackageDirs,
-  runPrereleaseBumps,
+  runWorkspaceVersionBumps,
   syncRootPackageManagerBun,
 } from "../../lib/bun";
 import {
+  captureGoListToolUpgrades,
   goFullGraphOutdatedEnabled,
   isGoModuleToolOnly,
+  parseGoListModuleUpgradeTargets,
   readGoModToolPaths,
   verifyGoModuleAfterDependencyUpdate,
 } from "../../lib/go";
@@ -91,8 +94,8 @@ export async function runUpdate(opts: RunUpdateOptions): Promise<number> {
   if (plan.bun) {
     section(
       major
-        ? "Bun — bump workspace deps to latest (incl. major)"
-        : "Bun — bump workspace deps within ranges (no major)",
+        ? "Bun — bump workspace deps to registry latest (incl. major)"
+        : "Bun — bump workspace deps to newest within ranges (no major)",
     );
     requireCmd("bun");
     const bunUpdateBase = major
@@ -108,19 +111,24 @@ export async function runUpdate(opts: RunUpdateOptions): Promise<number> {
       runOrExit(spawnExit([...bunUpdateBase], { cwd: dir }), `bun update (${label})`);
     }
 
-    if (major) {
-      const bunOutPost = captureBunOutdatedRecursive(repoRoot);
-      if (bunWorkspaceOutdatedFromOutput(bunOutPost)) {
+    const bunOutPost = captureBunOutdatedRecursive(repoRoot);
+    if (bunWorkspaceOutdatedFromOutput(bunOutPost)) {
+      if (major) {
         const bumps = collectPrereleaseBumps(bunOutPost, repoRoot);
-        runOrExit(runPrereleaseBumps(bumps), "bun add @latest (prerelease bumps)");
-      }
-    } else {
-      const bunOutPost = captureBunOutdatedRecursive(repoRoot);
-      if (bunWorkspaceOutdatedFromOutput(bunOutPost)) {
+        runOrExit(runWorkspaceVersionBumps(repoRoot, bumps), "bun add @version (registry latest)");
+      } else {
+        const newestBumps = collectNewestBumps(bunOutPost, repoRoot);
+        if (newestBumps.length > 0) {
+          section("Bun — apply newest-within-range bumps (bun add pkg@newest)");
+          runOrExit(runWorkspaceVersionBumps(repoRoot, newestBumps), "bun add @newest");
+        }
         const minorBumps = collectInRangeMinorBumps(bunOutPost, repoRoot);
         if (minorBumps.length > 0) {
           section("Bun — widen ranges for non-major upgrades (0.x → 0.x+1 etc.)");
-          runOrExit(runPrereleaseBumps(minorBumps), "bun add @latest (non-major widening)");
+          runOrExit(
+            runWorkspaceVersionBumps(repoRoot, minorBumps),
+            "bun add @version (range widen)",
+          );
         }
       }
     }
@@ -153,25 +161,20 @@ export async function runUpdate(opts: RunUpdateOptions): Promise<number> {
       const tools = readGoModToolPaths(root);
 
       if (toolOnly) {
+        const toolListOut = captureGoListToolUpgrades(root, tools);
+        const toolTargets = parseGoListModuleUpgradeTargets(toolListOut);
         section(
           major
             ? `Go — ${label} (go get -tool @latest per tool && go mod tidy && verify)`
-            : `Go — ${label} (go get -u=patch per tool && go mod tidy && verify)`,
+            : `Go — ${label} (go get -tool @newest per tool && go mod tidy && verify)`,
         );
-        if (major) {
-          for (const tool of tools) {
-            runOrExit(
-              spawnExit(["go", "get", "-tool", `${tool}@latest`], { cwd: root }),
-              `go get -tool ${tool}@latest (${label})`,
-            );
-          }
-        } else {
-          for (const tool of tools) {
-            runOrExit(
-              spawnExit(["go", "get", "-u=patch", tool], { cwd: root }),
-              `go get -u=patch ${tool} (${label})`,
-            );
-          }
+        for (const tool of tools) {
+          const target = toolTargets.find((t) => t.module === tool);
+          const at = major ? "latest" : (target?.newest ?? "latest");
+          runOrExit(
+            spawnExit(["go", "get", "-tool", `${tool}@${at}`], { cwd: root }),
+            `go get -tool ${tool}@${at} (${label})`,
+          );
         }
       } else {
         section(

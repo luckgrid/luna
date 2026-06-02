@@ -42,13 +42,14 @@ export async function captureBunOutdatedRecursiveAsync(repoRoot: string): Promis
   return spawnTextAsync(["bun", "outdated", "--recursive"], { cwd: repoRoot });
 }
 
-export type PrereleaseBumpRow = { pkg: string; cwd: string };
+export type WorkspaceVersionBump = { pkg: string; cwd: string; version: string };
 
 /** Structured row from `bun outdated --recursive` (pipe-table format). */
 export type BunOutdatedRow = {
   pkg: string;
   current: string;
-  update: string;
+  /** Highest version allowed by the manifest range (`Update` column in bun's table). */
+  newest: string;
   latest: string;
   workspace: string;
 };
@@ -86,7 +87,7 @@ function matchBunOutdatedPipeLine(line: string): BunOutdatedRow | null {
   return {
     pkg: stripDepKindSuffix(pkgRaw),
     current,
-    update: trimOuterWhitespace(m[3]),
+    newest: trimOuterWhitespace(m[3]),
     latest: trimOuterWhitespace(m[4]),
     workspace: trimOuterWhitespace(m[5]),
   };
@@ -107,7 +108,7 @@ export function parseBunOutdatedTableRows(text: string, repoRoot: string): strin
   return parseBunOutdatedRows(text).map((row) => [
     row.pkg,
     row.current,
-    row.update,
+    row.newest,
     row.latest,
     resolveWorkspacePackageJson(repoRoot, row.workspace),
   ]);
@@ -126,16 +127,15 @@ export function isRealMajorBump(from: string, to: string): boolean {
 
 /**
  * True when `luna update` would change Bun workspace deps (respects `--major` policy).
- * Differs from {@link bunWorkspaceOutdatedFromOutput}: rows where Current === Update and
- * only Latest differs on a real major bump are not actionable without `--major`.
+ * Default mode targets the `Update` / Newest column, not registry Latest.
  */
 export function bunWorkspaceHasActionableUpdates(out: string, major: boolean): boolean {
   if (!bunWorkspaceOutdatedFromOutput(out)) return false;
   if (major) return true;
   for (const row of parseBunOutdatedRows(out)) {
-    if (row.current !== row.update) return true;
+    if (row.current !== row.newest && !isRealMajorBump(row.current, row.newest)) return true;
     if (
-      row.current === row.update &&
+      row.current === row.newest &&
       row.latest !== row.current &&
       !isRealMajorBump(row.current, row.latest)
     ) {
@@ -145,37 +145,68 @@ export function bunWorkspaceHasActionableUpdates(out: string, major: boolean): b
   return false;
 }
 
-/** Rows where Current === Update but Latest differs — needs `bun add pkg@latest` per workspace. */
-export function collectPrereleaseBumps(stdin: string, repoRoot: string): PrereleaseBumpRow[] {
-  const rows: PrereleaseBumpRow[] = [];
+/** Rows where installed version is below the manifest-range newest (`Update` column). */
+export function collectNewestBumps(stdin: string, repoRoot: string): WorkspaceVersionBump[] {
+  const rows: WorkspaceVersionBump[] = [];
   for (const row of parseBunOutdatedRows(stdin)) {
-    if (row.current === row.update && row.latest !== row.current) {
+    if (row.current === row.newest) continue;
+    if (isRealMajorBump(row.current, row.newest)) continue;
+    const cwd = resolveWorkspaceDir(repoRoot, row.workspace);
+    if (cwd) rows.push({ pkg: row.pkg, cwd, version: row.newest });
+  }
+  return rows;
+}
+
+/** Rows where Current === Newest but Latest differs — `bun add pkg@latest` per workspace (`--major`). */
+export function collectPrereleaseBumps(stdin: string, repoRoot: string): WorkspaceVersionBump[] {
+  const rows: WorkspaceVersionBump[] = [];
+  for (const row of parseBunOutdatedRows(stdin)) {
+    if (row.current === row.newest && row.latest !== row.current) {
       const cwd = resolveWorkspaceDir(repoRoot, row.workspace);
-      if (cwd) rows.push({ pkg: row.pkg, cwd });
+      if (cwd) rows.push({ pkg: row.pkg, cwd, version: row.latest });
     }
   }
   return rows;
 }
 
 /**
- * Rows where the configured range can't reach the latest version, but the jump
- * is not a "real major" bump (leading non-zero digit unchanged). These need
- * `bun add pkg@latest` per workspace to widen the package.json range.
+ * Rows where the configured range can't reach registry Latest, but the jump is not a
+ * "real major" bump (e.g. 0.x → 0.x+1). Widens package.json with `bun add pkg@latest`.
  */
-export function collectInRangeMinorBumps(stdin: string, repoRoot: string): PrereleaseBumpRow[] {
-  const rows: PrereleaseBumpRow[] = [];
+export function collectInRangeMinorBumps(stdin: string, repoRoot: string): WorkspaceVersionBump[] {
+  const rows: WorkspaceVersionBump[] = [];
   for (const row of parseBunOutdatedRows(stdin)) {
-    if (row.current !== row.update || row.latest === row.current) continue;
+    if (row.current !== row.newest || row.latest === row.current) continue;
     if (isRealMajorBump(row.current, row.latest)) continue;
     const cwd = resolveWorkspaceDir(repoRoot, row.workspace);
-    if (cwd) rows.push({ pkg: row.pkg, cwd });
+    if (cwd) rows.push({ pkg: row.pkg, cwd, version: row.latest });
   }
   return rows;
 }
 
-export function runPrereleaseBumps(rows: PrereleaseBumpRow[]): number {
-  for (const { pkg, cwd } of rows) {
-    const code = spawnExit(["bun", "add", `${pkg}@latest`, "--ignore-scripts"], { cwd });
+/** When the root manifest overrides a dep, align the pin so workspace `bun add` can resolve. */
+export function syncRootOverrideForPackage(repoRoot: string, pkg: string, version: string): void {
+  const pkgPath = join(repoRoot, "package.json");
+  if (!existsSync(pkgPath)) return;
+  const parsed: unknown = JSON.parse(readFileSync(pkgPath, "utf8"));
+  if (typeof parsed !== "object" || parsed === null) return;
+  const overridesRaw = Reflect.get(parsed, "overrides");
+  if (typeof overridesRaw !== "object" || overridesRaw === null || Array.isArray(overridesRaw)) {
+    return;
+  }
+  if (!Reflect.has(overridesRaw, pkg)) return;
+  const current = Reflect.get(overridesRaw, pkg);
+  if (typeof current !== "string") return;
+  if (current === version) return;
+  Reflect.set(overridesRaw, pkg, version);
+  writeFileSync(pkgPath, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
+  console.log(`Synced root package.json overrides.${pkg} -> ${version}`);
+}
+
+export function runWorkspaceVersionBumps(repoRoot: string, rows: WorkspaceVersionBump[]): number {
+  for (const { pkg, cwd, version } of rows) {
+    syncRootOverrideForPackage(repoRoot, pkg, version);
+    const code = spawnExit(["bun", "add", `${pkg}@${version}`, "--ignore-scripts"], { cwd });
     if (code !== 0) return code;
   }
   return 0;
@@ -204,7 +235,7 @@ export function syncRootPackageManagerBun(repoRoot: string): void {
 /**
  * `apps/*` and `packages/*` dirs that contain `package.json`. Root `bun update --recursive` does not
  * rewrite semver ranges in these nested workspace manifests (Bun 1.3.x); `luna update` runs
- * `bun update --latest` per directory so each package.json stays in sync with the lockfile.
+ * per-workspace `bun add pkg@newest` so each package.json stays in sync with the lockfile.
  */
 export function listBunWorkspacePackageDirs(repoRoot: string): string[] {
   const dirs: string[] = [];

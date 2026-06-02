@@ -1,5 +1,5 @@
-import { bunWorkspaceOutdatedFromOutput } from "../../lib/bun";
-import { goModuleOutdatedHasChanges } from "../../lib/go";
+import { bunWorkspaceHasActionableUpdates } from "../../lib/bun";
+import { goModuleHasActionableUpdates } from "../../lib/go";
 import { protoPinsAnyOutdated } from "../../lib/proto";
 import { uvLockHasUpgradesFromOutput } from "../../lib/py";
 import { formatProjectDirLabel } from "../../lib/utils";
@@ -12,10 +12,12 @@ export function computeOutdatedSummaryState(snap: StoredOutdatedSnapshot): Outda
   let stGo = 0;
 
   if (protoPinsAnyOutdated(snap.protoReport)) stProto = 1;
-  if (bunWorkspaceOutdatedFromOutput(snap.bunOut)) stBun = 1;
+  if (bunWorkspaceHasActionableUpdates(snap.bunOut, false)) stBun = 1;
   const uvBad = snap.uvProjects.filter((p) => uvLockHasUpgradesFromOutput(p.dryRunOut));
   if (uvBad.length > 0) stUv = 1;
-  const goBad = snap.goModules.filter((g) => goModuleOutdatedHasChanges(g.goGetDryRunOut, g.probe));
+  const goBad = snap.goModules.filter((g) =>
+    goModuleHasActionableUpdates(g.goGetDryRunOut, g.probe, false),
+  );
   if (goBad.length > 0) stGo = 1;
 
   const failed = stProto | stBun | stUv | stGo;
@@ -29,7 +31,9 @@ export function outdatedTierMessages(
 ): { ok: boolean; text: string }[] {
   const { stProto, stBun, stUv, stGo } = computeOutdatedSummaryState(snap);
   const uvBad = snap.uvProjects.filter((p) => uvLockHasUpgradesFromOutput(p.dryRunOut));
-  const goBad = snap.goModules.filter((g) => goModuleOutdatedHasChanges(g.goGetDryRunOut, g.probe));
+  const goBad = snap.goModules.filter((g) =>
+    goModuleHasActionableUpdates(g.goGetDryRunOut, g.probe, false),
+  );
 
   const lines: { ok: boolean; text: string }[] = [];
   lines.push(
@@ -39,8 +43,14 @@ export function outdatedTierMessages(
   );
   lines.push(
     stBun
-      ? { ok: false, text: "Bun — outdated direct dependencies in workspaces" }
-      : { ok: true, text: "Bun — OK (workspaces)" },
+      ? { ok: false, text: "Bun — outdated direct dependencies in workspaces (non-major)" }
+      : bunWorkspaceHasActionableUpdates(snap.bunOut, true) &&
+          !bunWorkspaceHasActionableUpdates(snap.bunOut, false)
+        ? {
+            ok: true,
+            text: "Bun — OK (major-only bumps remain; use luna update --major)",
+          }
+        : { ok: true, text: "Bun — OK (workspaces)" },
   );
   if (stUv) {
     lines.push({
