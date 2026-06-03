@@ -1,8 +1,8 @@
-proto = "0.57.3"
+proto = "0.57.4"
 moon = "2.3.0"
 bun = "1.3.14"
 python = "3.14.5"
-go = "1.26.3"
+go = "1.26.4"
 rust = "1.96.0"
 
 [settings]

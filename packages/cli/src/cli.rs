@@ -213,4 +213,16 @@ mod tests {
             panic!("expected Run command");
         }
     }
+
+    #[test]
+    fn parse_binary_name_alias() {
+        let cli = Cli::try_parse_from(["l", "check"]).unwrap();
+        assert!(matches!(cli.command, Commands::Check));
+
+        let cli = Cli::try_parse_from(["ln", "build", "--affected"]).unwrap();
+        assert!(matches!(
+            cli.command,
+            Commands::Build(TaskArgs { affected: true, .. })
+        ));
+    }
 }

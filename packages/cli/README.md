@@ -43,6 +43,18 @@ See root [README Tech Stacks](../../README.md#tech-stacks) for toolchain details
 | `luna update`           | Update toolchains and dependencies, re-run install                              |
 | `luna update --major`   | Also apply major-version bumps                                                  |
 
+## Aliases (optional)
+
+`cargo install` also installs shorter binary names that are drop-in replacements for `luna` — same subcommands, flags, and arguments:
+
+| Alias | Example    |
+| ----- | ---------- |
+| `lna` | `lna dev`  |
+| `ln`  | `ln build` |
+| `l`   | `l check`  |
+
+After `moon run cli:install`, these are available in `~/.cargo/bin/` alongside `luna` (ensure that directory is on your `PATH`).
+
 ## Global flags
 
 - `-v, --verbose` — increase logging verbosity (`--log debug` / `--log trace`)
@@ -61,8 +73,8 @@ Or with `luna` already on PATH: `luna install`.
 CLI only:
 
 ```sh
-moon run cli:build      # target/debug/luna (gitignored)
-moon run cli:install    # ~/.cargo/bin/luna
+moon run cli:build      # target/debug/luna (+ l, ln, lna)
+moon run cli:install    # ~/.cargo/bin/luna (+ l, ln, lna)
 ```
 
 Build without installing:

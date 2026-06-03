@@ -11,6 +11,19 @@ publish = false
 name = "luna"
 path = "src/main.rs"
 
+# Optional shorter invocations of `luna` (same entry point; see packages/cli/README.md).
+[[bin]]
+name = "lna"
+path = "src/main.rs"
+
+[[bin]]
+name = "ln"
+path = "src/main.rs"
+
+[[bin]]
+name = "l"
+path = "src/main.rs"
+
 [dependencies]
 clap = { version = "4.5", features = ["derive", "wrap_help"] }
 home = "0.5"
