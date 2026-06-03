@@ -216,10 +216,10 @@ mod tests {
 
     #[test]
     fn parse_binary_name_alias() {
-        let cli = Cli::try_parse_from(["l", "check"]).unwrap();
+        let cli = Cli::try_parse_from(["lna", "check"]).unwrap();
         assert!(matches!(cli.command, Commands::Check));
 
-        let cli = Cli::try_parse_from(["ln", "build", "--affected"]).unwrap();
+        let cli = Cli::try_parse_from(["lna", "build", "--affected"]).unwrap();
         assert!(matches!(
             cli.command,
             Commands::Build(TaskArgs { affected: true, .. })

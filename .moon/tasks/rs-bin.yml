@@ -18,8 +18,6 @@ tasks:
     outputs:
       - "/target/debug/luna"
       - "/target/debug/lna"
-      - "/target/debug/ln"
-      - "/target/debug/l"
 
   install:
     command: cargo

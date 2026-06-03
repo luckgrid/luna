@@ -58,13 +58,13 @@ fn missing_subcommand() {
 
 #[test]
 fn binary_name_alias() {
-    Command::cargo_bin("l")
+    Command::cargo_bin("lna")
         .unwrap()
         .args(["check", "--help"])
         .assert()
         .success();
 
-    Command::cargo_bin("ln")
+    Command::cargo_bin("lna")
         .unwrap()
         .arg("--version")
         .assert()

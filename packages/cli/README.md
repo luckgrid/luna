@@ -47,11 +47,9 @@ See root [README Tech Stacks](../../README.md#tech-stacks) for toolchain details
 
 `cargo install` also installs shorter binary names that are drop-in replacements for `luna` — same subcommands, flags, and arguments:
 
-| Alias | Example    |
-| ----- | ---------- |
-| `lna` | `lna dev`  |
-| `ln`  | `ln build` |
-| `l`   | `l check`  |
+| Alias | Example   |
+| ----- | --------- |
+| `lna` | `lna dev` |
 
 After `moon run cli:install`, these are available in `~/.cargo/bin/` alongside `luna` (ensure that directory is on your `PATH`).
 
@@ -73,8 +71,8 @@ Or with `luna` already on PATH: `luna install`.
 CLI only:
 
 ```sh
-moon run cli:build      # target/debug/luna (+ l, ln, lna)
-moon run cli:install    # ~/.cargo/bin/luna (+ l, ln, lna)
+moon run cli:build      # target/debug/luna (+ lna)
+moon run cli:install    # ~/.cargo/bin/luna (+ lna)
 ```
 
 Build without installing:
