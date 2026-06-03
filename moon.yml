@@ -3,3 +3,22 @@ layer: configuration
 project:
   name: "luna"
   description: "A monorepo starter template using moonrepo, bun, solid-start, and oxc."
+
+# First-time bootstrap from a fresh clone (requires proto + moon on PATH; see README).
+tasks:
+  install:
+    script: >-
+      proto install &&
+      moon run cli:build &&
+      moon run cli:install &&
+      export PATH="$HOME/.cargo/bin:$PATH" &&
+      luna install
+    options:
+      cache: false
+
+  clean:
+    script: >-
+      git clean -fdx -- .cache node_modules target
+      .crates.toml .crates2.json build
+    options:
+      cache: false

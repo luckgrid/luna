@@ -15,6 +15,20 @@ tasks:
       - "@group(configs)"
       - "@group(sources)"
       - "/Cargo.lock"
+    outputs:
+      - "/target/debug/luna"
+
+  install:
+    command: cargo
+    args: ["install", "--path", ".", "--locked", "--force"]
+    deps:
+      - "~:build"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "/Cargo.lock"
+    options:
+      cache: false
 
   test:
     command: cargo
@@ -42,7 +56,8 @@ tasks:
       - "@group(sources)"
 
   clean:
-    command: cargo
-    args: ["clean"]
+    script: >-
+      cargo clean &&
+      rm -f "$MOON_WORKSPACE_ROOT/.crates.toml" "$MOON_WORKSPACE_ROOT/.crates2.json"
     options:
       cache: false

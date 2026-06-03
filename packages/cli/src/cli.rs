@@ -58,9 +58,9 @@ pub enum Commands {
     Projects,
     /// Run all affected tasks in a CI environment (`moon ci`).
     Ci(PassthroughArgs),
-    /// Bootstrap the workspace (proto + bun + moon builds).
+    /// Bootstrap the workspace (proto + CLI + bun + moon builds).
     Install,
-    /// Remove build artifacts (moon clean + git clean).
+    /// Full reset: apps/packages, Moon cache, then root gitignored outputs.
     Clean,
     /// Lint all stacks (TS: oxlint, Python: ruff, Rust: clippy).
     Lint(FixArgs),

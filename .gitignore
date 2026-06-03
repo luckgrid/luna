@@ -10,7 +10,9 @@
 .env.keys
 .env*.local
 
-# build
+# builds
+.crates.toml
+.crates2.json
 build/
 dist/
 target/

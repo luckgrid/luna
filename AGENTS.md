@@ -5,7 +5,7 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 ## Core Rules
 
 - Polyglot monorepo: each stack brings its own runtime (Bun for JS/TS, Go for Hugo, Python for FastAPI, Rust for the CLI). Proto pins and installs them all — no global installs needed beyond Proto.
-- Toolchain versions are pinned in `.prototools`; install **Proto** first. On a fresh clone the `luna` binary doesn't exist yet — bootstrap with `proto install && moon run cli:build` first, then use `luna install` for subsequent runs.
+- Toolchain versions are pinned in `.prototools`; install **Proto** and **Moon** first. On a fresh clone run `moon run luna:install` (see README Quick Start), then use `luna install` for subsequent runs.
 - Run commands from the repository root unless an app/package README says otherwise.
 - `luna` is the single entry point for all orchestration: bootstrap, quality, builds, and dep management. `package.json` only holds the Bun workspace manifest and dev dependency versions — no scripts.
 

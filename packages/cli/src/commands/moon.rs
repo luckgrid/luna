@@ -1,4 +1,4 @@
-use crate::cli::{GlobalArgs, ProjectArgs, TaskArgs, RunArgs, PassthroughArgs};
+use crate::cli::{GlobalArgs, PassthroughArgs, ProjectArgs, RunArgs, TaskArgs};
 use crate::runner;
 use miette::Result;
 use std::path::Path;

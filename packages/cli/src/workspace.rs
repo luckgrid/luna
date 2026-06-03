@@ -1,5 +1,5 @@
-use miette::{miette, IntoDiagnostic, Result};
 use crate::runner;
+use miette::{miette, IntoDiagnostic, Result};
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 

@@ -53,25 +53,44 @@ The `apps/api` stack centers on **FastAPI**, **Pydantic**, and **Pydantic AI** f
 
 Run commands from the repository root unless an app README says otherwise.
 
-**Prerequisites:** install [Proto](https://moonrepo.dev/docs/proto/install) so `proto` is on your `PATH`. Proto installs everything else — moon, rust, bun, python, go — from the pins in [`.prototools`](.prototools).
+### Prerequisites
+
+Install [Proto](https://moonrepo.dev/docs/proto/install) and [Moon](https://moonrepo.dev/docs/install) on your `PATH` before setup (Moon is only needed until `luna` is installed; Proto pins moon, rust, bun, python, and go via [`.prototools`](.prototools)).
+
+After `moon run cli:install`, add **`~/.cargo/bin`** to your `PATH` so the `luna` command is found (or use the full path in `moon run luna:install` below).
 
 ### First-time install
 
-The `luna` binary doesn't exist on a fresh clone — it must be built first. Bootstrap with proto and moon directly:
+One command from the repo root (fresh clone or after `luna clean`):
 
 ```sh
-proto install                  # install moon, rust, bun, python, go (pinned in .prototools)
-moon run cli:build             # compile the luna CLI binary (also runs bun install for node_modules)
+moon run luna:install
 ```
 
-After that, `luna` is available and finishes the remaining install:
+That runs `proto install` → `cli:build` → `cli:install` → `luna install` (toolchains, CLI, bun workspaces, web, api). Then:
 
 ```sh
-luna install       # proto install + bun install (TS workspaces) + moon builds (cli, web, api)
-luna dev         # all application-layer dev tasks (see moon query / app READMEs for subsets)
+luna dev
 ```
 
-Subsequent runs only need `luna install` — it re-runs all bootstrap steps (including `moon run cli:build`). New pins in [`.prototools`](.prototools) are picked up by **`proto install`** (or **`luna update`**, which refreshes pins then re-runs the same bootstrap steps). [`.moon/toolchains.yml`](.moon/toolchains.yml) disables **`javascript.installDependencies`** (Moon skips redundant `bun install` before each task) and sets **`bun.installArgs: ["--ignore-scripts"]`** as a safeguard.
+**Equivalent steps** (if you prefer to run them separately):
+
+```sh
+proto install
+moon run cli:build
+moon run cli:install
+luna install
+```
+
+**Without `luna` on PATH yet** — stop after `cli:install`, then:
+
+```sh
+./target/debug/luna install    # or ~/.cargo/bin/luna install
+```
+
+Subsequent refreshes: `luna install`. New pins in [`.prototools`](.prototools) are picked up by **`proto install`** (or **`luna update`**, which refreshes pins then re-runs install). [`.moon/toolchains.yml`](.moon/toolchains.yml) disables **`javascript.installDependencies`** and sets **`bun.installArgs: ["--ignore-scripts"]`**.
+
+**Full reset:** `luna clean`, then `moon run luna:install` again.
 
 For a full compile of every application project first, run **`luna build`**.
 
@@ -102,8 +121,8 @@ All day-to-day commands go through the **`luna` CLI** (`packages/cli`). It orche
 ### Bootstrap and lifecycle
 
 ```sh
-luna install       # proto install + bun install (TS workspaces) + moon builds (cli, web, api)
-luna clean       # moon :clean + moon clean --all + git clean .cache .moon/cache node_modules
+luna install     # bootstrap workspace
+luna clean       # apps/packages → moon clean --all → root (target, node_modules, .crates*, …)
 luna dev         # moon run :dev --query "projectLayer=application"
 luna build       # moon run :build --query "projectLayer=application"
 luna start       # moon run :start --query "projectLayer=application"
@@ -161,7 +180,8 @@ moon run ui:typecheck
 - Shared TS lib tasks: [`.moon/tasks/ts-lib.yml`](.moon/tasks/ts-lib.yml) (`language: typescript`, `layer: library`)
 - Shared Python API tasks: [`.moon/tasks/py-api.yml`](.moon/tasks/py-api.yml) (`language: python`, `stack: backend`)
 - Shared Go web tasks: [`.moon/tasks/go-web.yml`](.moon/tasks/go-web.yml) (`language: go`, `stack: frontend`) — **`go tool hugo`** from [`apps/web/go.mod`](apps/web/go.mod)
-- Shared Rust bin tasks: [`.moon/tasks/rs-bin.yml`](.moon/tasks/rs-bin.yml) (`language: rust`) — build/test/lint/format-check/clean via `cargo`
+- Root workspace tasks: [`moon.yml`](moon.yml) — `luna:install` (first-time bootstrap), `luna:clean` (root outputs last in `luna clean`)
+- Shared Rust bin tasks: [`.moon/tasks/rs-bin.yml`](.moon/tasks/rs-bin.yml) (`language: rust`) — build/install/test/lint/format-check/clean via `cargo`
 
 - Root moon config: [`moon.yml`](moon.yml)
 - TypeScript project graph: [`tsconfig.json`](tsconfig.json)
@@ -189,6 +209,23 @@ luna update --major  # also apply major-version bumps where supported
 - **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
 
 ## Troubleshooting
+
+### `luna`: command not found
+
+Install the CLI (`~/.cargo/bin` must be on your `PATH`):
+
+```sh
+moon run cli:build
+moon run cli:install
+luna --help
+```
+
+To run without installing, build and invoke the debug binary ( **`target/`** is gitignored):
+
+```sh
+moon run cli:build --force
+./target/debug/luna --help
+```
 
 ### Port already in use (`EADDRINUSE`)
 

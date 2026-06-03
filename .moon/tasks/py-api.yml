@@ -101,10 +101,8 @@ tasks:
       envFile: "/.env.local"
 
   clean:
-    command: "sh"
-    args:
-      - "-c"
-      - "rm -rf .pytest_cache .ruff_cache .venv && find . -type d -name __pycache__ -prune -exec rm -rf {} +"
+    script: >-
+      git clean -fdx -- .pytest_cache .ruff_cache .venv .eggs &&
+      find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
     options:
       cache: false
-      shell: false

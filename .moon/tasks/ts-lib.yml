@@ -35,12 +35,12 @@ tasks:
       - "@group(sources)"
 
   clean:
-    command: "git"
+    command: git
     args:
-      - "clean"
-      - "-fdx"
-      - "--"
-      - "dist"
-      - "node_modules"
+      - clean
+      - -fdx
+      - --
+      - dist
+      - node_modules
     options:
       cache: false

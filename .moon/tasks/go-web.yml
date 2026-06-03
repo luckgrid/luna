@@ -90,5 +90,6 @@ tasks:
       - "dist"
       - "node_modules"
       - "resources"
+      - ".hugo_build.lock"
     options:
       cache: false

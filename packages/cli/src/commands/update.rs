@@ -1,6 +1,6 @@
 use crate::cli::{GlobalArgs, UpdateArgs};
-use crate::workspace;
 use crate::runner;
+use crate::workspace;
 use miette::Result;
 use std::path::Path;
 
