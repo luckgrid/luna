@@ -4,7 +4,7 @@
 projects:
   globs:
     - "apps/*" # For individual apps workspaces
-    - "packages/*" # For shared packages workspaces
+    - "packages/*" # For shared packages workspaces (TS libs + Rust CLI)
   sources:
     luna: "." # Root level configuration project
 

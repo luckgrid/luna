@@ -13,6 +13,7 @@
 # build
 build/
 dist/
+target/
 
 # modules
 node_modules/

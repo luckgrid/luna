@@ -4,10 +4,10 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 ## Core Rules
 
-- Bun-first monorepo: prefer Bun commands over npm/pnpm/yarn.
-- Toolchain versions are pinned in `.prototools`; install **Proto** and **Bun** first, then bootstrap with `bun run setup` (or run `proto install` per tool / with no args per Proto docs).
+- Polyglot monorepo: each stack brings its own runtime (Bun for JS/TS, Go for Hugo, Python for FastAPI, Rust for the CLI). Proto pins and installs them all — no global installs needed beyond Proto.
+- Toolchain versions are pinned in `.prototools`; install **Proto** first. On a fresh clone the `luna` binary doesn't exist yet — bootstrap with `proto install && moon run cli:build` first, then use `luna install` for subsequent runs.
 - Run commands from the repository root unless an app/package README says otherwise.
-- Keep app-specific scripts in each app's `package.json`; shared orchestration goes through moon/root scripts.
+- `luna` is the single entry point for all orchestration: bootstrap, quality, builds, and dep management. `package.json` only holds the Bun workspace manifest and dev dependency versions — no scripts.
 
 ## Quick References
 
@@ -23,8 +23,8 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 ## Key Paths
 
 - Toolchain pins: [`.prototools`](.prototools)
-- Root scripts/workspaces: [`package.json`](package.json)
-- Repo-wide outdated / update: [`packages/cli`](packages/cli) — `luna outdated` / `luna update` (router in `packages/cli/src/main.ts`; Python roots via `lib/moon.ts` + `lib/py.ts`; Hugo is **`go tool`** in `apps/web`, not a proto pin)
+- Root manifest/dev dependencies: [`package.json`](package.json) — Bun workspace manifest only; all scripts removed in favor of `luna`
+- Repo-wide outdated / update: [`packages/cli`](packages/cli) — Rust CLI built with Starbase + Clap; `luna outdated` / `luna update` delegate to proto/bun/uv/go per toolchain
 - Moon workspace/toolchains/tasks: [`.moon/`](.moon/)
 - TypeScript project references: [`tsconfig.json`](tsconfig.json), [`tsconfig.options.json`](tsconfig.options.json)
 - OXC config: [`.oxlintrc.json`](.oxlintrc.json), [`.oxfmtrc.json`](.oxfmtrc.json)
@@ -53,3 +53,11 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 - **Prefer DS tokens/utilities**: base look-and-feel should come from `@luna/ds`, not per-component CSS drift.
 - **Keep components small and composable**: avoid baking app-specific layout/content into shared UI components.
+
+### `packages/cli` (Rust CLI) guardrails
+
+- **Direct orchestration**: `luna` calls tools directly (proto, moon, bun, oxlint, oxfmt, tsc, cargo, go, uv, git) — no `bun run` indirection.
+- **Moon owns the task graph**: `luna build`/`test`/`dev`/`start` translate to `moon run :<task>` with appropriate `--query`/`--affected` flags.
+- **`luna` owns quality across all stacks**: `luna lint`/`format`/`typecheck`/`check`/`fix` cover TS (oxlint/oxfmt/tsc), Python (ruff via moon), Rust (cargo clippy/fmt), and Go (hugo config via moon).
+- **`outdated`/`update` manage all toolchains** (proto, bun, uv, go) because no single tool covers all four.
+- **Workspace bin resolution**: `process::run` prepends `node_modules/.bin` and `~/.cargo/bin` to PATH so dev-tool and cargo binaries are found without global PATH setup.

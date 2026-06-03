@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.options.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "tsBuildInfoFile": "../../.cache/cli.tsbuildinfo",
-    "types": ["bun-types"]
-  },
-  "include": ["src/**/*.ts"]
-}

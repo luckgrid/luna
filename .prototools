@@ -3,6 +3,7 @@ moon = "2.3.0"
 bun = "1.3.14"
 python = "3.14.5"
 go = "1.26.3"
+rust = "1.96.0"
 
 [settings]
 detect-strategy = "prefer-prototools"

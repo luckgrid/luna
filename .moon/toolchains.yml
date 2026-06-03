@@ -1,9 +1,13 @@
+# Enable Rust (proto-pinned via `.prototools`).
+# Moon locates cargo binaries in `~/.cargo/bin` automatically.
+rust: {}
+
 # Enable JavaScript (shared settings for bun/node/deno toolchains).
 # In moon v2, package manager and JS-wide settings live under `javascript:`.
 javascript:
   packageManager: bun
-  # Moon’s InstallDependencies runs before tasks; redundant after `bun install` in `bun run setup`,
-  # and it slows persistent targets (`dev`). Safe now that the root lifecycle is `setup`, not `install`.
+  # Moon’s InstallDependencies runs before tasks; redundant after `bun install` in `luna install`,
+  # and it slows persistent targets (`dev`). Safe now that the root lifecycle is `luna install`.
   installDependencies: false
 
 # Enable Bun (proto-pinned via `.prototools`).

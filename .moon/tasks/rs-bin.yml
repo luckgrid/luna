@@ -1,0 +1,48 @@
+inheritedBy:
+  language: rust
+
+fileGroups:
+  configs:
+    - "Cargo.toml"
+  sources:
+    - "src/**/*"
+
+tasks:
+  build:
+    command: cargo
+    args: ["build"]
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "/Cargo.lock"
+
+  test:
+    command: cargo
+    args: ["test"]
+    deps:
+      - "~:build"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
+  lint:
+    command: cargo
+    args: ["clippy", "--", "-D", "warnings"]
+    deps:
+      - "~:build"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
+  format-check:
+    command: cargo
+    args: ["fmt", "--check"]
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
+  clean:
+    command: cargo
+    args: ["clean"]
+    options:
+      cache: false

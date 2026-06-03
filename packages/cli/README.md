@@ -1,39 +1,107 @@
-# `@luna/cli`
+# `cli`
 
-`luna` is a Bun-native monorepo CLI: a single [`src/main.ts`](src/main.ts) is both the **`bin` entry** (shebang + `import.meta.main`) and the router. Shared code under [`src/lib/`](src/lib): toolchain modules [`proto.ts`](src/lib/proto.ts), [`bun.ts`](src/lib/bun.ts), [`py.ts`](src/lib/py.ts), [`go.ts`](src/lib/go.ts), [`moon.ts`](src/lib/moon.ts), and [`utils.ts`](src/lib/utils.ts) (process spawn, repo root, terminal UI). Command implementations live in [`src/commands/`](src/commands/) (`outdated/*`, `update/*`, `help.ts`, `version.ts`). [`.prototools`](../../.prototools) pins **proto**, **moon**, **bun**, **python**, and **go**; `luna outdated` / `luna update` refresh those pins through `proto`. The **Hugo** CLI for `apps/web` is versioned in [`apps/web/go.mod`](../../apps/web/go.mod) as a **`go tool`**, not as a proto pin.
+Rust CLI orchestrator for Luna, backed by [Moon](https://moonrepo.dev) and [Proto](https://moonrepo.dev/docs/proto).
+
+## Purpose
+
+Single-entry CLI for all monorepo operations — build, dev, test, lint, format, dependency management. Delegates to Moon for task execution and caching, and to Proto for toolchain pinning.
+
+## Stack
+
+- 🦀 [Rust](https://www.rust-lang.org/) — CLI runtime
+- 🌙 [Moon](https://moonrepo.dev) — task orchestration, caching, project management
+- 📦 [Proto](https://moonrepo.dev/docs/proto) — toolchain version pinning (`.prototools`)
+- 📦 [Starbase](https://github.com/moonrepo/starbase) — CLI framework (async runtime, diagnostics, logging)
+
+See root [README Tech Stacks](../../README.md#tech-stacks) for toolchain details.
 
 ## Commands
 
-| Command               | Description                                                                                                                                                                                                                                                                                                 |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `luna outdated`       | Print per-toolchain outdated sections when relevant, then a pass/fail summary. **Exits 1** if proto pins (proto, moon, bun, python, go), Bun workspaces, uv lock, or Go modules have upgrades (CI-friendly). Tool-only Go modules use `go list -m -u` on `tool` lines; code modules use `go get -n -u all`. |
-| `luna update`         | Refresh proto pins **within manifest constraints**, Bun workspaces to **newest within ranges** (`bun add pkg@newest` after `bun update`), uv lock + sync, Go modules (tool-only: `go get -tool @newest` from `go list -m -u`; code: `go get -u all`), then root `bun run setup`. Safe default for CI/dev.   |
-| `luna update --major` | Same as `luna update` but also applies **major-version bumps** (`bun update --latest`, `proto outdated --update --latest`) and runs the prerelease catch-up step.                                                                                                                                           |
+| Command | Description |
+| ------- | ----------- |
+| `luna build` | Run application-layer build tasks (`moon run :build`) |
+| `luna build <project>` | Build a specific project (`moon run <project>:build`) |
+| `luna build --affected` | Build affected projects only |
+| `luna dev` | Start dev servers (`moon run :dev`) |
+| `luna start` | Start production servers (`moon run :start`) |
+| `luna test` | Run tests (`moon run :test`) |
+| `luna run <targets...>` | Run Moon targets directly |
+| `luna graph` | Display project graph (`moon project-graph`) |
+| `luna tasks` | List all Moon tasks |
+| `luna projects` | List all Moon projects |
+| `luna ci` | Run affected tasks in CI (`moon ci`) |
+| `luna install` | Bootstrap workspace (proto + bun + moon builds) |
+| `luna clean` | Clean artifacts (moon clean + git clean) |
+| `luna lint` | Lint all stacks (oxlint, ruff, cargo clippy) |
+| `luna lint --fix` | Apply lint fixes |
+| `luna format` | Format all stacks (oxfmt, ruff, cargo fmt) |
+| `luna format --check` | Check formatting without writing |
+| `luna typecheck` | Typecheck all stacks (tsc, hugo) |
+| `luna check` | Lint + format:check + typecheck |
+| `luna fix` | Lint:fix + format |
+| `luna outdated` | Report outdated toolchains/dependencies (exits 1 if any) |
+| `luna update` | Update toolchains and dependencies, re-run install |
+| `luna update --major` | Also apply major-version bumps |
 
-Root shortcuts: `bun run outdated`, `bun run update` (no major). For majors, run `bunx luna update --major` (or add a `update:major` script).
+## Global flags
 
-Global flags: `-h` / `--help`, `-v` / `-V` / `--version`.
+- `-v, --verbose` — increase logging verbosity (`--log debug` / `--log trace`)
+- `-q, --quiet` — silence Luna and Moon output (`moon -q`)
 
-> **uv note:** `uv lock --upgrade && uv sync` is run in both modes. uv has no native "no major" toggle — major bumps are governed by the version specifiers in each project's `pyproject.toml` (e.g. `>=1.2,<2`). Tighten constraints there if you need to block majors for Python deps.
+## Local Development
 
-## Go modules (Hugo / `go tool`)
+Build the CLI from the workspace root:
 
-- **Moon**: same discovery as Python, filtered by `language: go` and `go.mod` (e.g. `apps/web`).
-- **Tool-only** (no local `.go` packages, only `tool` lines in `go.mod`): `luna outdated` runs `go list -m -u` on each tool path (~1s); `luna update` runs `go get -tool @newest` per tool (not `go get -u all` across Hugo’s transitive graph).
-- **Code modules**: full-graph `go get -n -u all` / `go get -u all` plus `go build ./...` when packages exist.
-- **`LUNA_GO_FULL_GRAPH=1`**: force the legacy full-graph probe/update on tool-only modules.
+```sh
+moon run cli:build
+```
 
-## Python projects (scaling)
+Run tests:
 
-- **Moon**: `luna outdated` / `luna update` discover all **`language: python`** projects via `moon query projects --language python` (same graph as `.moon/workspace.yml`).
-- **Fallback**: if `moon` is missing or returns nothing useful, the CLI scans `apps/*` and `packages/*` for `moon.yml` + `pyproject.toml`.
-- **Extras**: `UV_PROJECT_ROOT` adds **one** additional directory (e.g. a tool outside `apps/`), merged with discovered roots.
+```sh
+moon run cli:test
+```
 
-## Compile (optional)
+Run the CLI directly:
 
-From this package: `bun run build` → standalone binary under `dist/` (ignored by git).
+```sh
+./target/debug/luna --help
+```
 
-## Roadmap
+Or from the workspace root using Moon:
 
-- **More top-level commands** — e.g. `clean`, `add`, `run`, `build`, `dev` (thin wrappers over moon/bun/proto as needed).
-- **`--quiet` for `outdated` / `update`** — Less banner noise or machine-readable output; needs a shared verbosity flag through `src/commands/*` and `lib/utils.ts`.
+```sh
+moon run cli:dev    # runs "luna dev" via the :dev task
+```
+
+## Architecture
+
+The CLI uses a simple module structure:
+
+- **cli.rs** — Clap-based command-line interface (subcommands, args, help)
+- **commands/** — Command implementations
+  - **moon.rs** — Moon task wrappers (build, test, dev, start, graph, tasks, projects, ci)
+  - **scripts.rs** — Quality commands (install, clean, lint, format, typecheck, check, fix)
+  - **outdated.rs** — Toolchain/dependency outdated detection
+  - **update.rs** — Toolchain/dependency updates
+- **runner.rs** — Process execution (run, capture, ensure_installed)
+- **workspace.rs** — Root discovery, project detection (Moon + fallback scanning)
+- **session.rs** — Starbase session wrapper
+
+Commands dispatch from `commands/mod.rs` → individual command modules → `runner` for subprocess calls.
+
+## Moon tasks
+
+| Task | Purpose |
+| ---- | -------- |
+| `cli:build` | Compile the CLI (`cargo build`) |
+| `cli:test` | Run unit and integration tests |
+| `cli:check` | Run `cargo check` (via inherited task) |
+| `cli:clippy` | Run `cargo clippy` |
+| `cli:fmt` | Run `cargo fmt` |
+
+```sh
+moon run cli:build
+moon run cli:test
+moon run cli:check
+```

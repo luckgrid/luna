@@ -1,0 +1,12 @@
+[workspace]
+members = ["packages/cli"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+repository = "github.com/luckgrid/luna"
+
+[profile.release]
+strip = true
+lto = "thin"

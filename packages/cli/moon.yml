@@ -1,17 +1,13 @@
-language: typescript
+language: rust
+layer: library
 stack: systems
 
 tags:
-  - bun-ts-lib
+  - rs-bin
 
 project:
   name: cli
-  description: "Bun-native `luna` CLI: dependency tooling today; design-system / UI commands later."
+  description: "Rust `luna` CLI: a Moon/Proto-backed orchestrator for the Luna monorepo."
 
-workspace:
-  inheritedTasks:
-    include:
-      - "clean"
-      - "typecheck"
-      - "build"
-      - "dev"
+env:
+  CARGO_TERM_COLOR: "always"
