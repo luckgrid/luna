@@ -55,19 +55,3 @@ fn missing_subcommand() {
         .failure()
         .stderr(predicate::str::contains("COMMAND"));
 }
-
-#[test]
-fn binary_name_alias() {
-    Command::cargo_bin("lna")
-        .unwrap()
-        .args(["check", "--help"])
-        .assert()
-        .success();
-
-    Command::cargo_bin("lna")
-        .unwrap()
-        .arg("--version")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("luna 0.1.0"));
-}

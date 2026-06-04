@@ -1,0 +1,6 @@
+language: go
+layer: library
+
+project:
+  name: go-demo
+  description: Demo Go workspace package (go.work member; not for production).

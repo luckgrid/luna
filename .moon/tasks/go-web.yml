@@ -91,5 +91,6 @@ tasks:
       - "node_modules"
       - "resources"
       - ".hugo_build.lock"
+      - "hugo_stats.json"
     options:
       cache: false

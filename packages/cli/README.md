@@ -17,41 +17,31 @@ See root [README Tech Stacks](../../README.md#tech-stacks) for toolchain details
 
 ## Commands
 
-| Command                 | Description                                                                     |
-| ----------------------- | ------------------------------------------------------------------------------- |
-| `luna build`            | Run application-layer build tasks (`moon run :build`)                           |
-| `luna build <project>`  | Build a specific project (`moon run <project>:build`)                           |
-| `luna build --affected` | Build affected projects only                                                    |
-| `luna dev`              | Start dev servers (`moon run :dev`)                                             |
-| `luna start`            | Start production servers (`moon run :start`)                                    |
-| `luna test`             | Run tests (`moon run :test`)                                                    |
-| `luna run <targets...>` | Run Moon targets directly                                                       |
-| `luna graph`            | Display project graph (`moon project-graph`)                                    |
-| `luna tasks`            | List all Moon tasks                                                             |
-| `luna projects`         | List all Moon projects                                                          |
-| `luna ci`               | Run affected tasks in CI (`moon ci`)                                            |
-| `luna install`          | Bootstrap workspace (proto + CLI + bun + moon builds)                           |
-| `luna clean`            | Apps/packages → `moon clean --all` → root outputs (full reset for re-bootstrap) |
-| `luna lint`             | Lint all stacks (oxlint, ruff, cargo clippy)                                    |
-| `luna lint --fix`       | Apply lint fixes                                                                |
-| `luna format`           | Format all stacks (oxfmt, ruff, cargo fmt)                                      |
-| `luna format --check`   | Check formatting without writing                                                |
-| `luna typecheck`        | Typecheck all stacks (tsc, hugo)                                                |
-| `luna check`            | Lint + format:check + typecheck                                                 |
-| `luna fix`              | Lint:fix + format                                                               |
-| `luna outdated`         | Report outdated toolchains/dependencies (exits 1 if any)                        |
-| `luna update`           | Update toolchains and dependencies, re-run install                              |
-| `luna update --major`   | Also apply major-version bumps                                                  |
-
-## Aliases (optional)
-
-`cargo install` also installs shorter binary names that are drop-in replacements for `luna` — same subcommands, flags, and arguments:
-
-| Alias | Example   |
-| ----- | --------- |
-| `lna` | `lna dev` |
-
-After `moon run cli:install`, these are available in `~/.cargo/bin/` alongside `luna` (ensure that directory is on your `PATH`).
+| Command                 | Description                                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `luna build`            | Run application-layer build tasks (`moon run :build`)                                                          |
+| `luna build <project>`  | Build a specific project (`moon run <project>:build`)                                                          |
+| `luna build --affected` | Build affected projects only                                                                                   |
+| `luna dev`              | Start dev servers (`moon run :dev`)                                                                            |
+| `luna start`            | Start production servers (`moon run :start`)                                                                   |
+| `luna test`             | Run tests (`moon run :test`)                                                                                   |
+| `luna run <targets...>` | Run Moon targets directly                                                                                      |
+| `luna graph`            | Display project graph (`moon project-graph`)                                                                   |
+| `luna tasks`            | List all Moon tasks                                                                                            |
+| `luna projects`         | List all Moon projects                                                                                         |
+| `luna ci`               | Run affected tasks in CI (`moon ci`)                                                                           |
+| `luna install`          | Bootstrap workspace (proto + CLI + bun + uv sync + sync Go pins from `.prototools` + go work sync + web setup) |
+| `luna clean`            | Apps/packages → `moon clean --all` → root outputs (full reset for re-bootstrap)                                |
+| `luna lint`             | Lint all stacks (oxlint, ruff, cargo clippy)                                                                   |
+| `luna lint --fix`       | Apply lint fixes                                                                                               |
+| `luna format`           | Format all stacks (oxfmt, ruff, cargo fmt)                                                                     |
+| `luna format --check`   | Check formatting without writing                                                                               |
+| `luna typecheck`        | Typecheck all stacks (tsc, hugo)                                                                               |
+| `luna check`            | Lint + format:check + typecheck                                                                                |
+| `luna fix`              | Lint:fix + format                                                                                              |
+| `luna outdated`         | Report outdated deps: proto → Rust → Bun → uv → Go (informational; exits 0)                                    |
+| `luna update`           | Update in that order, then re-run install                                                                      |
+| `luna update --major`   | Also apply major-version bumps                                                                                 |
 
 ## Global flags
 
@@ -71,8 +61,8 @@ Or with `luna` already on PATH: `luna install`.
 CLI only:
 
 ```sh
-moon run cli:build      # target/debug/luna (+ lna)
-moon run cli:install    # ~/.cargo/bin/luna (+ lna)
+moon run cli:build      # target/debug/luna
+moon run cli:install    # ~/.cargo/bin/luna
 ```
 
 Build without installing:

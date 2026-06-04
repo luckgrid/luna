@@ -17,7 +17,6 @@ tasks:
       - "/Cargo.lock"
     outputs:
       - "/target/debug/luna"
-      - "/target/debug/lna"
 
   install:
     command: cargo
@@ -57,8 +56,7 @@ tasks:
       - "@group(sources)"
 
   clean:
-    script: >-
-      cargo clean &&
-      rm -f "$MOON_WORKSPACE_ROOT/.crates.toml" "$MOON_WORKSPACE_ROOT/.crates2.json"
+    command: cargo
+    args: ["clean"]
     options:
       cache: false

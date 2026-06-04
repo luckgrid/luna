@@ -1,0 +1,39 @@
+inheritedBy:
+  language: go
+  layer: library
+
+fileGroups:
+  configs:
+    - "go.mod"
+    - "go.sum"
+  sources:
+    - "*.go"
+
+tasks:
+  build:
+    command: go
+    args: ["build", "./..."]
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
+  test:
+    command: go
+    args: ["test", "./..."]
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
+  vet:
+    command: go
+    args: ["vet", "./..."]
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+
+  # Pure library modules have no repo-local build outputs; never run bare `git clean -fdx`
+  # (no paths) here — that would delete untracked source such as a new go-demo tree.
+  clean:
+    script: "true"
+    options:
+      cache: false

@@ -1,7 +1,8 @@
 use crate::cli::GlobalArgs;
 use crate::commands::moon;
 use crate::runner;
-use miette::Result;
+use crate::workspace;
+use miette::{IntoDiagnostic, Result};
 use std::path::Path;
 
 /// Install pinned toolchains and build/install the `luna` CLI (moon tasks).
@@ -13,7 +14,7 @@ pub fn bootstrap_cli(root: &Path, global: &GlobalArgs) -> Result<i32> {
     Ok(0)
 }
 
-/// Install workspace deps (bun, web, api) after the CLI is available.
+/// Install workspace deps (bun, uv, go, web) after the CLI is available.
 pub fn bootstrap_workspace(root: &Path, global: &GlobalArgs) -> Result<i32> {
     runner::ensure_installed("bun", root)?;
     run_step(
@@ -22,8 +23,26 @@ pub fn bootstrap_workspace(root: &Path, global: &GlobalArgs) -> Result<i32> {
         root,
         global,
     )?;
+
+    if workspace::uv_workspace_root(root).is_some() {
+        runner::ensure_installed("uv", root)?;
+        run_step("uv", &["sync".to_string()], root, global)?;
+    } else {
+        run_step_moon(&["run", "api:build"], root, global)?;
+    }
+
+    if root.join("go.work").is_file() {
+        workspace::sync_go_toolchain(root, global.quiet)?;
+        runner::ensure_installed("go", root)?;
+        run_step(
+            "go",
+            &["work".to_string(), "sync".to_string()],
+            root,
+            global,
+        )?;
+    }
+
     run_step_moon(&["run", "web:setup"], root, global)?;
-    run_step_moon(&["run", "api:build"], root, global)?;
     Ok(0)
 }
 
@@ -36,7 +55,7 @@ pub fn install(root: &Path, global: &GlobalArgs) -> Result<i32> {
     bootstrap_workspace(root, global)
 }
 
-/// Full reset: apps/packages → Moon cache → root gitignored outputs (for re-bootstrap).
+/// Full reset: apps/packages → moon clean → root gitignored outputs → `.moon/cache` last.
 pub fn clean(root: &Path, global: &GlobalArgs) -> Result<i32> {
     // 1. Per-project artifacts (venv, dist, cargo target via cli:clean, etc.)
     run_step_moon(
@@ -45,12 +64,23 @@ pub fn clean(root: &Path, global: &GlobalArgs) -> Result<i32> {
         global,
     )?;
 
-    // 2. Moon task cache (not removed by git clean)
+    // 2. Prune moon task cache entries (still uses `.moon/cache` on disk)
     run_step_moon(&["clean", "--all"], root, global)?;
 
-    // 3. Root outputs last so proto install / cli:build start from a clean tree
+    // 3. Root install artifacts and caches (not `.moon/cache` — that is moon-owned)
     run_step_moon(&["run", "luna:clean"], root, global)?;
+
+    // 4. Drop `.moon/cache` last; moon recreates it on every `moon` invocation until this step
+    remove_moon_cache(root)?;
     Ok(0)
+}
+
+fn remove_moon_cache(root: &Path) -> Result<()> {
+    let moon_cache = root.join(".moon").join("cache");
+    if moon_cache.is_dir() {
+        std::fs::remove_dir_all(&moon_cache).into_diagnostic()?;
+    }
+    Ok(())
 }
 
 /// Lint all stacks: TS (oxlint) + Python (moon api:lint) + Rust (cargo clippy).

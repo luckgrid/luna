@@ -72,7 +72,7 @@ pub enum Commands {
     Check,
     /// Lint fix + format.
     Fix,
-    /// Report outdated toolchains and dependencies (exit 1 if any are outdated).
+    /// Report outdated toolchains and dependencies (informational; exits 0).
     Outdated,
     /// Update toolchains and dependencies, then re-run install.
     Update(UpdateArgs),
@@ -212,17 +212,5 @@ mod tests {
         } else {
             panic!("expected Run command");
         }
-    }
-
-    #[test]
-    fn parse_binary_name_alias() {
-        let cli = Cli::try_parse_from(["lna", "check"]).unwrap();
-        assert!(matches!(cli.command, Commands::Check));
-
-        let cli = Cli::try_parse_from(["lna", "build", "--affected"]).unwrap();
-        assert!(matches!(
-            cli.command,
-            Commands::Build(TaskArgs { affected: true, .. })
-        ));
     }
 }

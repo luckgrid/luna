@@ -18,8 +18,9 @@ tasks:
     args: ["sync"]
     inputs:
       - "@group(configs)"
+      - "/pyproject.toml"
     outputs:
-      - "uv.lock"
+      - "/uv.lock"
 
   dev:
     command: "uv"
@@ -102,7 +103,7 @@ tasks:
 
   clean:
     script: >-
-      git clean -fdx -- .pytest_cache .ruff_cache .venv .eggs &&
+      git clean -fdx -- .pytest_cache .ruff_cache .eggs .venv &&
       find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
     options:
       cache: false

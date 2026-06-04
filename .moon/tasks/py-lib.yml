@@ -1,0 +1,51 @@
+inheritedBy:
+  language: python
+  layer: library
+
+fileGroups:
+  configs:
+    - "*.toml"
+  sources:
+    - "*.py"
+    - "src/**/*.py"
+  tests:
+    - "tests/**/*"
+
+tasks:
+  lint:
+    command: "uv"
+    args: ["run", "ruff", "check", "."]
+    inputs:
+      - "@group(sources)"
+
+  lint-fix:
+    command: "uv"
+    args: ["run", "ruff", "check", "--fix", "."]
+    inputs:
+      - "@group(sources)"
+
+  format:
+    command: "uv"
+    args: ["run", "ruff", "format", "."]
+    inputs:
+      - "@group(sources)"
+
+  format-check:
+    command: "uv"
+    args: ["run", "ruff", "format", "--check", "."]
+    inputs:
+      - "@group(sources)"
+
+  test:
+    command: "uv"
+    args: ["run", "pytest", "tests/"]
+    inputs:
+      - "@group(sources)"
+      - "@group(tests)"
+
+  clean:
+    script: >-
+      git clean -fdx -- .pytest_cache .ruff_cache .eggs &&
+      find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
+    options:
+      cache: false

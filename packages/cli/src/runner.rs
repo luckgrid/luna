@@ -1,4 +1,5 @@
 use miette::{miette, IntoDiagnostic, Result};
+use std::collections::HashMap;
 use std::env;
 use std::io::ErrorKind;
 use std::path::Path;
@@ -11,11 +12,13 @@ pub struct Output {
     pub stderr: String,
 }
 
-/// Build a PATH string with `<root>/node_modules/.bin` and `~/.cargo/bin`
-/// prepended so workspace-dev tools (tsc, oxlint, oxfmt) and Cargo binaries
-/// are resolvable without relying on global PATH.
+/// Build a PATH string with workspace bins, proto shims, and `~/.cargo/bin`
+/// prepended so tools resolve to `.prototools` pins when possible.
 fn enriched_path(root: &Path) -> String {
     let node_bin = root.join("node_modules").join(".bin");
+    let proto_shims = home::home_dir()
+        .map(|h| h.join(".proto").join("shims"))
+        .filter(|p| p.is_dir());
     let cargo_bin = home::home_dir()
         .map(|h| h.join(".cargo").join("bin"))
         .filter(|p| p.is_dir());
@@ -24,6 +27,9 @@ fn enriched_path(root: &Path) -> String {
     let mut prefixes = Vec::new();
     if node_bin.is_dir() {
         prefixes.push(node_bin.display().to_string());
+    }
+    if let Some(shims) = proto_shims {
+        prefixes.push(shims.display().to_string());
     }
     if let Some(cb) = cargo_bin {
         prefixes.push(cb.display().to_string());
@@ -35,6 +41,29 @@ fn enriched_path(root: &Path) -> String {
     }
 }
 
+/// Extra env vars so child tools use proto-pinned runtimes (e.g. `UV_PYTHON`).
+fn toolchain_env(root: &Path) -> HashMap<String, String> {
+    let mut vars = HashMap::new();
+    if let Some(python) = crate::workspace::proto_tool_binary(root, "python") {
+        vars.insert("UV_PYTHON".into(), python.display().to_string());
+    }
+    vars
+}
+
+fn apply_toolchain_env(cmd: &mut Command, root: &Path) {
+    cmd.env("PATH", enriched_path(root));
+    for (key, value) in toolchain_env(root) {
+        cmd.env(key, value);
+    }
+}
+
+/// Run a tool via `proto run <tool> -- …` so the `.prototools` pin is used.
+pub fn run_proto(tool: &str, args: &[String], cwd: &Path, quiet: bool) -> Result<i32> {
+    let mut argv = vec!["run".to_string(), tool.to_string(), "--".to_string()];
+    argv.extend(args.iter().cloned());
+    run("proto", &argv, cwd, quiet)
+}
+
 /// Run a command with inherited stdio at `cwd`, returning its exit code.
 ///
 /// Prepends `<cwd>/node_modules/.bin` to PATH so workspace bin tools are
@@ -44,10 +73,10 @@ pub fn run(program: &str, args: &[String], cwd: &Path, quiet: bool) -> Result<i3
         eprintln!("\x1b[2m› {} {}\x1b[0m", program, args.join(" "));
     }
 
-    let status = Command::new(program)
-        .args(args)
-        .current_dir(cwd)
-        .env("PATH", enriched_path(cwd))
+    let mut cmd = Command::new(program);
+    cmd.args(args).current_dir(cwd);
+    apply_toolchain_env(&mut cmd, cwd);
+    let status = cmd
         .stdin(Stdio::inherit())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
@@ -59,10 +88,10 @@ pub fn run(program: &str, args: &[String], cwd: &Path, quiet: bool) -> Result<i3
 
 /// Run a command and capture its stdout/stderr instead of inheriting them.
 pub fn capture(program: &str, args: &[String], cwd: &Path) -> Result<Output> {
-    let out = Command::new(program)
-        .args(args)
-        .current_dir(cwd)
-        .env("PATH", enriched_path(cwd))
+    let mut cmd = Command::new(program);
+    cmd.args(args).current_dir(cwd);
+    apply_toolchain_env(&mut cmd, cwd);
+    let out = cmd
         .stdin(Stdio::null())
         .output()
         .map_err(|err| map_spawn_error(program, err))?;
@@ -79,9 +108,10 @@ pub fn capture(program: &str, args: &[String], cwd: &Path) -> Result<Output> {
 /// Uses the workspace PATH (with `node_modules/.bin`) so dev-tool binaries
 /// like `tsc` and `oxlint` are found after `bun install`.
 pub fn ensure_installed(program: &str, root: &Path) -> Result<()> {
-    match Command::new(program)
-        .arg("--version")
-        .env("PATH", enriched_path(root))
+    let mut cmd = Command::new(program);
+    cmd.arg("--version");
+    apply_toolchain_env(&mut cmd, root);
+    match cmd
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())

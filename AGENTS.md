@@ -24,6 +24,9 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 - Toolchain pins: [`.prototools`](.prototools)
 - Root manifest/dev dependencies: [`package.json`](package.json) — Bun workspace manifest only; all scripts removed in favor of `luna`
+- Python workspace (uv): [`pyproject.toml`](pyproject.toml) — virtual root + [`uv.lock`](uv.lock) + [`.venv`](.venv); members `apps/api`, `packages/py-demo`
+- Go workspace: [`go.work`](go.work) — members `apps/web`, `packages/go-demo`; commit `go-demo` sources (never bare `git clean` in `go-lib` — it deleted untracked files)
+- Rust workspace: [`Cargo.toml`](Cargo.toml) — member `packages/cli`
 - Repo-wide outdated / update: [`packages/cli`](packages/cli) — Rust CLI built with Starbase + Clap; `luna outdated` / `luna update` delegate to proto/bun/uv/go per toolchain
 - Moon workspace/toolchains/tasks: [`.moon/`](.moon/)
 - TypeScript project references: [`tsconfig.json`](tsconfig.json), [`tsconfig.options.json`](tsconfig.options.json)
@@ -59,5 +62,6 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 - **Direct orchestration**: `luna` calls tools directly (proto, moon, bun, oxlint, oxfmt, tsc, cargo, go, uv, git) — no `bun run` indirection.
 - **Moon owns the task graph**: `luna build`/`test`/`dev`/`start` translate to `moon run :<task>` with appropriate `--query`/`--affected` flags.
 - **`luna` owns quality across all stacks**: `luna lint`/`format`/`typecheck`/`check`/`fix` cover TS (oxlint/oxfmt/tsc), Python (ruff via moon), Rust (cargo clippy/fmt), and Go (hugo config via moon).
-- **`outdated`/`update` manage all toolchains** (proto, bun, uv, go) because no single tool covers all four.
+- **`outdated`/`update` manage all toolchains** (proto, Rust/Cargo, bun, uv, go) because no single tool covers all five.
+- **Proto pins are source of truth**: `luna install` / `luna update` sync `go.work` and workspace `go.mod` `go` directives from [`.prototools`](.prototools); subprocesses prepend `~/.proto/shims` and set `UV_PYTHON` to the pinned Python.
 - **Workspace bin resolution**: `process::run` prepends `node_modules/.bin` and `~/.cargo/bin` to PATH so dev-tool and cargo binaries are found without global PATH setup.

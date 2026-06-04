@@ -5,10 +5,9 @@ use miette::Result;
 use std::path::Path;
 
 /// Report outdated proto pins, Bun workspaces, uv lockfiles, and Go modules.
-/// Returns exit code 1 when anything is outdated (CI-friendly), else 0.
+/// Always exits 0 after printing the report (outdated findings are informational).
 pub fn run(root: &Path, _global: &GlobalArgs) -> Result<i32> {
     runner::ensure_installed("proto", root)?;
-    runner::ensure_installed("bun", root)?;
 
     let mut outdated_tiers: Vec<&str> = Vec::new();
 
@@ -26,6 +25,23 @@ pub fn run(root: &Path, _global: &GlobalArgs) -> Result<i32> {
         ok("all pins up to date");
     }
 
+    // Rust / Cargo workspace
+    if root.join("Cargo.toml").is_file() && root.join("Cargo.lock").is_file() {
+        section("Rust / Cargo — workspace");
+        match rust_outdated(root)? {
+            RustOutdated::UpToDate => ok("all workspace dependencies up to date"),
+            RustOutdated::Outdated(output) => {
+                print!("{output}");
+                outdated_tiers.push("Rust / Cargo");
+            }
+            RustOutdated::Skipped(msg) => {
+                println!("\x1b[33m⊘\x1b[0m {msg}");
+            }
+        }
+    }
+
+    runner::ensure_installed("bun", root)?;
+
     // Bun workspaces
     section("Bun — workspace dependencies");
     let bun = runner::capture(
@@ -40,41 +56,67 @@ pub fn run(root: &Path, _global: &GlobalArgs) -> Result<i32> {
         ok("all workspace dependencies up to date");
     }
 
-    // Python / uv
-    let uv_roots = workspace::project_roots(root, "python", "pyproject.toml");
-    if uv_roots.is_empty() {
-        section("Python / uv");
-        ok("no uv projects discovered");
-    } else {
+    // Python / uv (single root lockfile when workspace is configured)
+    if let Some(uv_root) = workspace::uv_workspace_root(root) {
         runner::ensure_installed("uv", root)?;
-        let mut any = false;
-        for project in &uv_roots {
-            let label = rel(root, project);
-            section(&format!("Python / uv — {label}"));
-            let out = runner::capture(
-                "uv",
-                &[
-                    "lock".to_string(),
-                    "--upgrade".to_string(),
-                    "--dry-run".to_string(),
-                ],
-                project,
-            )?;
-            let combined = format!("{}{}", out.stdout, out.stderr);
-            if uv_outdated(&combined) {
-                for line in combined
-                    .lines()
-                    .filter(|l| l.trim_start().starts_with("Update "))
-                {
-                    println!("{line}");
-                }
-                any = true;
-            } else {
-                ok("lockfile up to date");
+        section("Python / uv — workspace");
+        let out = runner::capture(
+            "uv",
+            &[
+                "lock".to_string(),
+                "--upgrade".to_string(),
+                "--dry-run".to_string(),
+            ],
+            &uv_root,
+        )?;
+        let combined = format!("{}{}", out.stdout, out.stderr);
+        if uv_outdated(&combined) {
+            for line in combined
+                .lines()
+                .filter(|l| l.trim_start().starts_with("Update "))
+            {
+                println!("{line}");
             }
+            outdated_tiers.push("Python / uv lockfile");
+        } else {
+            ok("lockfile up to date");
         }
-        if any {
-            outdated_tiers.push("Python / uv lockfile(s)");
+    } else {
+        let uv_roots = workspace::project_roots(root, "python", "pyproject.toml");
+        if uv_roots.is_empty() {
+            section("Python / uv");
+            ok("no uv projects discovered");
+        } else {
+            runner::ensure_installed("uv", root)?;
+            let mut any = false;
+            for project in &uv_roots {
+                let label = rel(root, project);
+                section(&format!("Python / uv — {label}"));
+                let out = runner::capture(
+                    "uv",
+                    &[
+                        "lock".to_string(),
+                        "--upgrade".to_string(),
+                        "--dry-run".to_string(),
+                    ],
+                    project,
+                )?;
+                let combined = format!("{}{}", out.stdout, out.stderr);
+                if uv_outdated(&combined) {
+                    for line in combined
+                        .lines()
+                        .filter(|l| l.trim_start().starts_with("Update "))
+                    {
+                        println!("{line}");
+                    }
+                    any = true;
+                } else {
+                    ok("lockfile up to date");
+                }
+            }
+            if any {
+                outdated_tiers.push("Python / uv lockfile(s)");
+            }
         }
     }
 
@@ -103,61 +145,111 @@ pub fn run(root: &Path, _global: &GlobalArgs) -> Result<i32> {
     println!();
     if outdated_tiers.is_empty() {
         println!("\x1b[32m✓ All checks passed (nothing reported as outdated).\x1b[0m");
-        Ok(0)
     } else {
-        eprintln!("\x1b[1;31mOutdated check failed — upgrades reported in:\x1b[0m");
+        println!("\x1b[1;33mOutdated dependencies reported in:\x1b[0m");
         for tier in &outdated_tiers {
-            eprintln!("  \x1b[31m•\x1b[0m {tier}");
+            println!("  \x1b[33m•\x1b[0m {tier}");
         }
-        eprintln!(
-            "\x1b[2mExit code 1 is intentional (use in CI). To refresh, run: luna update\x1b[0m"
-        );
-        Ok(1)
+        println!("\x1b[2mTo refresh, run: luna update\x1b[0m");
     }
+    Ok(0)
 }
 
 fn go_module_outdated(module: &Path) -> bool {
-    if workspace::is_go_tool_only(module) {
-        let mut args = vec!["list".to_string(), "-m".to_string(), "-u".to_string()];
-        args.extend(workspace::go_tool_paths(module));
-        let Ok(out) = runner::capture("go", &args, module) else {
-            return false;
-        };
-        let has = out
-            .stdout
-            .lines()
-            .any(|l| go_list_line_has_upgrade(l.trim()));
-        if has {
-            for line in out
-                .stdout
-                .lines()
-                .filter(|l| go_list_line_has_upgrade(l.trim()))
-            {
-                println!("{line}");
-            }
-        }
-        has
+    if workspace::go_uses_tool_fast_path(module) {
+        go_tools_outdated(module)
     } else {
-        let Ok(out) = runner::capture(
-            "go",
+        go_list_modules_outdated(module)
+    }
+}
+
+fn go_tools_outdated(module: &Path) -> bool {
+    let mut args = vec!["list".to_string(), "-m".to_string(), "-u".to_string()];
+    args.extend(workspace::go_tool_paths(module));
+    let Ok(out) = runner::capture("go", &args, module) else {
+        return false;
+    };
+    print_go_list_upgrades(&out.stdout)
+}
+
+fn go_list_modules_outdated(module: &Path) -> bool {
+    let mut args = vec!["list".to_string(), "-m".to_string(), "-u".to_string()];
+    if workspace::go_full_graph_enabled() {
+        args.push("all".to_string());
+    }
+    let Ok(out) = runner::capture("go", &args, module) else {
+        return false;
+    };
+    print_go_list_upgrades(&out.stdout)
+}
+
+fn print_go_list_upgrades(stdout: &str) -> bool {
+    let lines: Vec<_> = stdout
+        .lines()
+        .filter(|l| go_list_line_has_upgrade(l.trim()))
+        .collect();
+    for line in &lines {
+        println!("{line}");
+    }
+    !lines.is_empty()
+}
+
+enum RustOutdated {
+    UpToDate,
+    Outdated(String),
+    Skipped(String),
+}
+
+fn rust_outdated(root: &Path) -> Result<RustOutdated> {
+    runner::ensure_installed("cargo", root)?;
+    let has_outdated_cmd = runner::capture(
+        "cargo",
+        &["outdated".to_string(), "--version".to_string()],
+        root,
+    )
+    .map(|o| o.code == 0)
+    .unwrap_or(false);
+
+    if !has_outdated_cmd {
+        let install_code = runner::run(
+            "cargo",
             &[
-                "get".to_string(),
-                "-n".to_string(),
-                "-u".to_string(),
-                "all".to_string(),
+                "install".to_string(),
+                "cargo-outdated".to_string(),
+                "--locked".to_string(),
             ],
-            module,
-        ) else {
-            return false;
-        };
-        let combined = format!("{}{}", out.stdout, out.stderr);
-        let has = combined.lines().any(go_get_dry_run_change);
-        if has {
-            for line in combined.lines().filter(|l| go_get_dry_run_change(l)) {
-                println!("{line}");
-            }
+            root,
+            true,
+        )?;
+        if install_code != 0 {
+            return Ok(RustOutdated::Skipped(
+                "install `cargo-outdated` (`cargo install cargo-outdated`) to check Rust deps"
+                    .to_string(),
+            ));
         }
-        has
+    }
+
+    let out = match runner::capture("cargo", &["outdated".to_string()], root) {
+        Ok(o) => o,
+        Err(_) => {
+            return Ok(RustOutdated::Skipped(
+                "could not run `cargo outdated` (install with `cargo install cargo-outdated`)"
+                    .to_string(),
+            ));
+        }
+    };
+    let combined = format!("{}{}", out.stdout, out.stderr);
+    // `cargo outdated` exits 1 when upgrades are available.
+    if out.code == 1 {
+        Ok(RustOutdated::Outdated(combined))
+    } else if out.code == 0 {
+        Ok(RustOutdated::UpToDate)
+    } else {
+        Ok(RustOutdated::Skipped(format!(
+            "`cargo outdated` failed (exit {}): {}",
+            out.code,
+            combined.trim()
+        )))
     }
 }
 
@@ -198,12 +290,6 @@ fn go_list_line_has_upgrade(line: &str) -> bool {
     // `path current [newest]` — the bracket marks an available upgrade.
     let mut parts = line.split_whitespace();
     matches!((parts.next(), parts.next(), parts.next()), (Some(_), Some(_), Some(third)) if third.starts_with('['))
-}
-
-fn go_get_dry_run_change(line: &str) -> bool {
-    line.starts_with("go: upgraded ")
-        || line.starts_with("go: downgraded ")
-        || line.starts_with("go: added ")
 }
 
 fn run_text(program: &str, args: &[&str], cwd: &Path) -> String {

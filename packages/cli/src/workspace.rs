@@ -27,6 +27,132 @@ pub fn find_root() -> Result<PathBuf> {
     }
 }
 
+/// Pinned version for a tool in `.prototools` (e.g. `go = "1.26.4"` → `1.26.4`).
+pub fn prototools_pin(root: &Path, tool: &str) -> Option<String> {
+    let path = root.join(".prototools");
+    let text = std::fs::read_to_string(&path).ok()?;
+    for line in text.lines() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with('#') || line.starts_with('[') {
+            continue;
+        }
+        let Some((key, value)) = line.split_once('=') else {
+            continue;
+        };
+        if key.trim() == tool {
+            let version = value.trim().trim_matches('"').trim_matches('\'');
+            if !version.is_empty() {
+                return Some(version.to_string());
+            }
+        }
+    }
+    None
+}
+
+/// `~/.proto/tools/<tool>/<version>/bin/<tool>` from `.prototools` pins.
+pub fn proto_tool_binary(root: &Path, tool: &str) -> Option<PathBuf> {
+    let version = prototools_pin(root, tool)?;
+    let bin = home::home_dir()?
+        .join(".proto")
+        .join("tools")
+        .join(tool)
+        .join(&version)
+        .join("bin")
+        .join(tool);
+    if bin.is_file() {
+        Some(bin)
+    } else {
+        None
+    }
+}
+
+/// Module paths listed in `go.work` (`use (` … `)`).
+pub fn go_work_use_paths(root: &Path) -> Vec<PathBuf> {
+    let path = root.join("go.work");
+    let Ok(text) = std::fs::read_to_string(&path) else {
+        return Vec::new();
+    };
+    let mut in_use = false;
+    let mut modules = Vec::new();
+    for line in text.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with("use (") || trimmed == "use (" {
+            in_use = true;
+            continue;
+        }
+        if in_use {
+            if trimmed == ")" {
+                break;
+            }
+            if let Some(rest) = trimmed.strip_prefix("./") {
+                let rel = rest.trim_end_matches(',');
+                modules.push(root.join(rel));
+            }
+        }
+    }
+    modules
+}
+
+/// Align `go.work` and workspace `go.mod` `go` directives with `.prototools`.
+pub fn sync_go_toolchain(root: &Path, quiet: bool) -> Result<()> {
+    let Some(version) = prototools_pin(root, "go") else {
+        return Ok(());
+    };
+    if !root.join("go.work").is_file() {
+        return Ok(());
+    }
+
+    runner::ensure_installed("proto", root)?;
+
+    let edit_go = format!("-go={version}");
+    let code = runner::run_proto(
+        "go",
+        &["work".to_string(), "edit".to_string(), edit_go.clone()],
+        root,
+        quiet,
+    )?;
+    if code != 0 {
+        return Err(miette!(
+            "`proto run go -- work edit -go={version}` failed with exit code {code}"
+        ));
+    }
+
+    for module in go_work_use_paths(root) {
+        if !module.join("go.mod").is_file() {
+            continue;
+        }
+        let code = runner::run_proto(
+            "go",
+            &["mod".to_string(), "edit".to_string(), edit_go.clone()],
+            &module,
+            quiet,
+        )?;
+        if code != 0 {
+            return Err(miette!(
+                "`proto run go -- mod edit -go={version}` failed in {} (exit {code})",
+                module.display()
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Root of the uv workspace when `pyproject.toml` defines `[tool.uv.workspace]`.
+pub fn uv_workspace_root(root: &Path) -> Option<PathBuf> {
+    let pyproject = root.join("pyproject.toml");
+    if !pyproject.is_file() {
+        return None;
+    }
+    let Ok(text) = std::fs::read_to_string(&pyproject) else {
+        return None;
+    };
+    if text.contains("[tool.uv.workspace]") {
+        Some(root.to_path_buf())
+    } else {
+        None
+    }
+}
+
 /// Discover project roots for a language via `moon query projects --json`,
 /// falling back to scanning `apps/*` and `packages/*` for `moon.yml`.
 pub fn project_roots(root: &Path, language: &str, manifest: &str) -> Vec<PathBuf> {
@@ -131,21 +257,66 @@ pub fn go_tool_paths(module_root: &Path) -> Vec<String> {
     tools
 }
 
-/// True for Hugo-style modules: `tool` directives but no local Go packages.
-pub fn is_go_tool_only(module_root: &Path) -> bool {
-    if go_tool_paths(module_root).is_empty() {
+/// Fast outdated/update path: `tool` modules without real local packages (Hugo + workspace glue).
+pub fn go_uses_tool_fast_path(module_root: &Path) -> bool {
+    if go_tool_paths(module_root).is_empty() || go_full_graph_enabled() {
         return false;
     }
-    !go_has_local_packages(module_root)
+    !go_has_non_workspace_local_packages(module_root)
 }
 
-fn go_has_local_packages(module_root: &Path) -> bool {
+/// When set, Go outdated/update scans the full module graph (`all`), not just tools or direct deps.
+pub fn go_full_graph_enabled() -> bool {
+    match std::env::var_os("LUNA_GO_FULL_GRAPH") {
+        Some(v) => {
+            let s = v.to_string_lossy();
+            !s.is_empty() && s != "0" && s != "false"
+        }
+        None => false,
+    }
+}
+
+/// Local packages outside `workspace/` (e.g. `packages/go-demo` at module root).
+fn go_has_non_workspace_local_packages(module_root: &Path) -> bool {
     match runner::capture(
         "go",
-        &["list".to_string(), "./...".to_string()],
+        &[
+            "list".to_string(),
+            "-f".to_string(),
+            "{{.ImportPath}}".to_string(),
+            "./...".to_string(),
+        ],
         module_root,
     ) {
-        Ok(out) => out.code == 0 && out.stdout.split_whitespace().next().is_some(),
-        Err(_) => false,
+        Ok(out) if out.code == 0 => out.stdout.lines().any(|line| {
+            let import = line.trim();
+            !import.is_empty() && !import.ends_with("/workspace")
+        }),
+        _ => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn prototools_pin_reads_repo_root() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let pin = prototools_pin(&root, "go");
+        assert!(pin.is_some(), "expected go pin in repo .prototools");
+        assert!(
+            pin.as_deref() == Some("1.26.4"),
+            "go pin should match .prototools: {:?}",
+            pin
+        );
+    }
+
+    #[test]
+    fn go_work_use_paths_reads_repo_root() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let paths = go_work_use_paths(&root);
+        assert!(paths.iter().any(|p| p.ends_with("apps/web")));
+        assert!(paths.iter().any(|p| p.ends_with("packages/go-demo")));
     }
 }

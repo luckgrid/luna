@@ -1,6 +1,23 @@
-# cache
+# os
+.DS_Store
+Thumbs.db
+
+# bun / typescript
 .cache/
-.factory/
+dist/
+node_modules/
+
+# python
+.venv/
+.ruff_cache/
+
+# rust
+target/
+.crates.toml
+.crates2.json
+
+# builds (shared output dirs)
+build/
 
 # moon
 .moon/cache
@@ -10,20 +27,9 @@
 .env.keys
 .env*.local
 
-# builds
-.crates.toml
-.crates2.json
-build/
-dist/
-target/
-
-# modules
-node_modules/
-
 # logs
 **/**/logs/
 *.log
 
-# misc
-.DS_Store
-Thumbs.db
+# tools
+.factory/

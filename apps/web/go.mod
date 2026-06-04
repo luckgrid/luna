@@ -1,6 +1,6 @@
 module github.com/luckgrid/luna/apps/web
 
-go 1.26.2
+go 1.26.4
 
 exclude (
 	github.com/oasdiff/yaml v0.1.0
@@ -122,6 +122,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/kyokomi/emoji/v2 v2.2.13 // indirect
+	github.com/luckgrid/luna/packages/go-demo v0.0.0
 	github.com/magefile/mage v1.17.2 // indirect
 	github.com/mailru/easyjson v0.9.2 // indirect
 	github.com/makeworld-the-better-one/dither/v2 v2.4.0 // indirect
@@ -194,3 +195,5 @@ require (
 	rsc.io/qr v0.2.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.7.1 // indirect
 )
+
+replace github.com/luckgrid/luna/packages/go-demo => ../../packages/go-demo

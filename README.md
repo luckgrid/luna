@@ -90,7 +90,7 @@ luna install
 
 Subsequent refreshes: `luna install`. New pins in [`.prototools`](.prototools) are picked up by **`proto install`** (or **`luna update`**, which refreshes pins then re-runs install). [`.moon/toolchains.yml`](.moon/toolchains.yml) disables **`javascript.installDependencies`** and sets **`bun.installArgs: ["--ignore-scripts"]`**.
 
-**Full reset:** `luna clean`, then `moon run luna:install` again.
+**Full reset:** `luna clean`, then `moon run luna:install` again. Each project’s inherited `:clean` task clears its own outputs; root `luna:clean` clears repo-root artifacts (`node_modules`, `.venv`, `target`, …); `.moon/cache` is removed last. **Lockfiles are kept** (`bun.lock`, `uv.lock`, `Cargo.lock`, `go.work` / `go.sum`).
 
 For a full compile of every application project first, run **`luna build`**.
 
@@ -107,12 +107,14 @@ For a full compile of every application project first, run **`luna build`**.
   - **Modules**: `packages/ds/src/{components,layouts,primitives}/*.css` (authored as modular CSS)
   - **Patterns**: scoped root + nested layers (`@scope` + `@layer base|variants|patterns`); see [DS README](packages/ds/README.md#scoped-layers-pattern-all-modules)
 - **`packages/ui/`** — shared Solid UI · [README](packages/ui/README.md)
+- **`packages/py-demo/`** — demo Python uv workspace member (not for production)
+- **`packages/go-demo/`** — demo Go workspace library (not for production); [`apps/web`](apps/web/) links it via `workspace/link.go` + `replace` in `go.mod` (same idea as uv `workspace = true`)
 
 ### Design system CSS (DS)
 
 When updating `packages/ds`, follow the **scoped root + nested layers** CSS module pattern (`@scope` + `@layer base|variants|patterns`). The DS README is the source of truth: [DS CSS patterns](packages/ds/README.md#scoped-layers-pattern-all-modules).
 
-Moon wires build and dev tasks per project; **`api:dev`** depends on **`api:build`** (`uv sync`) so first-time dev pulls the API venv. `luna install` runs **`api:build`** after installs so the Python workspace is ready before **`luna dev`**. For step-by-step task graphs (`luna build`, Uvicorn, SolidStart), follow each workspace README above.
+Moon wires build and dev tasks per project; **`api:dev`** depends on **`api:build`** (`uv sync` at the workspace root). `luna install` runs root **`uv sync`** (one shared `.venv` + `uv.lock`) and **`go work sync`** before **`luna dev`**. For step-by-step task graphs (`luna build`, Uvicorn, SolidStart), follow each workspace README above.
 
 ## Commands
 
@@ -122,7 +124,7 @@ All day-to-day commands go through the **`luna` CLI** (`packages/cli`). It orche
 
 ```sh
 luna install     # bootstrap workspace
-luna clean       # apps/packages → moon clean --all → root (target, node_modules, .crates*, …)
+luna clean       # :clean per project → moon clean --all → root luna:clean → .moon/cache last
 luna dev         # moon run :dev --query "projectLayer=application"
 luna build       # moon run :build --query "projectLayer=application"
 luna start       # moon run :start --query "projectLayer=application"
@@ -174,13 +176,18 @@ moon run ui:typecheck
 
 - Tool/version pins: [`.prototools`](.prototools)
 - Workspace manifest + dev dependencies: [`package.json`](package.json) — Bun workspaces and dev tool versions only; all orchestration goes through `luna`
+- Python workspace (uv): [`pyproject.toml`](pyproject.toml) — virtual root, shared [`uv.lock`](uv.lock) + [`.venv`](.venv); members `apps/api`, `packages/py-demo`; shared ruff/pytest dev tooling in root `[dependency-groups]`
+- Go workspace: [`go.work`](go.work) — members `apps/web`, `packages/go-demo`
+- Rust workspace: [`Cargo.toml`](Cargo.toml) — member `packages/cli`
 - Moon workspace graph + VCS: [`.moon/workspace.yml`](.moon/workspace.yml)
 - Moon toolchains: [`.moon/toolchains.yml`](.moon/toolchains.yml) — `javascript.installDependencies: false`, `bun.installArgs: ["--ignore-scripts"]`; bootstrap with **`luna install`**. After changing JS deps, run **`bun install`** or **`luna install`**.
 - Shared TS app tasks: [`.moon/tasks/ts-app.yml`](.moon/tasks/ts-app.yml) (`language: typescript`, `layer: application`, `stack: frontend`)
 - Shared TS lib tasks: [`.moon/tasks/ts-lib.yml`](.moon/tasks/ts-lib.yml) (`language: typescript`, `layer: library`)
 - Shared Python API tasks: [`.moon/tasks/py-api.yml`](.moon/tasks/py-api.yml) (`language: python`, `stack: backend`)
+- Shared Python lib tasks: [`.moon/tasks/py-lib.yml`](.moon/tasks/py-lib.yml) (`language: python`, `layer: library`)
 - Shared Go web tasks: [`.moon/tasks/go-web.yml`](.moon/tasks/go-web.yml) (`language: go`, `stack: frontend`) — **`go tool hugo`** from [`apps/web/go.mod`](apps/web/go.mod)
-- Root workspace tasks: [`moon.yml`](moon.yml) — `luna:install` (first-time bootstrap), `luna:clean` (root outputs last in `luna clean`)
+- Shared Go lib tasks: [`.moon/tasks/go-lib.yml`](.moon/tasks/go-lib.yml) (`language: go`, `layer: library`)
+- Root workspace tasks: [`moon.yml`](moon.yml) — `luna:install` (first-time bootstrap), `luna:clean` (repo-root outputs only; `.moon/cache` dropped last by `luna clean`)
 - Shared Rust bin tasks: [`.moon/tasks/rs-bin.yml`](.moon/tasks/rs-bin.yml) (`language: rust`) — build/install/test/lint/format-check/clean via `cargo`
 
 - Root moon config: [`moon.yml`](moon.yml)
@@ -193,10 +200,10 @@ moon run ui:typecheck
 
 Repo-wide **outdated checks** and **upgrades** go through the **`luna` CLI** so every toolchain stays in sync:
 
-The `luna` CLI (`packages/cli`, built with Rust + Starbase) reports outdated **proto pins**, **Bun workspace** packages, **Python / uv** lockfile upgrades (dry-run), and **Go** modules (`language: go` + `go.mod`, plus optional `GO_MODULE_ROOT`) (`luna outdated`). Tool-only Go modules (e.g. Hugo via `go tool` in `apps/web`) are checked with fast `go list -m -u` on `tool` lines; modules with local Go code use `go get -n -u all`. `luna outdated` **always** exits **1** if any tier or project has upgrades (CI-friendly). `luna update` refreshes each discovered project. After `luna update`, review diffs and run `luna check` before committing.
+The `luna` CLI (`packages/cli`, built with Rust + Starbase) reports outdated tiers in order: **proto** → **Rust / Cargo** (`cargo outdated`) → **Bun** → **Python / uv** (root lockfile dry-run) → **Go** per `go.mod`. Hugo-style modules (`tool` in `go.mod`, local code only under `workspace/`) use `go list -m -u` on tool lines; other modules use direct `go list -m -u` (not the full workspace graph). Set `LUNA_GO_FULL_GRAPH=1` to scan or update with `go list -m -u all` / `go get -u all`. `luna outdated` prints a summary and exits **0** (findings are informational). `luna update` follows the same order, then re-runs install (`uv sync`, `go work sync`). After `luna update`, review diffs and run `luna check` before committing.
 
 ```sh
-luna outdated      # report + summary; exit 1 if anything is outdated
+luna outdated      # report + summary (exits 0)
 luna update        # bump pins and dependencies repo-wide; then review and run luna check
 luna update --major  # also apply major-version bumps where supported
 ```
@@ -206,7 +213,7 @@ luna update --major  # also apply major-version bumps where supported
 - **Toolchain (proto)** — edit [`.prototools`](.prototools), then `luna install` or `proto install` individually. Removing a tool line drops it from proto’s install set for this repo.
 - **Hugo (`apps/web`)** — `luna update` bumps the `tool` line with `go get -u=patch` (or `go get -tool …@latest` with `luna update --major`). To pin a specific release manually: `cd apps/web` then `go get -tool github.com/gohugoio/hugo@vX.Y.Z` (updates [`apps/web/go.mod`](apps/web/go.mod) / `go.sum`). Set `LUNA_GO_FULL_GRAPH=1` to restore slow full-graph `go get -u all` on tool-only modules.
 - **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
-- **Python (`apps/api`)** — `cd apps/api` then `uv add <package>` / `uv remove <package>` (updates `pyproject.toml` and `uv.lock`); sync with `uv sync`.
+- **Python (uv workspace)** — from the repo root: `uv add <package> --package api` / `uv remove <package> --package api` (updates member `pyproject.toml` and root `uv.lock`); sync with `uv sync` or `luna install`. Add a new member in root [`pyproject.toml`](pyproject.toml) `[tool.uv.workspace]` and use `[tool.uv.sources] name = { workspace = true }` for inter-member deps.
 
 ## Troubleshooting
 

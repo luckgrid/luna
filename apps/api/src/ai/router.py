@@ -2,7 +2,6 @@
 
 from fastapi import APIRouter, status
 from fastapi.responses import StreamingResponse
-
 from src.ai import schemas as ai_schemas
 from src.ai import service as ai_service
 

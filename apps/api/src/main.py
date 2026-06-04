@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-
 from src.ai.router import router as ai_router
 from src.config import get_settings
 from src.database import close_db, init_db
