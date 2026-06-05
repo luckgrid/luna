@@ -1,6 +1,7 @@
 mod cli;
 mod commands;
 mod runner;
+mod security;
 mod session;
 mod workspace;
 

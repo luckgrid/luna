@@ -9,7 +9,7 @@ from importlib.metadata import version as get_pkg_version
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
-from pydantic import PostgresDsn
+from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -67,6 +67,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables.
 
     Environment variables (from root .env.local):
+    - API_DEBUG: Enable debug mode (API docs, SQL echo, CORS fallbacks)
     - API_HOST: Server host (default: localhost)
     - API_PORT: Server port (default: 8000; usual Uvicorn convention)
     - API_BASE_URL: API base URL for cross-service communication
@@ -75,7 +76,6 @@ class Settings(BaseSettings):
     - APP_PORT: SolidStart dev port (CORS debug fallback when base URLs unset)
     - WEB_PORT: Static site dev port (CORS debug fallback when base URLs unset)
     - DATABASE_URL: Database connection string
-    - DEBUG: Enable debug mode
     """
 
     model_config = SettingsConfigDict(
@@ -87,7 +87,7 @@ class Settings(BaseSettings):
     # Server (from API_HOST, API_PORT env vars)
     api_host: str = "localhost"
     api_port: int = 8000
-    debug: bool = False
+    debug: bool = Field(default=False, validation_alias="API_DEBUG")
 
     # Dev server ports (APP_PORT, WEB_PORT) — align CORS with vite.config / moon envFile
     app_port: int = 3000

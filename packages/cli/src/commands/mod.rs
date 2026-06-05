@@ -30,7 +30,7 @@ pub async fn dispatch(session: LunaSession) -> AppResult {
         Commands::Check => scripts::check(root, global)?,
         Commands::Fix => scripts::fix(root, global)?,
         Commands::Outdated => outdated::run(root, global)?,
-        Commands::Update(args) => update::run(root, args, global)?,
+        Commands::Update(args) => update::run(root, args, global, &session.update_feedback)?,
     };
 
     Ok(Some(code.clamp(0, 255) as u8))

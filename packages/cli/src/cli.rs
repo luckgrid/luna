@@ -25,6 +25,10 @@ pub struct GlobalArgs {
     /// Silence Luna and Moon output (maps to `moon -q`).
     #[arg(short = 'q', long, global = true)]
     pub quiet: bool,
+
+    /// Wrap supported package-manager commands with Socket Firewall (`sfw`).
+    #[arg(long, global = true, env = "LUNA_FIREWALL", help_heading = "Security")]
+    pub firewall: bool,
 }
 
 impl GlobalArgs {
@@ -184,22 +188,31 @@ mod tests {
     }
 
     #[test]
+    fn parse_firewall_flag() {
+        let cli = Cli::try_parse_from(["luna", "--firewall", "outdated"]).unwrap();
+        assert!(cli.global.firewall);
+    }
+
+    #[test]
     fn log_level_mapping() {
         let g0 = GlobalArgs {
             verbose: 0,
             quiet: false,
+            firewall: false,
         };
         assert!(g0.log_level().is_none());
 
         let g1 = GlobalArgs {
             verbose: 1,
             quiet: false,
+            firewall: false,
         };
         assert_eq!(g1.log_level(), Some("debug"));
 
         let g2 = GlobalArgs {
             verbose: 2,
             quiet: false,
+            firewall: false,
         };
         assert_eq!(g2.log_level(), Some("trace"));
     }

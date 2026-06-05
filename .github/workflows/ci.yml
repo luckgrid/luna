@@ -13,11 +13,19 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      UV_PYTHON_PREFERENCE: system
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: "true"
+
+      - uses: socketdev/action@v1
+        with:
+          mode: firewall
 
       - run: moon ci

@@ -1,0 +1,9 @@
+# Bun install security defaults (see README — Dependency maintenance)
+# Source: https://github.com/lirantal/npm-security-best-practices
+
+[install]
+# Only install package versions published at least 14 days ago (seconds)
+minimumReleaseAge = 1209600
+
+# Trusted packages bypass the age gate
+minimumReleaseAgeExcludes = ["typescript", "@types/bun", "@types/node"]

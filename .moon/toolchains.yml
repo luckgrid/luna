@@ -1,6 +1,11 @@
-# Enable Rust (proto-pinned via `.prototools`).
-# Moon locates cargo binaries in `~/.cargo/bin` automatically.
-rust: {}
+# Enable Rust (version from `.prototools` via versionFromPrototools).
+# syncToolchainConfig writes `rust-toolchain.toml` `channel` from that pin;
+# components are installed by moon (not written to the file).
+rust:
+  syncToolchainConfig: true
+  components:
+    - clippy
+    - rustfmt
 
 # Enable JavaScript (shared settings for bun/node/deno toolchains).
 # In moon v2, package manager and JS-wide settings live under `javascript:`.

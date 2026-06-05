@@ -259,15 +259,15 @@ pub fn go_tool_paths(module_root: &Path) -> Vec<String> {
 
 /// Fast outdated/update path: `tool` modules without real local packages (Hugo + workspace glue).
 pub fn go_uses_tool_fast_path(module_root: &Path) -> bool {
-    if go_tool_paths(module_root).is_empty() || go_full_graph_enabled() {
+    if go_tool_paths(module_root).is_empty() || full_graph_enabled() {
         return false;
     }
     !go_has_non_workspace_local_packages(module_root)
 }
 
 /// When set, Go outdated/update scans the full module graph (`all`), not just tools or direct deps.
-pub fn go_full_graph_enabled() -> bool {
-    match std::env::var_os("LUNA_GO_FULL_GRAPH") {
+pub fn full_graph_enabled() -> bool {
+    match std::env::var_os("LUNA_FULL_GRAPH") {
         Some(v) => {
             let s = v.to_string_lossy();
             !s.is_empty() && s != "0" && s != "false"

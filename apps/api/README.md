@@ -68,9 +68,9 @@ uv run uvicorn src.main:app --port 8000
 
 | Variable         | Description                                  | Default     |
 | ---------------- | -------------------------------------------- | ----------- |
+| `API_DEBUG`      | Enable debug mode (docs, SQL echo, CORS)     | `false`     |
 | `API_HOST`       | Server host                                  | `localhost` |
 | `API_PORT`       | Server port                                  | `8000`      |
-| `DEBUG`          | Enable debug mode                            | `false`     |
 | `API_BASE_URL`   | API base URL for cross-service communication | -           |
 | `APP_BASE_URL`   | SolidStart app origin (CORS)                 | -           |
 | `WEB_BASE_URL`   | Static site origin (CORS)                    | -           |

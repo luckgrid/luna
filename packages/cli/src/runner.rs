@@ -57,6 +57,11 @@ fn apply_toolchain_env(cmd: &mut Command, root: &Path) {
     }
 }
 
+/// Apply workspace PATH and toolchain env for availability checks (e.g. `sfw --help`).
+pub fn apply_toolchain_env_for_check(cmd: &mut Command, root: &Path) {
+    apply_toolchain_env(cmd, root);
+}
+
 /// Run a tool via `proto run <tool> -- …` so the `.prototools` pin is used.
 pub fn run_proto(tool: &str, args: &[String], cwd: &Path, quiet: bool) -> Result<i32> {
     let mut argv = vec!["run".to_string(), tool.to_string(), "--".to_string()];
@@ -84,6 +89,18 @@ pub fn run(program: &str, args: &[String], cwd: &Path, quiet: bool) -> Result<i3
         .map_err(|err| map_spawn_error(program, err))?;
 
     Ok(status.code().unwrap_or(1))
+}
+
+/// Run a package-manager command, optionally prefixed with Socket Firewall (`sfw`).
+pub fn run_pm(
+    program: &str,
+    args: &[String],
+    cwd: &Path,
+    quiet: bool,
+    firewall_active: bool,
+) -> Result<i32> {
+    let (program, args) = crate::security::wrap(program, args, firewall_active);
+    run(&program, &args, cwd, quiet)
 }
 
 /// Run a command and capture its stdout/stderr instead of inheriting them.

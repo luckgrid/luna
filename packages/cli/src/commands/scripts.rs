@@ -1,6 +1,7 @@
 use crate::cli::GlobalArgs;
 use crate::commands::moon;
 use crate::runner;
+use crate::security;
 use crate::workspace;
 use miette::{IntoDiagnostic, Result};
 use std::path::Path;
@@ -16,17 +17,23 @@ pub fn bootstrap_cli(root: &Path, global: &GlobalArgs) -> Result<i32> {
 
 /// Install workspace deps (bun, uv, go, web) after the CLI is available.
 pub fn bootstrap_workspace(root: &Path, global: &GlobalArgs) -> Result<i32> {
+    let firewall = security::resolve_firewall(root, global, global.quiet);
+
     runner::ensure_installed("bun", root)?;
     run_step(
         "bun",
-        &["install".to_string(), "--ignore-scripts".to_string()],
+        &[
+            "install".to_string(),
+            "--ignore-scripts".to_string(),
+            security::bun_min_release_age_arg(),
+        ],
         root,
         global,
     )?;
 
     if workspace::uv_workspace_root(root).is_some() {
         runner::ensure_installed("uv", root)?;
-        run_step("uv", &["sync".to_string()], root, global)?;
+        run_pm_step("uv", &["sync".to_string()], root, global, firewall)?;
     } else {
         run_step_moon(&["run", "api:build"], root, global)?;
     }
@@ -198,6 +205,23 @@ pub fn fix(root: &Path, global: &GlobalArgs) -> Result<i32> {
 
 fn run_step(program: &str, args: &[String], cwd: &Path, global: &GlobalArgs) -> Result<()> {
     let code = runner::run(program, args, cwd, global.quiet)?;
+    if code != 0 {
+        return Err(miette::miette!(
+            "`{program} {}` failed with exit code {code}",
+            args.join(" ")
+        ));
+    }
+    Ok(())
+}
+
+fn run_pm_step(
+    program: &str,
+    args: &[String],
+    cwd: &Path,
+    global: &GlobalArgs,
+    firewall: bool,
+) -> Result<()> {
+    let code = runner::run_pm(program, args, cwd, global.quiet, firewall)?;
     if code != 0 {
         return Err(miette::miette!(
             "`{program} {}` failed with exit code {code}",
