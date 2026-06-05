@@ -107,7 +107,7 @@ For a full compile of every application project first, run **`luna build`**.
   - **Modules**: `packages/ds/src/{components,layouts,primitives}/*.css` (authored as modular CSS)
   - **Patterns**: scoped root + nested layers (`@scope` + `@layer base|variants|patterns`); see [DS README](packages/ds/README.md#scoped-layers-pattern-all-modules)
 - **`packages/ui/`** — shared Solid UI · [README](packages/ui/README.md)
-- **`packages/py-demo/`** — demo Python uv workspace member (not for production)
+- **`packages/py-demo/`** — demo Python uv workspace member · [README](packages/py-demo/README.md) (reference layout for new Python packages)
 - **`packages/go-demo/`** — demo Go workspace library (not for production); [`apps/web`](apps/web/) links it via `workspace/link.go` + `replace` in `go.mod` (same idea as uv `workspace = true`)
 
 ### Design system CSS (DS)
@@ -135,7 +135,7 @@ All build/dev/start/test commands accept an optional project name (`luna build a
 
 ### Code quality
 
-`luna` orchestrates quality across **all stacks** in one command — TS (oxlint/oxfmt/tsc), Python (ruff via moon), Rust (cargo clippy/fmt), and Go (hugo config via moon):
+`luna` orchestrates quality across **all stacks** in one command — TS (oxlint/oxfmt/tsc), Python (ruff at root), Rust (cargo clippy/fmt), and Go (hugo config via moon):
 
 ```sh
 luna lint             # TS: oxlint, Python: ruff check, Rust: clippy
@@ -176,14 +176,14 @@ moon run ui:typecheck
 
 - Tool/version pins: [`.prototools`](.prototools)
 - Workspace manifest + dev dependencies: [`package.json`](package.json) — Bun workspaces and dev tool versions only; all orchestration goes through `luna`
-- Python workspace (uv): [`pyproject.toml`](pyproject.toml) — virtual root, shared [`uv.lock`](uv.lock) + [`.venv`](.venv); members `apps/api`, `packages/py-demo`; shared ruff/pytest dev tooling in root `[dependency-groups]`
+- Python workspace (uv): [`pyproject.toml`](pyproject.toml) — virtual root, shared [`uv.lock`](uv.lock) + [`.venv`](.venv); members `apps/api`, `packages/py-demo`; shared ruff rules and dev deps in root; per-member run/test/build config in each member's `pyproject.toml` and moon tasks
 - Go workspace: [`go.work`](go.work) — members `apps/web`, `packages/go-demo`
 - Rust workspace: [`Cargo.toml`](Cargo.toml) — member `packages/cli`
 - Moon workspace graph + VCS: [`.moon/workspace.yml`](.moon/workspace.yml)
 - Moon toolchains: [`.moon/toolchains.yml`](.moon/toolchains.yml) — `javascript.installDependencies: false`, `bun.installArgs: ["--ignore-scripts"]`; bootstrap with **`luna install`**. After changing JS deps, run **`bun install`** or **`luna install`**.
 - Shared TS app tasks: [`.moon/tasks/ts-app.yml`](.moon/tasks/ts-app.yml) (`language: typescript`, `layer: application`, `stack: frontend`)
 - Shared TS lib tasks: [`.moon/tasks/ts-lib.yml`](.moon/tasks/ts-lib.yml) (`language: typescript`, `layer: library`)
-- Shared Python API tasks: [`.moon/tasks/py-api.yml`](.moon/tasks/py-api.yml) (`language: python`, `stack: backend`)
+- Shared Python app tasks: [`.moon/tasks/py-api.yml`](.moon/tasks/py-api.yml) (`language: python`, `layer: application`, `stack: backend`)
 - Shared Python lib tasks: [`.moon/tasks/py-lib.yml`](.moon/tasks/py-lib.yml) (`language: python`, `layer: library`)
 - Shared Go web tasks: [`.moon/tasks/go-web.yml`](.moon/tasks/go-web.yml) (`language: go`, `stack: frontend`) — **`go tool hugo`** from [`apps/web/go.mod`](apps/web/go.mod)
 - Shared Go lib tasks: [`.moon/tasks/go-lib.yml`](.moon/tasks/go-lib.yml) (`language: go`, `layer: library`)
@@ -296,5 +296,5 @@ If you know the command line, you can narrow cleanup:
 
 ```sh
 ps aux | grep -E "(uvicorn|vite)" | grep -v grep
-pkill -f "uvicorn src.main:app"   # API (adjust if your entrypoint differs)
+pkill -f "uvicorn main:app"   # API (adjust if your entrypoint differs)
 ```

@@ -18,7 +18,6 @@ tasks:
 
   clean:
     script: >-
-      git clean -fdx -- .cache .ruff_cache node_modules target .venv
-      .crates.toml .crates2.json build
+      git clean -fdx -- .cache .crates.toml .crates2.json .pytest_cache .ruff_cache .venv node_modules target
     options:
       cache: false

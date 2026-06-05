@@ -3,7 +3,7 @@ layer: application
 stack: frontend
 
 tags:
-  - ssg-web-app
+  - hugo
 
 project:
   name: web

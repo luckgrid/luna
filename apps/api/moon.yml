@@ -2,6 +2,9 @@ language: python
 layer: application
 stack: backend
 
+tags:
+  - fast-api
+
 project:
   name: api
   description: FastAPI + Pydantic AI backend for AI features.

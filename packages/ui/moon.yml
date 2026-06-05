@@ -3,7 +3,7 @@ layer: library
 stack: "frontend"
 
 tags:
-  - bun-ts-lib
+  - bun
 
 project:
   name: "ui"

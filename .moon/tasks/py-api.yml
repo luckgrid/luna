@@ -2,13 +2,15 @@ inheritedBy:
   language: python
   layer: application
   stack: backend
+  tags:
+    - fast-api
 
 fileGroups:
   configs:
     - "*.toml"
     - ".env*"
   sources:
-    - "src/**/*"
+    - "src/**/*.py"
   tests:
     - "tests/**/*"
 
@@ -27,7 +29,7 @@ tasks:
     args:
       - "run"
       - "uvicorn"
-      - "src.main:app"
+      - "main:app"
       - "--reload"
       - "--host"
       - "${API_HOST:-localhost}"
@@ -36,6 +38,7 @@ tasks:
     deps:
       - "build"
     env:
+      API_DEBUG: "true"
       PYTHONPATH: "src"
     options:
       envFile: "/.env.local"
@@ -47,7 +50,7 @@ tasks:
     args:
       - "run"
       - "uvicorn"
-      - "src.main:app"
+      - "main:app"
       - "--host"
       - "${API_HOST:-localhost}"
       - "--port"
@@ -95,6 +98,10 @@ tasks:
   test:
     command: "uv"
     args: ["run", "pytest", "tests/"]
+    deps:
+      - "build"
+    env:
+      API_DEBUG: "true"
     inputs:
       - "@group(sources)"
       - "@group(tests)"

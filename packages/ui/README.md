@@ -38,7 +38,7 @@ Shared utilities (non-component logic):
 
 ## Moon tasks
 
-`@luna/ui` uses the shared **bun-ts-lib** definitions in [`.moon/tasks/ts-lib.yml`](../../.moon/tasks/ts-lib.yml). This project’s [`moon.yml`](moon.yml) inherits:
+`@luna/ui` uses the shared **bun** definitions in [`.moon/tasks/ts-lib.yml`](../../.moon/tasks/ts-lib.yml). This project’s [`moon.yml`](moon.yml) inherits:
 
 | Task            | Purpose                                                                         |
 | --------------- | ------------------------------------------------------------------------------- |

@@ -4,12 +4,13 @@ Version is managed in pyproject.toml - update there to bump the version.
 Environment variables are sourced from the root .env.local file.
 """
 
+import os
 from functools import lru_cache
 from importlib.metadata import version as get_pkg_version
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
-from pydantic import Field, PostgresDsn
+from pydantic import Field, PostgresDsn, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -54,13 +55,22 @@ def _loopback_cors_aliases(origin: str) -> list[str]:
 
 def get_env_file_path() -> str:
     """Get path to root .env.local file."""
-    # Try root .env.local first (when run via moon), fallback to app-level
+    # src/config.py — resolve repo root .env.local when run via moon, else app-level
     root_env = Path(__file__).parent.parent.parent.parent / ".env.local"
     if root_env.exists():
         return str(root_env)
-    # Fallback to app-level .env.local
     app_env = Path(__file__).parent.parent / ".env.local"
     return str(app_env)
+
+
+def _anchor_sqlite_url(url: str) -> str:
+    """Resolve relative SQLite paths against the api app directory."""
+    scheme, sep, path = url.partition(":///")
+    if not sep or "sqlite" not in scheme or path.startswith("/"):
+        return url
+    rel = path.lstrip("./") or "data.db"
+    abs_path = (Path(__file__).parent.parent / rel).resolve()
+    return f"{scheme}:///{abs_path}"
 
 
 class Settings(BaseSettings):
@@ -88,6 +98,19 @@ class Settings(BaseSettings):
     api_host: str = "localhost"
     api_port: int = 8000
     debug: bool = Field(default=False, validation_alias="API_DEBUG")
+
+    @model_validator(mode="after")
+    def sync_debug_env(self) -> "Settings":
+        """Expose API debug to libraries that read the generic ``DEBUG`` env var."""
+        os.environ["DEBUG"] = "true" if self.debug else "false"
+        return self
+
+    @model_validator(mode="after")
+    def anchor_database_url(self) -> "Settings":
+        """Keep SQLite database files inside the api app regardless of cwd."""
+        if isinstance(self.database_url, str) and self.database_url:
+            self.database_url = _anchor_sqlite_url(self.database_url)
+        return self
 
     # Dev server ports (APP_PORT, WEB_PORT) — align CORS with vite.config / moon envFile
     app_port: int = 3000

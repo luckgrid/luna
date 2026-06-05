@@ -2,17 +2,18 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, status
-from fastapi.middleware.cors import CORSMiddleware
-from src.ai.router import router as ai_router
-from src.config import get_settings
-from src.database import close_db, init_db
-from src.exceptions import (
+from ai.router import router as ai_router
+from config import get_settings
+from database import close_db, init_db
+from exceptions import (
     ValidationException,
     app_exception_handler,
     generic_exception_handler,
 )
-from src.models import HealthResponse
+from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from models import HealthResponse
 
 
 @asynccontextmanager
@@ -54,6 +55,16 @@ app.add_middleware(
 
 
 # Health check endpoint
+@app.get("/", include_in_schema=False)
+async def root():
+    """Browser-friendly entry: docs in dev, health check otherwise."""
+    if settings.show_docs:
+        return RedirectResponse(
+            url=settings.docs_url, status_code=status.HTTP_307_TEMPORARY_REDIRECT
+        )
+    return RedirectResponse(url="/health", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+
+
 @app.get(
     "/health",
     response_model=HealthResponse,

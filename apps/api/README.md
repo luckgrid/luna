@@ -37,7 +37,7 @@ From this directory:
 
 ```sh
 uv sync
-uv run uvicorn src.main:app --reload --port 8000
+PYTHONPATH=src uv run uvicorn main:app --reload --port 8000
 ```
 
 Default port: `API_PORT` (`8000`).
@@ -55,7 +55,7 @@ From this directory:
 
 ```sh
 uv sync
-uv run uvicorn src.main:app --port 8000
+PYTHONPATH=src uv run uvicorn main:app --port 8000
 ```
 
 ## App Configs

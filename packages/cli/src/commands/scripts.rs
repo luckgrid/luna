@@ -90,7 +90,7 @@ fn remove_moon_cache(root: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Lint all stacks: TS (oxlint) + Python (moon api:lint) + Rust (cargo clippy).
+/// Lint all stacks: TS (oxlint) + Python (ruff) + Rust (cargo clippy).
 pub fn lint(root: &Path, fix: bool, global: &GlobalArgs) -> Result<i32> {
     // TS root
     runner::ensure_installed("oxlint", root)?;
@@ -104,11 +104,29 @@ pub fn lint(root: &Path, fix: bool, global: &GlobalArgs) -> Result<i32> {
         return Ok(code);
     }
 
-    // Python (moon handles uv sync dep)
-    let api_task = if fix { "api:lint-fix" } else { "api:lint" };
-    let code = moon::run_moon(root, &["run", api_task], global)?;
-    if code != 0 {
-        return Ok(code);
+    // Python (root ruff config; .ruff_cache handles incrementality)
+    if workspace::uv_workspace_root(root).is_some() {
+        runner::ensure_installed("uv", root)?;
+        let ruff_args = if fix {
+            vec![
+                "run".to_string(),
+                "ruff".to_string(),
+                "check".to_string(),
+                "--fix".to_string(),
+                ".".to_string(),
+            ]
+        } else {
+            vec![
+                "run".to_string(),
+                "ruff".to_string(),
+                "check".to_string(),
+                ".".to_string(),
+            ]
+        };
+        let code = runner::run("uv", &ruff_args, root, global.quiet)?;
+        if code != 0 {
+            return Ok(code);
+        }
     }
 
     // Rust
@@ -129,7 +147,7 @@ pub fn lint(root: &Path, fix: bool, global: &GlobalArgs) -> Result<i32> {
     runner::run("cargo", &clippy_args, root, global.quiet)
 }
 
-/// Format all stacks: TS (oxfmt) + Python (moon api:format) + Rust (cargo fmt).
+/// Format all stacks: TS (oxfmt) + Python (ruff) + Rust (cargo fmt).
 pub fn format(root: &Path, check: bool, global: &GlobalArgs) -> Result<i32> {
     // TS root
     runner::ensure_installed("oxfmt", root)?;
@@ -143,15 +161,29 @@ pub fn format(root: &Path, check: bool, global: &GlobalArgs) -> Result<i32> {
         return Ok(code);
     }
 
-    // Python (moon handles uv sync dep)
-    let api_task = if check {
-        "api:format-check"
-    } else {
-        "api:format"
-    };
-    let code = moon::run_moon(root, &["run", api_task], global)?;
-    if code != 0 {
-        return Ok(code);
+    // Python (root ruff config)
+    if workspace::uv_workspace_root(root).is_some() {
+        runner::ensure_installed("uv", root)?;
+        let ruff_args = if check {
+            vec![
+                "run".to_string(),
+                "ruff".to_string(),
+                "format".to_string(),
+                "--check".to_string(),
+                ".".to_string(),
+            ]
+        } else {
+            vec![
+                "run".to_string(),
+                "ruff".to_string(),
+                "format".to_string(),
+                ".".to_string(),
+            ]
+        };
+        let code = runner::run("uv", &ruff_args, root, global.quiet)?;
+        if code != 0 {
+            return Ok(code);
+        }
     }
 
     // Rust

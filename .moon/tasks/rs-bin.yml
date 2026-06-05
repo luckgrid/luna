@@ -1,5 +1,7 @@
 inheritedBy:
   language: rust
+  tags:
+    - cargo
 
 fileGroups:
   configs:

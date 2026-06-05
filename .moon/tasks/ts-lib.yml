@@ -1,7 +1,7 @@
 inheritedBy:
   language: typescript
   tags:
-    - bun-ts-lib
+    - bun
 
 fileGroups:
   configs:

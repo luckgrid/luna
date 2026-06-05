@@ -28,4 +28,10 @@ jobs:
         with:
           mode: firewall
 
+      - run: moon run cli:build
+      - run: ./target/debug/luna install --workspace
+
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+
       - run: moon ci

@@ -63,7 +63,7 @@ pub enum Commands {
     /// Run all affected tasks in a CI environment (`moon ci`).
     Ci(PassthroughArgs),
     /// Bootstrap the workspace (proto + CLI + bun + moon builds).
-    Install,
+    Install(InstallArgs),
     /// Full reset: apps/packages, Moon cache, then root gitignored outputs.
     Clean,
     /// Lint all stacks (TS: oxlint, Python: ruff, Rust: clippy).
@@ -131,6 +131,13 @@ pub struct UpdateArgs {
     /// Also apply major-version bumps where the ecosystem supports them.
     #[arg(long)]
     pub major: bool,
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct InstallArgs {
+    /// Install workspace deps only; skip CLI bootstrap (for CI).
+    #[arg(long)]
+    pub workspace: bool,
 }
 
 #[cfg(test)]
@@ -225,5 +232,23 @@ mod tests {
         } else {
             panic!("expected Run command");
         }
+    }
+
+    #[test]
+    fn parse_install_default() {
+        let cli = Cli::try_parse_from(["luna", "install"]).unwrap();
+        assert!(matches!(
+            cli.command,
+            Commands::Install(InstallArgs { workspace: false })
+        ));
+    }
+
+    #[test]
+    fn parse_install_workspace() {
+        let cli = Cli::try_parse_from(["luna", "install", "--workspace"]).unwrap();
+        assert!(matches!(
+            cli.command,
+            Commands::Install(InstallArgs { workspace: true })
+        ));
     }
 }

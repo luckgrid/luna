@@ -3,7 +3,7 @@ inheritedBy:
   layer: application
   stack: frontend
   tags:
-    - solid-web-app
+    - solid-start
 
 fileGroups:
   configs:

@@ -61,7 +61,7 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 - **Direct orchestration**: `luna` calls tools directly (proto, moon, bun, oxlint, oxfmt, tsc, cargo, go, uv, git) — no `bun run` indirection.
 - **Moon owns the task graph**: `luna build`/`test`/`dev`/`start` translate to `moon run :<task>` with appropriate `--query`/`--affected` flags.
-- **`luna` owns quality across all stacks**: `luna lint`/`format`/`typecheck`/`check`/`fix` cover TS (oxlint/oxfmt/tsc), Python (ruff via moon), Rust (cargo clippy/fmt), and Go (hugo config via moon).
+- **`luna` owns quality across all stacks**: `luna lint`/`format`/`typecheck`/`check`/`fix` cover TS (oxlint/oxfmt/tsc), Python (ruff at root), Rust (cargo clippy/fmt), and Go (hugo config via moon).
 - **`outdated`/`update` manage all toolchains** (proto, Rust/Cargo, bun, uv, go) because no single tool covers all five.
 - **Proto pins are source of truth**: `luna install` / `luna update` sync `go.work` and workspace `go.mod` `go` directives from [`.prototools`](.prototools); subprocesses prepend `~/.proto/shims` and set `UV_PYTHON` to the pinned Python.
 - **Workspace bin resolution**: `process::run` prepends `node_modules/.bin` and `~/.cargo/bin` to PATH so dev-tool and cargo binaries are found without global PATH setup.

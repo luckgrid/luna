@@ -3,7 +3,7 @@ inheritedBy:
   layer: application
   stack: frontend
   tags:
-    - ssg-web-app
+    - hugo
 
 fileGroups:
   configs:

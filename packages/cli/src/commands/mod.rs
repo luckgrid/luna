@@ -22,7 +22,13 @@ pub async fn dispatch(session: LunaSession) -> AppResult {
         Commands::Tasks => moon::run_tasks(root, global)?,
         Commands::Projects => moon::run_projects(root, global)?,
         Commands::Ci(args) => moon::run_ci(root, args, global)?,
-        Commands::Install => scripts::install(root, global)?,
+        Commands::Install(args) => {
+            if args.workspace {
+                scripts::bootstrap_workspace(root, global)?
+            } else {
+                scripts::install(root, global)?
+            }
+        }
         Commands::Clean => scripts::clean(root, global)?,
         Commands::Lint(args) => scripts::lint(root, args.fix, global)?,
         Commands::Format(args) => scripts::format(root, args.check, global)?,

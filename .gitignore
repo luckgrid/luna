@@ -2,7 +2,7 @@
 .DS_Store
 Thumbs.db
 
-# bun / typescript
+# typescript / bun
 .cache/
 dist/
 node_modules/
@@ -10,6 +10,10 @@ node_modules/
 # python
 .venv/
 .ruff_cache/
+.pytest_cache/
+.eggs/
+*.egg-info/
+__pycache__/
 
 # rust
 target/

@@ -3,7 +3,7 @@ layer: library
 stack: systems
 
 tags:
-  - rs-bin
+  - cargo
 
 project:
   name: cli

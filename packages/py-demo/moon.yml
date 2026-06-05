@@ -1,6 +1,9 @@
 language: python
 layer: library
 
+tags:
+  - uv
+
 project:
   name: py-demo
   description: Demo Python workspace package (uv workspace member; not for production).

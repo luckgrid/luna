@@ -1,12 +1,13 @@
 inheritedBy:
   language: python
   layer: library
+  tags:
+    - uv
 
 fileGroups:
   configs:
     - "*.toml"
   sources:
-    - "*.py"
     - "src/**/*.py"
   tests:
     - "tests/**/*"
@@ -14,25 +15,25 @@ fileGroups:
 tasks:
   lint:
     command: "uv"
-    args: ["run", "ruff", "check", "."]
+    args: ["run", "ruff", "check", "src"]
     inputs:
       - "@group(sources)"
 
   lint-fix:
     command: "uv"
-    args: ["run", "ruff", "check", "--fix", "."]
+    args: ["run", "ruff", "check", "--fix", "src"]
     inputs:
       - "@group(sources)"
 
   format:
     command: "uv"
-    args: ["run", "ruff", "format", "."]
+    args: ["run", "ruff", "format", "src"]
     inputs:
       - "@group(sources)"
 
   format-check:
     command: "uv"
-    args: ["run", "ruff", "format", "--check", "."]
+    args: ["run", "ruff", "format", "--check", "src"]
     inputs:
       - "@group(sources)"
 

@@ -5,7 +5,8 @@ from typing import Any
 
 from pydantic_ai import Agent
 from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, UserPromptPart
-from src.ai.config import get_agent_config
+
+from ai.config import get_agent_config
 
 config = get_agent_config()
 

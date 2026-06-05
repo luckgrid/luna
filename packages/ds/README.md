@@ -55,7 +55,7 @@ When a component module starts to accumulate nested selectors, treat the module 
 
 ## Moon tasks
 
-`@luna/ds` is source-only (no package `build` script). It uses the shared **bun-ts-lib** task definitions in [`.moon/tasks/ts-lib.yml`](../../.moon/tasks/ts-lib.yml). This project’s [`moon.yml`](moon.yml) inherits:
+`@luna/ds` is source-only (no package `build` script). It uses the shared **bun** task definitions in [`.moon/tasks/ts-lib.yml`](../../.moon/tasks/ts-lib.yml). This project’s [`moon.yml`](moon.yml) inherits:
 
 | Task            | Purpose                                                                         |
 | --------------- | ------------------------------------------------------------------------------- |

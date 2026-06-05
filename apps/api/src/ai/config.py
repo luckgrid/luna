@@ -7,18 +7,9 @@ Environment variables (from root .env.local):
 
 import os
 from functools import lru_cache
-from pathlib import Path
 
+from config import get_env_file_path
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-def get_env_file_path() -> str:
-    """Get path to root .env.local file."""
-    root_env = Path(__file__).parent.parent.parent.parent / ".env.local"
-    if root_env.exists():
-        return str(root_env)
-    app_env = Path(__file__).parent.parent / ".env.local"
-    return str(app_env)
 
 
 class AgentConfig(BaseSettings):

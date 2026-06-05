@@ -22,9 +22,9 @@ bun:
     - "--ignore-scripts"
 
 # Python is still unstable in moon v2 and is intentionally NOT enabled here.
-# `apps/api` declares `language: python` and uses an explicit `uv sync` `build`
-# task (see `.moon/tasks/py-api.yml`); toolchain auto-management would clash
-# with the existing `.venv` and `pyproject.toml` layout.
+# Python projects declare `language: python` and use explicit `uv sync` / `uv run`
+# tasks (see `.moon/tasks/py-api.yml`, `.moon/tasks/py-lib.yml`); toolchain
+# auto-management would clash with the existing `.venv` and `pyproject.toml` layout.
 
 # Enable TypeScript. Project-reference auto-sync is OFF because `@luna/ds` and
 # `@luna/ui` are source-first packages (consumed via Bun workspace resolution +

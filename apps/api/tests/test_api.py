@@ -1,8 +1,8 @@
 """Tests for the API application."""
-import pytest
-from httpx import AsyncClient, ASGITransport
 
-from src.main import app
+import pytest
+from httpx import ASGITransport, AsyncClient
+from main import app
 
 
 @pytest.fixture
