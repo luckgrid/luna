@@ -31,6 +31,7 @@ tasks:
       - "/Cargo.lock"
     options:
       cache: false
+      runInCI: false
 
   test:
     command: cargo
@@ -62,3 +63,4 @@ tasks:
     args: ["clean"]
     options:
       cache: false
+      runInCI: false

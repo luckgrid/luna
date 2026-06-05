@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UV_PYTHON_PREFERENCE: system
+      DATABASE_URL: sqlite+aiosqlite:///./data.db
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,8 +31,5 @@ jobs:
 
       - run: moon run cli:build
       - run: ./target/debug/luna install --workspace
-
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
 
       - run: moon ci

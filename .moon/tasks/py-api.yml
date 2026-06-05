@@ -65,11 +65,12 @@ tasks:
 
   lint:
     command: "uv"
-    args: ["run", "ruff", "check", "src"]
+    args: ["run", "ruff", "check", "."]
     deps:
       - "build"
     inputs:
-      - "src/**/*.py"
+      - "@group(sources)"
+      - "@group(tests)"
 
   lint-fix:
     command: "uv"
@@ -78,6 +79,8 @@ tasks:
       - "build"
     inputs:
       - "src/**/*.py"
+    options:
+      runInCI: false
 
   format:
     command: "uv"
@@ -86,14 +89,17 @@ tasks:
       - "build"
     inputs:
       - "src/**/*.py"
+    options:
+      runInCI: false
 
   format-check:
     command: "uv"
-    args: ["run", "ruff", "format", "--check", "src"]
+    args: ["run", "ruff", "format", "--check", "."]
     deps:
       - "build"
     inputs:
-      - "src/**/*.py"
+      - "@group(sources)"
+      - "@group(tests)"
 
   test:
     command: "uv"
@@ -114,3 +120,4 @@ tasks:
       find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
     options:
       cache: false
+      runInCI: false

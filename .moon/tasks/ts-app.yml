@@ -66,3 +66,4 @@ tasks:
       - node_modules
     options:
       cache: false
+      runInCI: false

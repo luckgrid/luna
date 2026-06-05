@@ -15,27 +15,33 @@ fileGroups:
 tasks:
   lint:
     command: "uv"
-    args: ["run", "ruff", "check", "src"]
+    args: ["run", "ruff", "check", "."]
     inputs:
       - "@group(sources)"
+      - "@group(tests)"
 
   lint-fix:
     command: "uv"
     args: ["run", "ruff", "check", "--fix", "src"]
     inputs:
       - "@group(sources)"
+    options:
+      runInCI: false
 
   format:
     command: "uv"
     args: ["run", "ruff", "format", "src"]
     inputs:
       - "@group(sources)"
+    options:
+      runInCI: false
 
   format-check:
     command: "uv"
-    args: ["run", "ruff", "format", "--check", "src"]
+    args: ["run", "ruff", "format", "--check", "."]
     inputs:
       - "@group(sources)"
+      - "@group(tests)"
 
   test:
     command: "uv"
@@ -50,3 +56,4 @@ tasks:
       find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
     options:
       cache: false
+      runInCI: false

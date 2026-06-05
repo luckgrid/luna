@@ -94,3 +94,4 @@ tasks:
       - "hugo_stats.json"
     options:
       cache: false
+      runInCI: false

@@ -37,3 +37,4 @@ tasks:
     script: "true"
     options:
       cache: false
+      runInCI: false
