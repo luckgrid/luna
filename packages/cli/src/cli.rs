@@ -76,9 +76,11 @@ pub enum Commands {
     Check,
     /// Lint fix + format.
     Fix,
-    /// Report outdated toolchains and dependencies (informational; exits 0).
+    /// Probe all toolchains in parallel, render one grouped table, and cache a
+    /// snapshot at `.cache/outdated.snapshot.json` (informational; exits 0).
     Outdated,
-    /// Update toolchains and dependencies, then re-run install.
+    /// Update only outdated toolchains (snapshot-first; reuses an outdated
+    /// snapshot < 8h old, else preflights), then re-run workspace bootstrap.
     Update(UpdateArgs),
 }
 

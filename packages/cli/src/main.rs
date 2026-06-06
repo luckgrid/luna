@@ -1,5 +1,6 @@
 mod cli;
 mod commands;
+mod deps;
 mod runner;
 mod security;
 mod session;

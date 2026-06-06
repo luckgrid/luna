@@ -5,7 +5,9 @@ pub mod update;
 
 use crate::cli::Commands;
 use crate::session::LunaSession;
+use miette::IntoDiagnostic;
 use starbase::AppResult;
+use starbase_console::{Console, EmptyReporter};
 
 /// Main execution: dispatch the parsed command and surface its exit code.
 pub async fn dispatch(session: LunaSession) -> AppResult {
@@ -35,8 +37,20 @@ pub async fn dispatch(session: LunaSession) -> AppResult {
         Commands::Typecheck => scripts::typecheck(root, global)?,
         Commands::Check => scripts::check(root, global)?,
         Commands::Fix => scripts::fix(root, global)?,
-        Commands::Outdated => outdated::run(root, global)?,
-        Commands::Update(args) => update::run(root, args, global, &session.update_feedback)?,
+        Commands::Outdated => {
+            let mut console: Console<EmptyReporter> = Console::new(global.quiet);
+            console.set_reporter(EmptyReporter);
+            let result = outdated::run(root, global, &console).await?;
+            console.close().into_diagnostic()?;
+            result
+        }
+        Commands::Update(args) => {
+            let mut console: Console<EmptyReporter> = Console::new(global.quiet);
+            console.set_reporter(EmptyReporter);
+            let result = update::run(root, args, global, &console).await?;
+            console.close().into_diagnostic()?;
+            result
+        }
     };
 
     Ok(Some(code.clamp(0, 255) as u8))

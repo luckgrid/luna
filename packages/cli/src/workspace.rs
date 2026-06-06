@@ -153,6 +153,90 @@ pub fn uv_workspace_root(root: &Path) -> Option<PathBuf> {
     }
 }
 
+/// A discovered Moon project: its name (Moon id) and absolute root path.
+#[derive(Debug, Clone)]
+pub struct Project {
+    pub name: String,
+    pub path: PathBuf,
+}
+
+/// Discover all Moon projects (name + path) via `moon query projects`,
+/// falling back to scanning `apps/*` and `packages/*` for `moon.yml`.
+pub fn discover_projects(root: &Path) -> Vec<Project> {
+    let from_moon = moon_query_projects(root);
+    if !from_moon.is_empty() {
+        return from_moon;
+    }
+    scan_projects(root)
+}
+
+fn moon_query_projects(root: &Path) -> Vec<Project> {
+    let Ok(out) = runner::capture("moon", &["query".to_string(), "projects".to_string()], root)
+    else {
+        return Vec::new();
+    };
+    if out.code != 0 {
+        return Vec::new();
+    }
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(out.stdout.trim()) else {
+        return Vec::new();
+    };
+    let Some(projects) = value.get("projects").and_then(|p| p.as_array()) else {
+        return Vec::new();
+    };
+
+    let mut out = Vec::new();
+    for project in projects {
+        let name = project
+            .get("id")
+            .or_else(|| project.get("name"))
+            .and_then(|v| v.as_str());
+        let rel = project.get("root").and_then(|r| r.as_str());
+        if let (Some(name), Some(rel)) = (name, rel) {
+            out.push(Project {
+                name: name.to_string(),
+                path: absolutize(root, rel),
+            });
+        }
+    }
+    out
+}
+
+fn scan_projects(root: &Path) -> Vec<Project> {
+    let mut out = Vec::new();
+    for top in ["apps", "packages"] {
+        let base = root.join(top);
+        let Ok(entries) = std::fs::read_dir(&base) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let dir = entry.path();
+            if !dir.is_dir() || !dir.join("moon.yml").is_file() {
+                continue;
+            }
+            if let Some(name) = dir.file_name().and_then(|n| n.to_str()) {
+                out.push(Project {
+                    name: name.to_string(),
+                    path: dir.clone(),
+                });
+            }
+        }
+    }
+    out
+}
+
+/// Moon project name(s) owning a path (a manifest dir maps to its containing project).
+pub fn project_names_for_path(projects: &[Project], path: &Path) -> Vec<String> {
+    let mut names: Vec<String> = projects
+        .iter()
+        .filter(|p| path.starts_with(&p.path))
+        .map(|p| p.name.clone())
+        .collect();
+    names.sort();
+    names.dedup();
+    names
+}
+
 /// Discover project roots for a language via `moon query projects --json`,
 /// falling back to scanning `apps/*` and `packages/*` for `moon.yml`.
 pub fn project_roots(root: &Path, language: &str, manifest: &str) -> Vec<PathBuf> {
