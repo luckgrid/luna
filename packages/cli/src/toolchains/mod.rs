@@ -112,3 +112,86 @@ pub fn adapter_for(kind: ToolchainKind) -> Box<dyn ToolchainAdapter> {
         ToolchainKind::Go => Box::new(go::GoAdapter),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::systems::model::{DependencyRow, ToolchainState};
+
+    #[test]
+    fn probe_outcome_up_to_date() {
+        let o = ProbeOutcome::up_to_date();
+        assert_eq!(o.state, ToolchainState::UpToDate);
+        assert!(o.rows.is_empty());
+        assert!(o.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn probe_outcome_outdated_with_rows() {
+        let row = DependencyRow::outdated(
+            ToolchainKind::Bun,
+            "vite",
+            "7.3.4",
+            Some("7.3.5".into()),
+            None,
+        );
+        let o = ProbeOutcome::outdated(vec![row]);
+        assert_eq!(o.state, ToolchainState::Outdated);
+        assert_eq!(o.rows.len(), 1);
+    }
+
+    #[test]
+    fn probe_outcome_outdated_empty_rows_becomes_up_to_date() {
+        let o = ProbeOutcome::outdated(Vec::new());
+        assert_eq!(o.state, ToolchainState::UpToDate);
+        assert!(o.rows.is_empty());
+    }
+
+    #[test]
+    fn probe_outcome_failed() {
+        let o = ProbeOutcome::failed("something broke");
+        assert_eq!(o.state, ToolchainState::Failed);
+        assert_eq!(o.diagnostics, vec!["something broke"]);
+    }
+
+    #[test]
+    fn probe_outcome_with_diagnostic_appends() {
+        let o = ProbeOutcome::failed("first").with_diagnostic("second");
+        assert_eq!(o.diagnostics.len(), 2);
+        assert_eq!(o.diagnostics[0], "first");
+        assert_eq!(o.diagnostics[1], "second");
+    }
+
+    #[test]
+    fn update_outcome_state_mapping() {
+        assert_eq!(UpdateOutcome::Done.state(), ToolchainState::UpToDate);
+        assert_eq!(UpdateOutcome::Blocked.state(), ToolchainState::Blocked);
+        assert_eq!(
+            UpdateOutcome::Failed("err".into()).state(),
+            ToolchainState::Failed
+        );
+    }
+
+    #[test]
+    fn adapter_for_returns_correct_kind() {
+        for kind in ToolchainKind::ORDER {
+            let adapter = adapter_for(kind);
+            assert_eq!(
+                adapter.kind(),
+                kind,
+                "adapter_for({:?}).kind() mismatch",
+                kind
+            );
+        }
+    }
+
+    #[test]
+    fn update_opts_fields() {
+        let opts = UpdateOpts {
+            major: true,
+            firewall: true,
+        };
+        assert!(opts.major);
+        assert!(opts.firewall);
+    }
+}

@@ -158,4 +158,130 @@ mod tests {
         assert!(!one_major_ahead("7.3.4", "9.0.0"));
         assert!(!one_major_ahead("nightly", "8.0.0"));
     }
+
+    #[test]
+    fn toolchain_kind_order_is_fixed() {
+        assert_eq!(ToolchainKind::ORDER.len(), 5);
+        assert_eq!(
+            ToolchainKind::ORDER,
+            [
+                ToolchainKind::Proto,
+                ToolchainKind::Rust,
+                ToolchainKind::Bun,
+                ToolchainKind::Uv,
+                ToolchainKind::Go,
+            ]
+        );
+    }
+
+    #[test]
+    fn toolchain_kind_labels() {
+        assert_eq!(ToolchainKind::Proto.label(), "proto");
+        assert_eq!(ToolchainKind::Rust.label(), "rust");
+        assert_eq!(ToolchainKind::Bun.label(), "bun");
+        assert_eq!(ToolchainKind::Uv.label(), "uv");
+        assert_eq!(ToolchainKind::Go.label(), "go");
+    }
+
+    #[test]
+    fn dependency_row_outdated_sets_latest_one_major_ahead() {
+        let row = DependencyRow::outdated(
+            ToolchainKind::Bun,
+            "vite",
+            "7.3.4",
+            Some("7.3.5".into()),
+            Some("8.0.14".into()),
+        );
+        assert!(row.latest_one_major_ahead);
+        assert_eq!(row.current, "7.3.4");
+        assert_eq!(row.newest.as_deref(), Some("7.3.5"));
+        assert_eq!(row.latest.as_deref(), Some("8.0.14"));
+        assert!(row.previous.is_none());
+        assert!(row.new_version.is_none());
+        assert!(row.blocked_reason.is_none());
+    }
+
+    #[test]
+    fn dependency_row_outdated_no_latest_means_not_ahead() {
+        let row = DependencyRow::outdated(
+            ToolchainKind::Bun,
+            "vite",
+            "7.3.4",
+            Some("7.3.5".into()),
+            None,
+        );
+        assert!(!row.latest_one_major_ahead);
+        assert!(row.latest.is_none());
+    }
+
+    #[test]
+    fn dependency_row_outdated_same_major_latest_not_ahead() {
+        let row = DependencyRow::outdated(
+            ToolchainKind::Bun,
+            "vite",
+            "7.3.4",
+            Some("7.3.5".into()),
+            Some("7.4.0".into()),
+        );
+        assert!(!row.latest_one_major_ahead);
+    }
+
+    #[test]
+    fn toolchain_snapshot_has_updates_requires_outdated_and_rows() {
+        let snap = ToolchainSnapshot {
+            kind: ToolchainKind::Bun,
+            label: "bun".into(),
+            state: ToolchainState::Outdated,
+            elapsed_ms: 0,
+            started_at: None,
+            finished_at: None,
+            rows: Vec::new(),
+            diagnostics: Vec::new(),
+        };
+        assert!(
+            !snap.has_updates(),
+            "outdated with no rows should not have updates"
+        );
+
+        let snap_with_row = ToolchainSnapshot {
+            kind: ToolchainKind::Bun,
+            label: "bun".into(),
+            state: ToolchainState::Outdated,
+            elapsed_ms: 0,
+            started_at: None,
+            finished_at: None,
+            rows: vec![DependencyRow::outdated(
+                ToolchainKind::Bun,
+                "vite",
+                "7.3.4",
+                Some("7.3.5".into()),
+                None,
+            )],
+            diagnostics: Vec::new(),
+        };
+        assert!(snap_with_row.has_updates());
+    }
+
+    #[test]
+    fn snapshot_policy_equality() {
+        let a = SnapshotPolicy {
+            major: false,
+            min_release_age_days: 14,
+            uv_exclude_newer: Some("2026-05-01".into()),
+            firewall: false,
+        };
+        let b = SnapshotPolicy {
+            major: false,
+            min_release_age_days: 14,
+            uv_exclude_newer: Some("2026-05-01".into()),
+            firewall: false,
+        };
+        assert_eq!(a, b);
+
+        let c = SnapshotPolicy {
+            major: true,
+            ..a.clone()
+        };
+        assert_ne!(a, c);
+    }
 }

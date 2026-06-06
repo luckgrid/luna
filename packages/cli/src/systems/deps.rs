@@ -287,3 +287,109 @@ pub async fn update(
 
     UpdateReport { outcomes }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::systems::model::ToolchainState;
+    use std::collections::HashMap;
+
+    #[test]
+    fn policy_from_defaults() {
+        std::env::remove_var("LUNA_MIN_RELEASE_AGE");
+        let p = policy_from(false, false);
+        assert!(!p.major);
+        assert_eq!(p.min_release_age_days, 14);
+        assert!(p.uv_exclude_newer.is_some());
+        assert!(!p.firewall);
+    }
+
+    #[test]
+    fn policy_from_major_flag() {
+        let p = policy_from(true, true);
+        assert!(p.major);
+        assert!(p.firewall);
+    }
+
+    #[test]
+    fn update_report_counting() {
+        let mut outcomes = HashMap::new();
+        outcomes.insert(ToolchainKind::Proto, UpdateOutcome::Done);
+        outcomes.insert(ToolchainKind::Rust, UpdateOutcome::Done);
+        outcomes.insert(ToolchainKind::Bun, UpdateOutcome::Blocked);
+        outcomes.insert(ToolchainKind::Uv, UpdateOutcome::Failed("err".into()));
+
+        let report = UpdateReport { outcomes };
+        assert_eq!(report.updated(), 2);
+        assert_eq!(report.blocked(), 1);
+        assert_eq!(report.failed(), 1);
+        assert!(report.had_failures());
+    }
+
+    #[test]
+    fn update_report_no_failures() {
+        let mut outcomes = HashMap::new();
+        outcomes.insert(ToolchainKind::Proto, UpdateOutcome::Done);
+        let report = UpdateReport { outcomes };
+        assert!(!report.had_failures());
+        assert_eq!(report.updated(), 1);
+        assert_eq!(report.blocked(), 0);
+        assert_eq!(report.failed(), 0);
+    }
+
+    #[test]
+    fn update_report_outcome_default_is_done() {
+        let report = UpdateReport {
+            outcomes: HashMap::new(),
+        };
+        assert!(matches!(
+            report.outcome(ToolchainKind::Go),
+            UpdateOutcome::Done
+        ));
+    }
+
+    #[test]
+    fn outdated_kinds_filters() {
+        let snapshots = vec![
+            ToolchainSnapshot {
+                kind: ToolchainKind::Proto,
+                label: "proto".into(),
+                state: ToolchainState::UpToDate,
+                elapsed_ms: 0,
+                started_at: None,
+                finished_at: None,
+                rows: Vec::new(),
+                diagnostics: Vec::new(),
+            },
+            ToolchainSnapshot {
+                kind: ToolchainKind::Bun,
+                label: "bun".into(),
+                state: ToolchainState::Outdated,
+                elapsed_ms: 0,
+                started_at: None,
+                finished_at: None,
+                rows: vec![DependencyRow::outdated(
+                    ToolchainKind::Bun,
+                    "vite",
+                    "7.3.4",
+                    Some("7.3.5".into()),
+                    None,
+                )],
+                diagnostics: Vec::new(),
+            },
+            ToolchainSnapshot {
+                kind: ToolchainKind::Go,
+                label: "go".into(),
+                state: ToolchainState::Outdated,
+                elapsed_ms: 0,
+                started_at: None,
+                finished_at: None,
+                rows: Vec::new(),
+                diagnostics: Vec::new(),
+            },
+        ];
+
+        let kinds = outdated_kinds(&snapshots);
+        assert_eq!(kinds, vec![ToolchainKind::Bun]);
+    }
+}
