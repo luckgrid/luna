@@ -1,3 +1,4 @@
+use crate::cli::GlobalArgs;
 use miette::{miette, IntoDiagnostic, Result};
 use std::collections::HashMap;
 use std::env;
@@ -44,7 +45,7 @@ fn enriched_path(root: &Path) -> String {
 /// Extra env vars so child tools use proto-pinned runtimes (e.g. `UV_PYTHON`).
 fn toolchain_env(root: &Path) -> HashMap<String, String> {
     let mut vars = HashMap::new();
-    if let Some(python) = crate::workspace::proto_tool_binary(root, "python") {
+    if let Some(python) = crate::systems::workspace::proto_tool_binary(root, "python") {
         vars.insert("UV_PYTHON".into(), python.display().to_string());
     }
     vars
@@ -91,6 +92,23 @@ pub fn run(program: &str, args: &[String], cwd: &Path, quiet: bool) -> Result<i3
     Ok(status.code().unwrap_or(1))
 }
 
+/// Run `moon <args...>` from the workspace root, prefixing global flags
+/// (`-q` / `--log <level>`) derived from Luna's verbosity options.
+pub fn run_moon(root: &Path, args: &[&str], global: &GlobalArgs) -> Result<i32> {
+    let mut full: Vec<String> = Vec::with_capacity(args.len() + 2);
+
+    if global.quiet {
+        full.push("-q".to_string());
+    } else if let Some(level) = global.log_level() {
+        full.push("--log".to_string());
+        full.push(level.to_string());
+    }
+
+    full.extend(args.iter().map(|a| (*a).to_string()));
+
+    run("moon", &full, root, global.quiet)
+}
+
 /// Run a package-manager command, optionally prefixed with Socket Firewall (`sfw`).
 pub fn run_pm(
     program: &str,
@@ -99,7 +117,7 @@ pub fn run_pm(
     quiet: bool,
     firewall_active: bool,
 ) -> Result<i32> {
-    let (program, args) = crate::security::wrap(program, args, firewall_active);
+    let (program, args) = crate::systems::security::wrap(program, args, firewall_active);
     run(&program, &args, cwd, quiet)
 }
 

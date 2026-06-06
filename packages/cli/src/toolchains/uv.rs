@@ -1,12 +1,30 @@
-use crate::deps::model::{DependencyRow, ToolchainKind};
-use crate::deps::probes::ProbeOutcome;
-use crate::runner;
-use crate::security;
-use crate::workspace;
+use crate::systems::model::{DependencyRow, ToolchainKind};
+use crate::systems::{runner, security, workspace};
+use crate::toolchains::{run_blocking, ProbeOutcome, ToolchainAdapter, UpdateOpts, UpdateOutcome};
+use async_trait::async_trait;
 use std::path::{Path, PathBuf};
 
+pub struct UvAdapter;
+
+#[async_trait]
+impl ToolchainAdapter for UvAdapter {
+    fn kind(&self) -> ToolchainKind {
+        ToolchainKind::Uv
+    }
+
+    async fn probe(&self, root: &Path) -> ProbeOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || probe(&root)).await
+    }
+
+    async fn update(&self, root: &Path, opts: UpdateOpts) -> UpdateOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || update(&root, opts.firewall)).await
+    }
+}
+
 /// Probe Python dependencies via `uv lock --upgrade --dry-run` (with cooldown).
-pub fn probe(root: &Path) -> ProbeOutcome {
+fn probe(root: &Path) -> ProbeOutcome {
     let projects = uv_projects(root);
     if projects.is_empty() {
         return ProbeOutcome::up_to_date();
@@ -41,6 +59,36 @@ pub fn probe(root: &Path) -> ProbeOutcome {
         }
     }
     ProbeOutcome::outdated(rows)
+}
+
+/// Update each uv project via `uv lock --upgrade` (cooldown) then `uv sync`.
+fn update(root: &Path, firewall: bool) -> UpdateOutcome {
+    let projects = uv_projects(root);
+    for project in &projects {
+        let mut lock_args = vec!["lock".to_string(), "--upgrade".to_string()];
+        lock_args.extend(security::uv_exclude_newer_args());
+        match capture_pm("uv", &lock_args, project, firewall) {
+            Ok(out) if out.code == 0 => {}
+            Ok(out) => return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr)),
+            Err(err) => return UpdateOutcome::Failed(err.to_string()),
+        }
+        match capture_pm("uv", &["sync".to_string()], project, firewall) {
+            Ok(out) if out.code == 0 => {}
+            Ok(out) => return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr)),
+            Err(err) => return UpdateOutcome::Failed(err.to_string()),
+        }
+    }
+    UpdateOutcome::Done
+}
+
+fn capture_pm(
+    program: &str,
+    args: &[String],
+    cwd: &Path,
+    firewall: bool,
+) -> miette::Result<runner::Output> {
+    let (program, args) = security::wrap(program, args, firewall);
+    runner::capture(&program, &args, cwd)
 }
 
 /// uv workspace root when configured, otherwise discovered per-project roots.

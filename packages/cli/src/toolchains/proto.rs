@@ -1,10 +1,30 @@
-use crate::deps::model::{DependencyRow, ToolchainKind};
-use crate::deps::probes::ProbeOutcome;
-use crate::runner;
+use crate::systems::model::{DependencyRow, ToolchainKind};
+use crate::systems::runner;
+use crate::toolchains::{run_blocking, ProbeOutcome, ToolchainAdapter, UpdateOpts, UpdateOutcome};
+use async_trait::async_trait;
 use std::path::Path;
 
+pub struct ProtoAdapter;
+
+#[async_trait]
+impl ToolchainAdapter for ProtoAdapter {
+    fn kind(&self) -> ToolchainKind {
+        ToolchainKind::Proto
+    }
+
+    async fn probe(&self, root: &Path) -> ProbeOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || probe(&root)).await
+    }
+
+    async fn update(&self, root: &Path, opts: UpdateOpts) -> UpdateOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || update(&root, opts)).await
+    }
+}
+
 /// Probe `.prototools` pins via `proto outdated --json`.
-pub fn probe(root: &Path) -> ProbeOutcome {
+fn probe(root: &Path) -> ProbeOutcome {
     if runner::ensure_installed("proto", root).is_err() {
         return ProbeOutcome::failed("proto is not installed");
     }
@@ -19,6 +39,28 @@ pub fn probe(root: &Path) -> ProbeOutcome {
     match parse_proto_outdated(&out.stdout) {
         Some(rows) => ProbeOutcome::outdated(rows),
         None => ProbeOutcome::failed("could not parse `proto outdated --json`"),
+    }
+}
+
+/// Update pinned tools via `proto outdated --update` then `proto install`.
+fn update(root: &Path, opts: UpdateOpts) -> UpdateOutcome {
+    if runner::ensure_installed("proto", root).is_err() {
+        return UpdateOutcome::Failed("proto is not installed".into());
+    }
+    let mut args = vec!["outdated".to_string(), "--update".to_string()];
+    if opts.major {
+        args.push("--latest".to_string());
+    }
+    args.push("-y".to_string());
+    if let Ok(out) = runner::capture("proto", &args, root) {
+        if out.code != 0 {
+            return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr));
+        }
+    }
+    match runner::capture("proto", &["install".to_string()], root) {
+        Ok(out) if out.code == 0 => UpdateOutcome::Done,
+        Ok(out) => UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr)),
+        Err(err) => UpdateOutcome::Failed(err.to_string()),
     }
 }
 

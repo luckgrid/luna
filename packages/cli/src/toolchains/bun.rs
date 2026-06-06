@@ -1,10 +1,30 @@
-use crate::deps::model::{DependencyRow, ToolchainKind};
-use crate::deps::probes::ProbeOutcome;
-use crate::runner;
+use crate::systems::model::{DependencyRow, ToolchainKind};
+use crate::systems::runner;
+use crate::toolchains::{run_blocking, ProbeOutcome, ToolchainAdapter, UpdateOpts, UpdateOutcome};
+use async_trait::async_trait;
 use std::path::Path;
 
+pub struct BunAdapter;
+
+#[async_trait]
+impl ToolchainAdapter for BunAdapter {
+    fn kind(&self) -> ToolchainKind {
+        ToolchainKind::Bun
+    }
+
+    async fn probe(&self, root: &Path) -> ProbeOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || probe(&root)).await
+    }
+
+    async fn update(&self, root: &Path, opts: UpdateOpts) -> UpdateOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || update(&root, opts.major)).await
+    }
+}
+
 /// Probe Bun workspace dependencies via `bun outdated --recursive`.
-pub fn probe(root: &Path) -> ProbeOutcome {
+fn probe(root: &Path) -> ProbeOutcome {
     if runner::ensure_installed("bun", root).is_err() {
         return ProbeOutcome::failed("bun is not installed");
     }
@@ -22,6 +42,25 @@ pub fn probe(root: &Path) -> ProbeOutcome {
     }
     let rows = table.into_iter().map(bun_row_to_dependency).collect();
     ProbeOutcome::outdated(rows)
+}
+
+/// Update Bun workspaces via `bun update --recursive` (release-age aware).
+fn update(root: &Path, major: bool) -> UpdateOutcome {
+    let mut args = vec!["update".to_string(), "--recursive".to_string()];
+    if major {
+        args.push("--latest".to_string());
+    }
+    match runner::capture("bun", &args, root) {
+        Ok(out) if out.code == 0 => UpdateOutcome::Done,
+        Ok(out) => {
+            if bun_failure_is_age_only(&out.stdout, &out.stderr) {
+                UpdateOutcome::Blocked
+            } else {
+                UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr))
+            }
+        }
+        Err(err) => UpdateOutcome::Failed(err.to_string()),
+    }
 }
 
 fn bun_row_to_dependency(row: BunOutdatedRow) -> DependencyRow {

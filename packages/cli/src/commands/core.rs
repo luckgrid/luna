@@ -1,5 +1,5 @@
 use crate::cli::{GlobalArgs, PassthroughArgs, ProjectArgs, RunArgs, TaskArgs};
-use crate::runner;
+use crate::systems::runner::run_moon;
 use miette::Result;
 use std::path::Path;
 
@@ -86,23 +86,6 @@ fn run_persistent(root: &Path, task: &str, args: &ProjectArgs, global: &GlobalAr
             run_moon(root, &["run", &target, "--query", APP_LAYER_QUERY], global)
         }
     }
-}
-
-/// Run `moon <args...>` from the workspace root, prefixing global flags
-/// (`-q` / `--log <level>`) derived from Luna's verbosity options.
-pub fn run_moon(root: &Path, args: &[&str], global: &GlobalArgs) -> Result<i32> {
-    let mut full: Vec<String> = Vec::with_capacity(args.len() + 2);
-
-    if global.quiet {
-        full.push("-q".to_string());
-    } else if let Some(level) = global.log_level() {
-        full.push("--log".to_string());
-        full.push(level.to_string());
-    }
-
-    full.extend(args.iter().map(|a| (*a).to_string()));
-
-    runner::run("moon", &full, root, global.quiet)
 }
 
 /// Append `--affected` to a target list when requested.

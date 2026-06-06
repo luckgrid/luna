@@ -1,11 +1,30 @@
-use crate::deps::model::{DependencyRow, ToolchainKind};
-use crate::deps::probes::ProbeOutcome;
-use crate::runner;
-use crate::workspace;
+use crate::systems::model::{DependencyRow, ToolchainKind};
+use crate::systems::{runner, workspace};
+use crate::toolchains::{run_blocking, ProbeOutcome, ToolchainAdapter, UpdateOpts, UpdateOutcome};
+use async_trait::async_trait;
 use std::path::Path;
 
+pub struct GoAdapter;
+
+#[async_trait]
+impl ToolchainAdapter for GoAdapter {
+    fn kind(&self) -> ToolchainKind {
+        ToolchainKind::Go
+    }
+
+    async fn probe(&self, root: &Path) -> ProbeOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || probe(&root)).await
+    }
+
+    async fn update(&self, root: &Path, _opts: UpdateOpts) -> UpdateOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || update(&root)).await
+    }
+}
+
 /// Probe Go modules via `go list -m -u` across discovered modules.
-pub fn probe(root: &Path) -> ProbeOutcome {
+fn probe(root: &Path) -> ProbeOutcome {
     let modules = workspace::project_roots(root, "go", "go.mod");
     if modules.is_empty() {
         return ProbeOutcome::up_to_date();
@@ -36,6 +55,44 @@ pub fn probe(root: &Path) -> ProbeOutcome {
     let mut outcome = ProbeOutcome::outdated(rows);
     outcome.diagnostics.extend(diagnostics);
     outcome
+}
+
+/// Update Go modules: tool modules via `go get -tool …`, others via `go get -u`,
+/// finishing each module with `go mod tidy`.
+fn update(root: &Path) -> UpdateOutcome {
+    let modules = workspace::project_roots(root, "go", "go.mod");
+    for module in &modules {
+        if workspace::go_uses_tool_fast_path(module) {
+            for tool in workspace::go_tool_paths(module) {
+                let args = vec![
+                    "get".to_string(),
+                    "-tool".to_string(),
+                    format!("{tool}@latest"),
+                ];
+                if let Ok(out) = runner::capture("go", &args, module) {
+                    if out.code != 0 {
+                        return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr));
+                    }
+                }
+            }
+        } else {
+            let mut args = vec!["get".to_string(), "-u".to_string()];
+            if workspace::full_graph_enabled() {
+                args.push("all".to_string());
+            }
+            if let Ok(out) = runner::capture("go", &args, module) {
+                if out.code != 0 {
+                    return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr));
+                }
+            }
+        }
+        match runner::capture("go", &["mod".to_string(), "tidy".to_string()], module) {
+            Ok(out) if out.code == 0 => {}
+            Ok(out) => return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr)),
+            Err(err) => return UpdateOutcome::Failed(err.to_string()),
+        }
+    }
+    UpdateOutcome::Done
 }
 
 fn go_list_args(module: &Path) -> Vec<String> {

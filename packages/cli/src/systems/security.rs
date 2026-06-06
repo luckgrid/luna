@@ -74,7 +74,7 @@ pub fn resolve_firewall(root: &Path, global: &GlobalArgs, quiet: bool) -> bool {
 pub fn sfw_available(root: &Path) -> bool {
     let mut cmd = Command::new("sfw");
     cmd.arg("--help");
-    crate::runner::apply_toolchain_env_for_check(&mut cmd, root);
+    crate::systems::runner::apply_toolchain_env_for_check(&mut cmd, root);
     cmd.stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())

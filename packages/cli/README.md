@@ -45,7 +45,7 @@ See root [README Tech Stacks](../../README.md#tech-stacks) for toolchain details
 
 ## Dependency management
 
-`luna outdated` and `luna update` share a planner (`src/deps/`) that probes every
+`luna outdated` and `luna update` share a planner (`systems::deps`) that probes every
 toolchain in parallel behind a Luna-owned status panel, normalizes results into a
 common row model, and renders one grouped table with toolchain divider rows.
 
@@ -96,26 +96,36 @@ moon run cli:test
 
 ## Architecture
 
-The CLI uses a simple module structure:
+The CLI follows a Starbase-first modular layout:
 
 - **cli.rs** — Clap-based command-line interface (subcommands, args, help)
-- **commands/** — Command implementations
-  - **moon.rs** — Moon task wrappers (build, test, dev, start, graph, tasks, projects, ci)
-  - **scripts.rs** — Quality commands (install, clean, lint, format, typecheck, check, fix)
-  - **outdated.rs** — Consumes the shared planner; renders the grouped table + snapshot
-  - **update.rs** — Snapshot-first; updates only outdated toolchains, then bootstraps
-- **deps/** — Shared dependency planner
-  - **mod.rs** — Planner entrypoint, parallel orchestration, toolchain discovery
-  - **model.rs** — `DependencyRow`, `ToolchainSnapshot`, `SnapshotPolicy`
+- **commands/** — Command dispatch and implementations
+  - **mod.rs** — `dispatch()` — async routing from parsed `Commands` → handler
+  - **core.rs** — Moon task wrappers (build, test, dev, start, graph, tasks, projects, ci)
+  - **lifecycle.rs** — Bootstrap/clean commands (install, install --workspace, clean)
+  - **quality.rs** — Quality commands (lint, format, typecheck, check, fix)
+  - **outdated.rs** — Probes toolchains via `DependencyService`, renders grouped table + snapshot
+  - **update.rs** — Snapshot-first update; updates only outdated toolchains, then bootstraps
+- **systems/** — Business logic and infrastructure
+  - **deps.rs** — `DependencyService` — parallel plan/update orchestration (`JoinSet` + `spawn_blocking`)
+  - **tasks.rs** — Shared bootstrap/sync building blocks (install, clean, workspace sync)
+  - **model.rs** — `ToolchainKind`, `ToolchainState`, `DependencyRow`, `ToolchainSnapshot`, `SnapshotPolicy`
   - **snapshot.rs** — Schema, atomic read/write, validation, manifest fingerprints
   - **registry.rs** — npm/PyPI release-age lookups (cached, best-effort)
-  - **ui.rs** — Live panel, divider-row tables, color rules, Release Age footer
-  - **probes/** — Per-ecosystem silent outdated probes (proto, bun, uv, cargo, go)
-- **runner.rs** — Process execution (run, capture, ensure_installed)
-- **workspace.rs** — Root discovery, project detection (Moon + fallback scanning)
-- **session.rs** — Starbase session wrapper
-
-Commands dispatch from `commands/mod.rs` → individual command modules → `runner` for subprocess calls.
+  - **runner.rs** — Process execution (run, capture, ensure_installed, run_moon, run_pm)
+  - **security.rs** — Release-age policy, firewall resolution, Socket Firewall wrapping
+  - **workspace.rs** — Root discovery, project detection, go toolchain sync
+- **toolchains/** — Per-ecosystem adapters implementing `ToolchainAdapter`
+  - **mod.rs** — `ToolchainAdapter` trait, `ProbeOutcome`, `UpdateOutcome`, `adapter_for()` factory
+  - **proto.rs**, **cargo.rs**, **bun.rs**, **uv.rs**, **go.rs** — Merged probe + update per toolchain
+- **ui/** — Console rendering and event bridge
+  - **mod.rs** — `LunaConsole`, `new_console`, notices, `run_with_loader`
+  - **status.rs** — Live/frozen `StatusPanel` (iocraft animated panel)
+  - **tables.rs** — Outdated/update tables, release-age section, update summary
+  - **events.rs** — `Emitter` — decouples `systems` from console rendering
+- **session.rs** — Starbase `AppSession` wrapper (`LunaSession`)
+- **lib.rs** — Crate root (re-exports `Cli`, `LunaSession`)
+- **main.rs** — Binary entry point (Starbase `App` lifecycle → `commands::dispatch`)
 
 ## Moon Tasks
 

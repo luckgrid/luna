@@ -1,5 +1,5 @@
-use crate::deps::model::{SnapshotPolicy, ToolchainSnapshot};
-use crate::workspace;
+use crate::systems::model::{SnapshotPolicy, ToolchainSnapshot};
+use crate::systems::workspace;
 use miette::{IntoDiagnostic, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -38,7 +38,7 @@ impl OutdatedSnapshot {
         Self {
             schema_version: SCHEMA_VERSION,
             repo_root: root.display().to_string(),
-            created_at: crate::security::format_ymd_from_unix_days(now / 86_400),
+            created_at: crate::systems::security::format_ymd_from_unix_days(now / 86_400),
             created_at_unix: now,
             policy,
             manifests: fingerprint_manifests(root),
@@ -196,7 +196,7 @@ fn rel(root: &Path, path: &Path) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::deps::model::ToolchainKind;
+    use crate::systems::model::ToolchainKind;
 
     fn policy() -> SnapshotPolicy {
         SnapshotPolicy {
@@ -264,7 +264,7 @@ mod tests {
         let snap = ToolchainSnapshot {
             kind: ToolchainKind::Bun,
             label: "bun".into(),
-            state: crate::deps::model::ToolchainState::UpToDate,
+            state: crate::systems::model::ToolchainState::UpToDate,
             elapsed_ms: 0,
             started_at: None,
             finished_at: None,

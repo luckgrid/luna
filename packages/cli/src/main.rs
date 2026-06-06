@@ -1,14 +1,6 @@
-mod cli;
-mod commands;
-mod deps;
-mod runner;
-mod security;
-mod session;
-mod workspace;
-
 use clap::Parser;
-use cli::Cli;
-use session::LunaSession;
+use cli::systems::workspace;
+use cli::{commands, Cli, LunaSession};
 use starbase::{App, MainResult};
 use std::process::ExitCode;
 

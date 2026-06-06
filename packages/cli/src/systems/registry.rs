@@ -1,4 +1,4 @@
-use crate::deps::model::ToolchainKind;
+use crate::systems::model::ToolchainKind;
 use std::collections::HashMap;
 use std::io::Read;
 use std::sync::{Mutex, OnceLock};

@@ -1,13 +1,33 @@
-use crate::deps::model::{DependencyRow, ToolchainKind};
-use crate::deps::probes::ProbeOutcome;
-use crate::runner;
+use crate::systems::model::{DependencyRow, ToolchainKind};
+use crate::systems::{runner, security};
+use crate::toolchains::{run_blocking, ProbeOutcome, ToolchainAdapter, UpdateOpts, UpdateOutcome};
+use async_trait::async_trait;
 use std::path::Path;
+
+pub struct CargoAdapter;
+
+#[async_trait]
+impl ToolchainAdapter for CargoAdapter {
+    fn kind(&self) -> ToolchainKind {
+        ToolchainKind::Rust
+    }
+
+    async fn probe(&self, root: &Path) -> ProbeOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || probe(&root)).await
+    }
+
+    async fn update(&self, root: &Path, opts: UpdateOpts) -> UpdateOutcome {
+        let root = root.to_path_buf();
+        run_blocking(move || update(&root, opts.firewall)).await
+    }
+}
 
 /// Probe the Cargo workspace via `cargo outdated --format json`.
 ///
 /// Per product decision (OQ-1), the `Latest` column is omitted for Cargo in v1;
 /// only the in-range `Compat` target populates `Newest`.
-pub fn probe(root: &Path) -> ProbeOutcome {
+fn probe(root: &Path) -> ProbeOutcome {
     if !root.join("Cargo.toml").is_file() || !root.join("Cargo.lock").is_file() {
         return ProbeOutcome::up_to_date();
     }
@@ -44,6 +64,16 @@ pub fn probe(root: &Path) -> ProbeOutcome {
         Some(rows) => ProbeOutcome::outdated(rows)
             .with_diagnostic("Latest column omitted for Cargo in v1 (OQ-1)"),
         None => ProbeOutcome::failed("could not parse `cargo outdated --format json`"),
+    }
+}
+
+/// Update the Cargo workspace via `cargo update` (firewall-wrapped when active).
+fn update(root: &Path, firewall: bool) -> UpdateOutcome {
+    let (program, args) = security::wrap("cargo", &["update".to_string()], firewall);
+    match runner::capture(&program, &args, root) {
+        Ok(out) if out.code == 0 => UpdateOutcome::Done,
+        Ok(out) => UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr)),
+        Err(err) => UpdateOutcome::Failed(err.to_string()),
     }
 }
 
