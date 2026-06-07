@@ -23,6 +23,8 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 ## Key Paths
 
 - Toolchain pins: [`.prototools`](.prototools)
+- Policy / intent: [`luna.toml`](luna.toml); Luna state: `.luna/`
+- Pixi workspace: [`pixi.toml`](pixi.toml)
 - Root manifest/dev dependencies: [`package.json`](package.json) — Bun workspace manifest only; all scripts removed in favor of `luna`
 - Python workspace (uv): [`pyproject.toml`](pyproject.toml) — virtual root + [`uv.lock`](uv.lock) + [`.venv`](.venv); members `apps/api`, `packages/py-demo`
 - Go workspace: [`go.work`](go.work) — members `apps/web`, `packages/go-demo`; commit `go-demo` sources (never bare `git clean` in `go-lib` — it deleted untracked files)
@@ -59,9 +61,14 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 
 ### `packages/cli` (Rust CLI) guardrails
 
-- **Direct orchestration**: `luna` calls tools directly (proto, moon, bun, oxlint, oxfmt, tsc, cargo, go, uv, git) — no `bun run` indirection.
-- **Moon owns the task graph**: `luna build`/`test`/`dev`/`start` translate to `moon run :<task>` with appropriate `--query`/`--affected` flags.
-- **`luna` owns quality across all stacks**: `luna lint`/`format`/`typecheck`/`check`/`fix` cover TS (oxlint/oxfmt/tsc), Python (ruff at root), Rust (cargo clippy/fmt), and Go (hugo config via moon).
-- **`outdated`/`update` manage all toolchains** (proto, Rust/Cargo, bun, uv, go) because no single tool covers all five.
-- **Proto pins are source of truth**: `luna install` / `luna update` sync `go.work` and workspace `go.mod` `go` directives from [`.prototools`](.prototools); subprocesses prepend `~/.proto/shims` and set `UV_PYTHON` to the pinned Python.
-- **Workspace bin resolution**: `process::run` prepends `node_modules/.bin` and `~/.cargo/bin` to PATH so dev-tool and cargo binaries are found without global PATH setup.
+- **`luna.toml` is authoritative** for policy/intent; run `luna migrate`/`init` on legacy clones. Native manifests/lockfiles stay authoritative for package graphs.
+- **Direct orchestration**: `luna` calls tools via backend adapters (pixi, proto, moon, bun, uv, cargo, go) — no `bun run` indirection.
+- **Pixi / Proto precedence**: Proto pins language runtimes (`.prototools`); Pixi owns the shared dev environment (`pixi.toml`). When Pixi is missing, `ensure_pixi` installs via Proto-pinned `cargo install --git … pixi` if `[bootstrap].auto_install_pixi = true`.
+- **Planner + execution modes**: `sync`/`build`/`test`/`ci` resolve plans then execute via adapters; honor `--dry-run`, `--mode inspect|plan|apply|offline|networked`, `--locked`/`--frozen`.
+- **Moon compat backend**: task graph via Moon adapter when `[compat.moon].enabled`; scope from `[commands.*].default_scope`, not hardcoded queries.
+- **`luna` owns quality across all stacks**: `luna lint`/`format`/`typecheck`/`check`/`fix` cover TS (oxlint/oxfmt/tsc), Python (ruff at root), Rust (cargo clippy/fmt/nextest), and Go (hugo config via moon).
+- **`outdated`/`update` manage toolchains** (proto, cargo, bun, uv, go); Pixi is env-only, not in the 5-toolchain outdated set.
+- **Lock ledger + SBOM**: `luna lock` writes `.luna/lock-ledger.json`; `luna sbom` exports inventory (`--json`, `--format cyclonedx`).
+- **Agent / MCP**: `luna agent mcp` (stdio JSON-RPC, gated on `[agent].mcp`) exposes plan/doctor/config/sbom over internal APIs.
+- **Proto pins are source of truth**: `luna install` / `luna update` sync `go.work` and workspace `go.mod` `go` directives from [`.prototools`](.prototools); when Pixi is inactive, subprocesses prepend `~/.proto/shims` and set `UV_PYTHON`.
+- **Workspace bin resolution**: `runner::run` prepends `node_modules/.bin` and `~/.cargo/bin` to PATH when Pixi env is not active.

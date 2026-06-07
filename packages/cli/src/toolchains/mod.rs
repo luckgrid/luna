@@ -1,6 +1,7 @@
 pub mod bun;
 pub mod cargo;
 pub mod go;
+pub mod pixi;
 pub mod proto;
 pub mod uv;
 

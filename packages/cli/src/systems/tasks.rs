@@ -1,4 +1,6 @@
+use crate::adapters::{registry, AdapterKind, SyncOpts};
 use crate::cli::GlobalArgs;
+use crate::config::LunaConfig;
 use crate::systems::runner::{self, run_moon};
 use crate::systems::{security, workspace};
 use crate::ui::{self, LunaConsole};
@@ -14,60 +16,102 @@ pub fn bootstrap_cli(root: &Path, global: &GlobalArgs) -> Result<i32> {
     Ok(0)
 }
 
-/// Install workspace deps (bun, uv, go, web) after the CLI is available.
-pub fn bootstrap_workspace(root: &Path, global: &GlobalArgs) -> Result<i32> {
-    let firewall = security::resolve_firewall(root, global, global.quiet);
+/// Install workspace deps (Pixi first, then bun, uv, go, web) after CLI is available.
+pub fn bootstrap_workspace(root: &Path, config: &LunaConfig, global: &GlobalArgs) -> Result<i32> {
+    pixi_sync(root, config, global)?;
 
-    runner::ensure_installed("bun", root)?;
-    run_step(
-        "bun",
-        &[
-            "install".to_string(),
-            "--ignore-scripts".to_string(),
-            security::bun_min_release_age_arg(),
-        ],
+    let bun = registry::get(AdapterKind::Bun);
+    let bun_out = bun.sync(
         root,
-        global,
+        config,
+        SyncOpts {
+            locked: global.locked || global.frozen,
+            quiet: global.quiet,
+        },
     )?;
+    if bun_out.exit_code != 0 {
+        return Ok(bun_out.exit_code);
+    }
 
     if workspace::uv_workspace_root(root).is_some() {
-        runner::ensure_installed("uv", root)?;
-        run_pm_step("uv", &["sync".to_string()], root, global, firewall)?;
+        let uv = registry::get(AdapterKind::Uv);
+        let uv_out = uv.sync(
+            root,
+            config,
+            SyncOpts {
+                locked: global.locked || global.frozen,
+                quiet: global.quiet,
+            },
+        )?;
+        if uv_out.exit_code != 0 {
+            return Ok(uv_out.exit_code);
+        }
     } else {
         run_step_moon(&["run", "api:build"], root, global)?;
     }
 
     if root.join("go.work").is_file() {
-        workspace::sync_go_toolchain(root, global.quiet)?;
-        runner::ensure_installed("go", root)?;
-        run_step(
-            "go",
-            &["work".to_string(), "sync".to_string()],
+        let go = registry::get(AdapterKind::Go);
+        let go_out = go.sync(
             root,
-            global,
+            config,
+            SyncOpts {
+                locked: global.locked || global.frozen,
+                quiet: global.quiet,
+            },
         )?;
+        if go_out.exit_code != 0 {
+            return Ok(go_out.exit_code);
+        }
     }
 
     run_step_moon(&["run", "web:setup"], root, global)?;
     Ok(0)
 }
 
+fn pixi_sync(root: &Path, config: &LunaConfig, global: &GlobalArgs) -> Result<()> {
+    if !config.adapters.pixi.enabled || !root.join(&config.adapters.pixi.manifest).is_file() {
+        return Ok(());
+    }
+    crate::toolchains::pixi::ensure_pixi(root, config, global.quiet)?;
+    let pixi = registry::get(AdapterKind::Pixi);
+    let locked = global.locked || global.frozen || config.policy.frozen_ci;
+    let outcome = pixi.sync(
+        root,
+        config,
+        SyncOpts {
+            locked,
+            quiet: global.quiet,
+        },
+    )?;
+    if outcome.exit_code != 0 {
+        return Err(miette::miette!(
+            "pixi install failed with exit code {}",
+            outcome.exit_code
+        ));
+    }
+    Ok(())
+}
+
 /// Post-update workspace sync with captured output behind a progress loader.
 pub async fn sync_workspace_quiet(
     root: &Path,
+    config: &LunaConfig,
     global: &GlobalArgs,
     console: &LunaConsole,
 ) -> Result<i32> {
     if global.quiet {
-        return run_quiet_sync_capture(root, global);
+        return run_quiet_sync_capture(root, config, global);
     }
 
     let root_buf = root.to_path_buf();
+    let config = config.clone();
     let quiet = global.quiet;
+    let locked = global.locked || global.frozen;
     let firewall = security::resolve_firewall(root, global, quiet);
 
     let result = ui::run_with_loader(console, "Syncing workspace", move |reporter| {
-        run_quiet_sync_steps(&root_buf, quiet, firewall, &reporter)
+        run_quiet_sync_steps(&root_buf, &config, quiet, locked, firewall, &reporter)
     })
     .await;
 
@@ -80,20 +124,51 @@ pub async fn sync_workspace_quiet(
     }
 }
 
-fn run_quiet_sync_capture(root: &Path, global: &GlobalArgs) -> Result<i32> {
+fn run_quiet_sync_capture(root: &Path, config: &LunaConfig, global: &GlobalArgs) -> Result<i32> {
     let firewall = security::resolve_firewall(root, global, global.quiet);
     let reporter = starbase_console::ui::ProgressReporter::default();
-    run_quiet_sync_steps(root, global.quiet, firewall, &reporter)
-        .map_err(|e| miette::miette!("{e}"))?;
+    run_quiet_sync_steps(
+        root,
+        config,
+        global.quiet,
+        global.locked || global.frozen,
+        firewall,
+        &reporter,
+    )
+    .map_err(|e| miette::miette!("{e}"))?;
     Ok(0)
 }
 
 fn run_quiet_sync_steps(
     root: &Path,
+    config: &LunaConfig,
     quiet: bool,
+    locked: bool,
     firewall: bool,
     reporter: &starbase_console::ui::ProgressReporter,
 ) -> Result<(), String> {
+    reporter.set_message("Syncing Pixi environment");
+    pixi_sync(
+        root,
+        config,
+        &GlobalArgs {
+            verbose: 0,
+            quiet,
+            firewall,
+            json: false,
+            dry_run: false,
+            locked,
+            frozen: locked,
+            cwd: None,
+            backend: crate::cli::Backend::Auto,
+            affected: false,
+            no_cache: false,
+            trace: false,
+            mode: None,
+        },
+    )
+    .map_err(|e| e.to_string())?;
+
     reporter.set_message("Installing JS dependencies");
     runner::ensure_installed("bun", root).map_err(|e| e.to_string())?;
     let bun_args = vec![
@@ -204,7 +279,6 @@ fn sync_go_toolchain_capture(root: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Drop `.moon/cache` (moon recreates it on the next invocation).
 pub(crate) fn remove_moon_cache(root: &Path) -> Result<()> {
     let moon_cache = root.join(".moon").join("cache");
     if moon_cache.is_dir() {
@@ -220,23 +294,6 @@ pub(crate) fn run_step(
     global: &GlobalArgs,
 ) -> Result<()> {
     let code = runner::run(program, args, cwd, global.quiet)?;
-    if code != 0 {
-        return Err(miette::miette!(
-            "`{program} {}` failed with exit code {code}",
-            args.join(" ")
-        ));
-    }
-    Ok(())
-}
-
-pub(crate) fn run_pm_step(
-    program: &str,
-    args: &[String],
-    cwd: &Path,
-    global: &GlobalArgs,
-    firewall: bool,
-) -> Result<()> {
-    let code = runner::run_pm(program, args, cwd, global.quiet, firewall)?;
     if code != 0 {
         return Err(miette::miette!(
             "`{program} {}` failed with exit code {code}",

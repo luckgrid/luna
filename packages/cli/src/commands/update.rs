@@ -1,4 +1,5 @@
 use crate::cli::{GlobalArgs, UpdateArgs};
+use crate::output;
 use crate::systems::deps::{self, UpdateReport};
 use crate::systems::model::{DependencyRow, ToolchainKind, ToolchainSnapshot};
 use crate::systems::snapshot::{self, OutdatedSnapshot};
@@ -81,12 +82,25 @@ pub async fn run(
     if !quiet {
         emitter.section_title("Re-syncing workspace (release-age enforced)")?;
     }
-    let setup_code = tasks::sync_workspace_quiet(root, global, emitter.console())
+    let config = crate::config::load(root)?;
+    let setup_code = tasks::sync_workspace_quiet(root, &config, global, emitter.console())
         .await
         .unwrap_or(1);
 
     if !quiet {
         render_update_table(emitter, &snapshots, &selected, &report)?;
+    }
+
+    if global.json {
+        output::emit(&output::UpdateReportJson {
+            schema_version: output::SCHEMA_VERSION.into(),
+            workspace_root: root.display().to_string(),
+            updated: updated_count,
+            blocked: blocked_count,
+            failed: failed_count,
+            skipped: skipped_count,
+            setup_ok: setup_code == 0,
+        });
     }
 
     if !quiet {

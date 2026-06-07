@@ -56,7 +56,7 @@ subcommand_help_test!(test_help, "test", "--affected");
 subcommand_help_test!(dev_help, "dev", "project");
 subcommand_help_test!(start_help, "start", "project");
 subcommand_help_test!(run_help, "run", "targets");
-subcommand_help_test!(graph_help, "graph", "project-graph");
+subcommand_help_test!(graph_help, "graph", "Emit the project graph");
 subcommand_help_test!(tasks_help, "tasks", "tasks");
 subcommand_help_test!(projects_help, "projects", "projects");
 subcommand_help_test!(ci_help, "ci", "ci");

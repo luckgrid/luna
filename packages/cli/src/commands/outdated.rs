@@ -1,4 +1,5 @@
 use crate::cli::GlobalArgs;
+use crate::output;
 use crate::systems::deps;
 use crate::systems::model::{ToolchainSnapshot, ToolchainState};
 use crate::systems::security;
@@ -26,6 +27,13 @@ pub async fn run(root: &Path, global: &GlobalArgs, emitter: &Emitter) -> Result<
     let snap = OutdatedSnapshot::new(root, policy, snapshots.clone());
     if let Err(err) = snapshot::write(root, &snap) {
         let _ = emitter.failure_notice("Snapshot", &format!("could not write: {err}"));
+    }
+
+    if global.json {
+        let report =
+            output::OutdatedReport::from_snapshots(root, &snapshots, snapshot::SNAPSHOT_REL);
+        output::emit(&report);
+        return Ok(0);
     }
 
     if global.quiet {

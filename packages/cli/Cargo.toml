@@ -25,7 +25,11 @@ starbase_console = { version = "0.6.27", features = ["ui"] }
 starbase_styles = "0.6.7"
 time = { version = "0.3", features = ["parsing"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+toml = "0.8"
+toml_edit = "0.22"
+clap_complete = "4.5"
 tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 ureq = { version = "2", default-features = false, features = ["tls"] }
 
 [dev-dependencies]

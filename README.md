@@ -67,11 +67,13 @@ One command from the repo root (fresh clone or after `luna clean`):
 moon run luna:install
 ```
 
-That runs `proto install` → `cli:build` → `cli:install` → `luna install` (toolchains, CLI, bun workspaces, web, api). Then:
+That runs `proto install` → `cli:build` → `cli:install` → `luna install` (Pixi env when [`pixi.toml`](pixi.toml) exists, toolchains, CLI, bun workspaces, web, api). When Pixi is not on `PATH`, Luna can auto-install it via the Proto-pinned Rust toolchain (`cargo install --git … pixi`) when `[bootstrap].auto_install_pixi = true` in [`luna.toml`](luna.toml) — or install manually with the [Pixi installer](https://pixi.prefix.dev/latest/installation/). Then:
 
 ```sh
 luna dev
 ```
+
+**Existing clones without `luna.toml`:** run `luna migrate` once to generate the canonical config from legacy repo files.
 
 **Equivalent steps** (if you prefer to run them separately):
 
@@ -123,13 +125,26 @@ All day-to-day commands go through the **`luna` CLI** (`packages/cli`). It orche
 ### Bootstrap and lifecycle
 
 ```sh
-luna install     # bootstrap workspace
-luna clean       # :clean per project → moon clean --all → root luna:clean → .moon/cache last
-luna dev         # moon run :dev --query "projectLayer=application"
-luna build       # moon run :build --query "projectLayer=application"
-luna start       # moon run :start --query "projectLayer=application"
-luna test        # moon run :test --query "projectLayer=application"
+luna install / luna sync   # bootstrap workspace (Pixi-first when pixi.toml present)
+luna lock                  # reconcile lockfiles + write .luna/lock-ledger.json
+luna sbom / luna inventory # dependency inventory (--json, --format cyclonedx)
+luna ci                    # native pipeline: doctor → sync --locked → check → build → test
+luna migrate / luna init   # write luna.toml (init also scaffolds pixi.toml when absent)
+luna plan <target> [--out plan.json]   # execution plan with fingerprint
+luna apply plan.json       # apply saved plan (rejects stale fingerprints)
+luna doctor                # config drift, adapters, policy compliance
+luna config validate|print # validate luna.toml (--json on print)
+luna env list|sync|exec    # Pixi environments
+luna completions <shell>   # bash, zsh, fish, powershell, elvish
+luna agent mcp             # stdio MCP (requires [agent].mcp = true)
+luna clean                 # :clean per project → moon clean --all → root luna:clean → .moon/cache last
+luna dev                   # moon run :dev (scope from luna.toml [commands.dev])
+luna build                 # planner-backed or moon run :build
+luna start
+luna test
 ```
+
+Global flags: `--json`, `--dry-run`, `--locked`/`--frozen`, `--mode inspect|plan|apply|offline|networked`, `--backend auto|pixi|moon|native`, `--trace`, `--no-cache`.
 
 All build/dev/start/test commands accept an optional project name (`luna build app`) and `--affected` flag (`luna build --affected`).
 
@@ -174,6 +189,9 @@ moon run ui:typecheck
 
 ## Configuration map
 
+- **Policy / intent (authoritative):** [`luna.toml`](luna.toml) — workspace, bootstrap, policy, adapters, compat.moon, commands, agent
+- **Luna-owned state:** `.luna/` — snapshots, lock-ledger, cache, plans, telemetry (see `[state].dir`)
+- Pixi workspace: [`pixi.toml`](pixi.toml) — shared dev tools (just, watchexec, …)
 - Tool/version pins: [`.prototools`](.prototools)
 - Workspace manifest + dev dependencies: [`package.json`](package.json) — Bun workspaces and dev tool versions only; all orchestration goes through `luna`
 - Python workspace (uv): [`pyproject.toml`](pyproject.toml) — virtual root, shared [`uv.lock`](uv.lock) + [`.venv`](.venv); members `apps/api`, `packages/py-demo`; shared ruff rules and dev deps in root; per-member run/test/build config in each member's `pyproject.toml` and moon tasks
@@ -202,9 +220,9 @@ moon run ui:typecheck
 
 Repo-wide **outdated checks** and **upgrades** go through the **`luna` CLI** so every toolchain stays in sync.
 
-The `luna` CLI (`packages/cli`, built with Rust + Starbase) probes every toolchain — **proto**, **Rust / Cargo** (`cargo outdated`), **Bun**, **Python / uv** (lockfile dry-run), and **Go** per `go.mod` — **in parallel** behind a Luna-owned status panel, then prints **one grouped table** with toolchain divider rows (in the order proto → rust → bun → uv → go; up-to-date toolchains are omitted). Hugo-style modules (`tool` in `go.mod`, local code only under `workspace/`) use `go list -m -u` on tool lines; other modules use direct `go list -m -u` (not the full workspace graph). Set `LUNA_FULL_GRAPH=1` to scan or update with `go list -m -u all` / `go get -u all`.
+The `luna` CLI (`packages/cli`, built with Rust + Starbase) probes every toolchain — **proto**, **Rust / Cargo** (`cargo outdated`), **Bun**, **Python / uv** (lockfile dry-run), and **Go** per `go.mod` — **in parallel** behind a Luna-owned status panel, then prints **one grouped table** with toolchain divider rows (in the order proto → rust → bun → uv → go; up-to-date toolchains are omitted). Hugo-style modules (`tool` in `go.mod`, local code only under `workspace/`) use `go list -m -u` on tool lines; other modules use the full module graph.
 
-`luna outdated` exits **0** (findings are informational) and always overwrites a snapshot at `.cache/outdated.snapshot.json`. `luna update` is **snapshot-first**: it reuses that snapshot when it is `< 8h` old and still valid (matching repo root, policy flags, schema, and manifest fingerprints), otherwise it runs the same probe phase as a preflight. It then updates **only the toolchains marked outdated** (others show as skipped), and re-runs workspace bootstrap (`bun install`, `uv sync` / `api:build`, `go work sync`, `web:setup`). After `luna update`, review diffs and run `luna check` before committing.
+`luna outdated` exits **0** (findings are informational) and always overwrites a snapshot at `.luna/snapshots/outdated.snapshot.json`. `luna update` is **snapshot-first**: it reuses that snapshot when it is `< 8h` old and still valid (matching repo root, policy flags, schema, and manifest fingerprints), otherwise it runs the same probe phase as a preflight. It then updates **only the toolchains marked outdated** (others show as skipped), and re-runs workspace bootstrap (`pixi install`, `bun install`, `uv sync` / `api:build`, `go work sync`, `web:setup`). After `luna update`, review diffs and run `luna check` before committing.
 
 ```sh
 luna outdated      # parallel probes → grouped table → snapshot (exits 0)
@@ -214,7 +232,7 @@ luna update --major  # also apply major-version bumps where supported
 
 ### Supply-chain security (cooldown + firewall)
 
-`luna update` and `luna install` apply a **14-day minimum release age** so recently published packages are not pulled in immediately:
+`luna update` and `luna install` apply a **14-day minimum release age** (configurable in [`luna.toml`](luna.toml) `[policy].min_release_age_days`) so recently published packages are not pulled in immediately:
 
 | Ecosystem                        | Mechanism                                                                                   |
 | -------------------------------- | ------------------------------------------------------------------------------------------- |

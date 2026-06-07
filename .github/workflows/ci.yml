@@ -32,4 +32,14 @@ jobs:
       - run: moon run cli:build
       - run: ./target/debug/luna install --workspace
 
-      - run: moon ci
+  windows-smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: "true"
+      - run: moon run cli:build
+      - run: ./target/debug/luna.exe doctor
+      - run: ./target/debug/luna.exe sync --workspace --locked
+      - run: ./target/debug/luna.exe ci --json

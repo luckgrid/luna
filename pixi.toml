@@ -1,0 +1,35 @@
+[workspace]
+name = "luna"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64"]
+requires-pixi = ">=0.69,<0.71"
+exclude-newer = "14d"
+
+[dependencies]
+ripgrep = "*"
+jq = "*"
+just = "*"
+watchexec = "*"
+shellcheck = "*"
+go-shfmt = "*"
+nodejs = "22.*"
+python = "3.12.*"
+
+[feature.js.dependencies]
+nodejs = "22.*"
+
+[feature.py.dependencies]
+python = "3.12.*"
+
+[feature.docs.dependencies]
+typst = "*"
+
+[environments]
+default = []
+js = ["js"]
+py = ["py"]
+docs = ["docs"]
+
+[tasks]
+doctor = "luna doctor --json"
+check = "luna check"

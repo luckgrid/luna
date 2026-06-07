@@ -9,8 +9,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 /// Current on-disk snapshot schema. Bump on any incompatible field change.
 pub const SCHEMA_VERSION: u32 = 1;
 
-/// Snapshot lives at `<root>/.cache/outdated.snapshot.json` (single file, overwritten).
-pub const SNAPSHOT_REL: &str = ".cache/outdated.snapshot.json";
+/// Snapshot lives at `<root>/.luna/snapshots/outdated.snapshot.json`.
+///
+/// Previously stored at `.cache/`; moved to `.luna/` as part of the config
+/// unification refactor. The `.luna/` directory holds all Luna-owned state.
+pub const SNAPSHOT_REL: &str = ".luna/snapshots/outdated.snapshot.json";
 
 /// Default reuse window enforced by `luna update` only (8 hours).
 pub const DEFAULT_TTL_SECS: u64 = 8 * 60 * 60;
@@ -124,6 +127,11 @@ pub fn read_valid(
         return Err(InvalidReason::ManifestChanged);
     }
     Ok(snapshot)
+}
+
+/// Public wrapper for ledger fingerprinting.
+pub fn fingerprint_manifests_public(root: &Path) -> Vec<ManifestFingerprint> {
+    fingerprint_manifests(root)
 }
 
 /// Candidate manifest + lockfile paths whose edits should invalidate a snapshot.

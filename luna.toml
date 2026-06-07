@@ -1,0 +1,60 @@
+schema = 1
+
+[workspace]
+name = "luna"
+root = "."
+default_profile = "dev"
+
+[state]
+dir = ".luna"
+snapshot_ttl_hours = 8
+
+[bootstrap]
+provider = "pixi"
+compat_providers = ["proto"]
+auto_install_pixi = true
+
+[policy]
+min_release_age_days = 14
+firewall = "opt-in"
+network_default = "restricted"
+allow_git_dependencies = false
+ignore_lifecycle_scripts = true
+frozen_ci = false
+
+[adapters.bun]
+manifest = "package.json"
+lockfile = "bun.lock"
+workspace_globs = ["apps/*", "packages/*"]
+
+[adapters.uv]
+manifest = "pyproject.toml"
+lockfile = "uv.lock"
+workspace_members = ["apps/api", "packages/py-demo"]
+
+[adapters.cargo]
+manifest = "Cargo.toml"
+lockfile = "Cargo.lock"
+
+[adapters.go]
+workspace = "go.work"
+
+[adapters.pixi]
+manifest = "pixi.toml"
+enabled = true
+
+[compat.moon]
+enabled = true
+workspace = ".moon/workspace.yml"
+
+[commands.build]
+default_scope = "applications"
+
+[commands.dev]
+default_scope = "applications"
+watcher = "watchexec"
+
+[agent]
+json_default = false
+safe_mode_default = "inspect"
+mcp = false

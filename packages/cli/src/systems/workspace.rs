@@ -3,13 +3,19 @@ use miette::{miette, IntoDiagnostic, Result};
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-/// Walk up from the current directory until both `.prototools` and `package.json`
-/// exist, marking the Luna monorepo root.
+/// Walk up from the current directory until a recognized root marker is found.
+///
+/// Detection strategy (in priority order):
+/// 1. `luna.toml` present — canonical Luna workspace root
+/// 2. `.prototools` + `package.json` both present — legacy root detection
 pub fn find_root() -> Result<PathBuf> {
     let cwd = std::env::current_dir().into_diagnostic()?;
     let mut dir = cwd.as_path();
 
     loop {
+        if dir.join("luna.toml").is_file() {
+            return Ok(dir.to_path_buf());
+        }
         if dir.join(".prototools").is_file() && dir.join("package.json").is_file() {
             return Ok(dir.to_path_buf());
         }
@@ -18,8 +24,9 @@ pub fn find_root() -> Result<PathBuf> {
             Some(parent) => dir = parent,
             None => {
                 return Err(miette!(
-                    "Could not find the Luna workspace root (no `.prototools` + `package.json` \
-                     in any parent of {}). Run `luna` from inside the repository.",
+                    "Could not find the Luna workspace root (no `luna.toml` or \
+                     `.prototools` + `package.json` in any parent of {}). Run `luna` \
+                     from inside the repository.",
                     cwd.display()
                 ))
             }
@@ -343,21 +350,10 @@ pub fn go_tool_paths(module_root: &Path) -> Vec<String> {
 
 /// Fast outdated/update path: `tool` modules without real local packages (Hugo + workspace glue).
 pub fn go_uses_tool_fast_path(module_root: &Path) -> bool {
-    if go_tool_paths(module_root).is_empty() || full_graph_enabled() {
+    if go_tool_paths(module_root).is_empty() {
         return false;
     }
     !go_has_non_workspace_local_packages(module_root)
-}
-
-/// When set, Go outdated/update scans the full module graph (`all`), not just tools or direct deps.
-pub fn full_graph_enabled() -> bool {
-    match std::env::var_os("LUNA_FULL_GRAPH") {
-        Some(v) => {
-            let s = v.to_string_lossy();
-            !s.is_empty() && s != "0" && s != "false"
-        }
-        None => false,
-    }
 }
 
 /// Local packages outside `workspace/` (e.g. `packages/go-demo` at module root).

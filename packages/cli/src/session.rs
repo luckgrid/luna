@@ -1,4 +1,5 @@
 use crate::cli::Cli;
+use crate::config::LunaConfig;
 use starbase::AppSession;
 use std::path::PathBuf;
 
@@ -7,11 +8,12 @@ use std::path::PathBuf;
 pub struct LunaSession {
     pub cli: Cli,
     pub root: PathBuf,
+    pub config: LunaConfig,
 }
 
 impl LunaSession {
-    pub fn new(cli: Cli, root: PathBuf) -> Self {
-        Self { cli, root }
+    pub fn new(cli: Cli, root: PathBuf, config: LunaConfig) -> Self {
+        Self { cli, root, config }
     }
 }
 

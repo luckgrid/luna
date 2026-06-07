@@ -76,10 +76,7 @@ fn update(root: &Path) -> UpdateOutcome {
                 }
             }
         } else {
-            let mut args = vec!["get".to_string(), "-u".to_string()];
-            if workspace::full_graph_enabled() {
-                args.push("all".to_string());
-            }
+            let args = vec!["get".to_string(), "-u".to_string(), "all".to_string()];
             if let Ok(out) = runner::capture("go", &args, module) {
                 if out.code != 0 {
                     return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr));
@@ -99,7 +96,7 @@ fn go_list_args(module: &Path) -> Vec<String> {
     let mut args = vec!["list".to_string(), "-m".to_string(), "-u".to_string()];
     if workspace::go_uses_tool_fast_path(module) {
         args.extend(workspace::go_tool_paths(module));
-    } else if workspace::full_graph_enabled() {
+    } else {
         args.push("all".to_string());
     }
     args

@@ -1,8 +1,12 @@
 pub mod deps;
+pub mod diagnostics;
+pub mod inventory;
+pub mod ledger;
 pub mod model;
 pub mod registry;
 pub mod runner;
 pub mod security;
 pub mod snapshot;
+pub mod state;
 pub mod tasks;
 pub mod workspace;

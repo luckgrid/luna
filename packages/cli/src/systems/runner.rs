@@ -16,13 +16,19 @@ pub struct Output {
 /// Build a PATH string with workspace bins, proto shims, and `~/.cargo/bin`
 /// prepended so tools resolve to `.prototools` pins when possible.
 fn enriched_path(root: &Path) -> String {
+    let pixi_active =
+        root.join("pixi.toml").is_file() && crate::toolchains::pixi::pixi_available(root);
     let node_bin = root.join("node_modules").join(".bin");
     let proto_shims = home::home_dir()
         .map(|h| h.join(".proto").join("shims"))
         .filter(|p| p.is_dir());
-    let cargo_bin = home::home_dir()
-        .map(|h| h.join(".cargo").join("bin"))
-        .filter(|p| p.is_dir());
+    let cargo_bin = if pixi_active {
+        None
+    } else {
+        home::home_dir()
+            .map(|h| h.join(".cargo").join("bin"))
+            .filter(|p| p.is_dir())
+    };
     let existing = env::var("PATH").unwrap_or_default();
 
     let mut prefixes = Vec::new();
@@ -44,6 +50,9 @@ fn enriched_path(root: &Path) -> String {
 
 /// Extra env vars so child tools use proto-pinned runtimes (e.g. `UV_PYTHON`).
 fn toolchain_env(root: &Path) -> HashMap<String, String> {
+    if root.join("pixi.toml").is_file() && crate::toolchains::pixi::pixi_available(root) {
+        return HashMap::new();
+    }
     let mut vars = HashMap::new();
     if let Some(python) = crate::systems::workspace::proto_tool_binary(root, "python") {
         vars.insert("UV_PYTHON".into(), python.display().to_string());
@@ -165,5 +174,24 @@ fn map_spawn_error(program: &str, err: std::io::Error) -> miette::Report {
         miette!("missing required command: `{program}` (is it installed and on PATH?)")
     } else {
         miette!("failed to spawn `{program}`: {err}")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn enriched_path_with_pixi_toml_does_not_recurse() {
+        let tmp = std::env::temp_dir().join(format!("luna-runner-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&tmp);
+        fs::create_dir_all(&tmp).unwrap();
+        fs::write(tmp.join("pixi.toml"), "[project]\nname = \"test\"\n").unwrap();
+
+        let result = ensure_installed("definitely-not-a-real-tool-xyz", &tmp);
+        assert!(result.is_err());
+
+        let _ = fs::remove_dir_all(&tmp);
     }
 }

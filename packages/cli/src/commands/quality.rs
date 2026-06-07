@@ -61,6 +61,30 @@ pub fn lint(root: &Path, fix: bool, global: &GlobalArgs) -> Result<i32> {
     runner::run("cargo", &clippy_args, root, global.quiet)
 }
 
+/// Run Rust tests, preferring `cargo nextest run` when available.
+pub fn run_rust_tests(root: &Path, global: &GlobalArgs) -> Result<i32> {
+    if nextest_available(root) {
+        runner::run(
+            "cargo",
+            &["nextest".to_string(), "run".to_string()],
+            root,
+            global.quiet,
+        )
+    } else {
+        runner::run("cargo", &["test".to_string()], root, global.quiet)
+    }
+}
+
+fn nextest_available(root: &Path) -> bool {
+    runner::capture(
+        "cargo",
+        &["nextest".to_string(), "--version".to_string()],
+        root,
+    )
+    .map(|o| o.code == 0)
+    .unwrap_or(false)
+}
+
 /// Format all stacks: TS (oxfmt) + Python (ruff) + Rust (cargo fmt).
 pub fn format(root: &Path, check: bool, global: &GlobalArgs) -> Result<i32> {
     // TS root

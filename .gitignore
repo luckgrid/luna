@@ -1,3 +1,12 @@
+# luna
+.luna/cache/
+.luna/runs/
+.luna/telemetry/
+.luna/plans/
+
+# pixi
+.pixi/
+
 # os
 .DS_Store
 Thumbs.db
