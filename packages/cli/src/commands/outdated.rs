@@ -1,7 +1,7 @@
 use crate::cli::GlobalArgs;
 use crate::output;
 use crate::systems::deps;
-use crate::systems::model::{ToolchainSnapshot, ToolchainState};
+use crate::systems::model::ToolchainState;
 use crate::systems::security;
 use crate::systems::snapshot::{self, OutdatedSnapshot};
 use crate::ui::{self, Emitter};
@@ -48,21 +48,24 @@ pub async fn run(root: &Path, global: &GlobalArgs, emitter: &Emitter) -> Result<
             "\n✓ All checks passed (nothing reported as outdated).",
         )?;
     } else {
-        ui::render_outdated_table(console, &snapshots)?;
-        ui::render_release_age_section(console)?;
+        ui::render_outdated_report(console, &snapshots)?;
     }
 
-    report_failures(emitter, &snapshots);
+    report_total_failures(emitter, &snapshots);
 
     emitter.snapshot_written(snapshot::SNAPSHOT_REL)?;
 
     Ok(0)
 }
 
-fn report_failures(emitter: &Emitter, snapshots: &[ToolchainSnapshot]) {
+/// Only surface a notice when a toolchain probe failed entirely (no dependency rows).
+fn report_total_failures(
+    emitter: &Emitter,
+    snapshots: &[crate::systems::model::ToolchainSnapshot],
+) {
     let failed: Vec<_> = snapshots
         .iter()
-        .filter(|s| s.state == ToolchainState::Failed)
+        .filter(|s| s.state == ToolchainState::Failed && s.rows.is_empty())
         .collect();
     if failed.is_empty() {
         return;

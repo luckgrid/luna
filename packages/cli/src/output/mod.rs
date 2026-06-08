@@ -45,8 +45,11 @@ pub struct UpdateReportJson {
     pub updated: usize,
     pub blocked: usize,
     pub failed: usize,
+    pub unchanged: usize,
     pub skipped: usize,
     pub setup_ok: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub packages: Vec<crate::systems::model::PackageUpdateResult>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

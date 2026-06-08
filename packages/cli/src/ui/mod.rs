@@ -1,4 +1,5 @@
 pub mod events;
+pub mod report;
 pub mod status;
 pub mod tables;
 
@@ -11,10 +12,11 @@ use starbase_console::ui::{
 use starbase_console::{Console, ConsoleError, EmptyReporter};
 
 pub use events::Emitter;
+pub use report::{render_outdated_report, render_update_report};
 pub use status::StatusPanel;
 pub use tables::{
-    render_outdated_table, render_release_age_section, render_update_summary, render_update_table,
-    UpdateSummary,
+    render_outdated_table, render_release_age_section, render_update_result_footer,
+    render_update_result_table, UpdateSummary,
 };
 
 /// Console instance used by Luna dependency commands.

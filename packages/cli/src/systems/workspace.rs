@@ -329,6 +329,77 @@ fn absolutize(root: &Path, rel: &str) -> PathBuf {
     }
 }
 
+/// Direct `require` entries from `go.mod` (excludes `// indirect` lines).
+pub fn go_mod_direct_requires(module_root: &Path) -> Vec<String> {
+    let Ok(text) = std::fs::read_to_string(module_root.join("go.mod")) else {
+        return Vec::new();
+    };
+    let mut seen = BTreeSet::new();
+    let mut requires = Vec::new();
+    let mut in_require_block = false;
+
+    for line in text.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with("require (") {
+            in_require_block = true;
+            continue;
+        }
+        if in_require_block && trimmed == ")" {
+            in_require_block = false;
+            continue;
+        }
+
+        if trimmed.starts_with("require ") && !trimmed.starts_with("require (") {
+            let rest = trimmed.strip_prefix("require ").unwrap_or("");
+            if let Some((path, _)) = parse_go_require_line(rest) {
+                if !go_require_line_is_indirect(trimmed) && seen.insert(path.clone()) {
+                    requires.push(path);
+                }
+            }
+            continue;
+        }
+
+        if in_require_block && !go_require_line_is_indirect(trimmed) {
+            if let Some((path, _)) = parse_go_require_line(trimmed) {
+                if seen.insert(path.clone()) {
+                    requires.push(path);
+                }
+            }
+        }
+    }
+    requires
+}
+
+fn go_require_line_is_indirect(line: &str) -> bool {
+    line.contains("// indirect")
+}
+
+fn parse_go_require_line(line: &str) -> Option<(String, String)> {
+    let line = line.split("//").next()?.trim();
+    if line.is_empty() {
+        return None;
+    }
+    let mut parts = line.split_whitespace();
+    let path = parts.next()?.to_string();
+    let version = parts.next().unwrap_or("").to_string();
+    Some((path, version))
+}
+
+/// Probe/update targets: deduped union of `tool` paths and direct `require` modules.
+pub fn go_list_targets(module_root: &Path) -> Vec<String> {
+    let mut seen = BTreeSet::new();
+    let mut targets = Vec::new();
+    for path in go_tool_paths(module_root)
+        .into_iter()
+        .chain(go_mod_direct_requires(module_root))
+    {
+        if seen.insert(path.clone()) {
+            targets.push(path);
+        }
+    }
+    targets
+}
+
 /// `tool <path>` directives declared in a module's `go.mod`.
 pub fn go_tool_paths(module_root: &Path) -> Vec<String> {
     let Ok(text) = std::fs::read_to_string(module_root.join("go.mod")) else {
@@ -346,34 +417,6 @@ pub fn go_tool_paths(module_root: &Path) -> Vec<String> {
         }
     }
     tools
-}
-
-/// Fast outdated/update path: `tool` modules without real local packages (Hugo + workspace glue).
-pub fn go_uses_tool_fast_path(module_root: &Path) -> bool {
-    if go_tool_paths(module_root).is_empty() {
-        return false;
-    }
-    !go_has_non_workspace_local_packages(module_root)
-}
-
-/// Local packages outside `workspace/` (e.g. `packages/go-demo` at module root).
-fn go_has_non_workspace_local_packages(module_root: &Path) -> bool {
-    match runner::capture(
-        "go",
-        &[
-            "list".to_string(),
-            "-f".to_string(),
-            "{{.ImportPath}}".to_string(),
-            "./...".to_string(),
-        ],
-        module_root,
-    ) {
-        Ok(out) if out.code == 0 => out.stdout.lines().any(|line| {
-            let import = line.trim();
-            !import.is_empty() && !import.ends_with("/workspace")
-        }),
-        _ => false,
-    }
 }
 
 #[cfg(test)]
@@ -398,5 +441,36 @@ mod tests {
         let paths = go_work_use_paths(&root);
         assert!(paths.iter().any(|p| p.ends_with("apps/web")));
         assert!(paths.iter().any(|p| p.ends_with("packages/go-demo")));
+    }
+
+    #[test]
+    fn go_mod_direct_requires_skips_indirect_on_repo_web() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let web = root.join("apps/web");
+        if !web.join("go.mod").is_file() {
+            return;
+        }
+        let requires = go_mod_direct_requires(&web);
+        assert!(
+            requires.iter().any(|r| r.contains("go-demo")),
+            "expected direct go-demo require: {requires:?}"
+        );
+        assert!(
+            !requires.iter().any(|r| r.starts_with("cloud.google.com")),
+            "indirect deps must not appear: {requires:?}"
+        );
+    }
+
+    #[test]
+    fn go_list_targets_unions_tools_and_directs_on_repo_web() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let web = root.join("apps/web");
+        if !web.join("go.mod").is_file() {
+            return;
+        }
+        let targets = go_list_targets(&web);
+        assert!(targets.iter().any(|t| t.contains("hugo")));
+        assert!(targets.iter().any(|t| t.contains("go-demo")));
+        assert!(targets.len() <= 3, "expected few targets, got {targets:?}");
     }
 }

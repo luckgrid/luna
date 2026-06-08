@@ -67,7 +67,8 @@ Keep this file lean and directive-focused. Use `README.md` as the source of trut
 - **Planner + execution modes**: `sync`/`build`/`test`/`ci` resolve plans then execute via adapters; honor `--dry-run`, `--mode inspect|plan|apply|offline|networked`, `--locked`/`--frozen`.
 - **Moon compat backend**: task graph via Moon adapter when `[compat.moon].enabled`; scope from `[commands.*].default_scope`, not hardcoded queries.
 - **`luna` owns quality across all stacks**: `luna lint`/`format`/`typecheck`/`check`/`fix` cover TS (oxlint/oxfmt/tsc), Python (ruff at root), Rust (cargo clippy/fmt/nextest), and Go (hugo config via moon).
-- **`outdated`/`update` manage toolchains** (proto, cargo, bun, uv, go); Pixi is env-only, not in the 5-toolchain outdated set.
+- **`outdated`/`update` manage toolchains** (proto, cargo, bun, uv, go); Pixi is env-only, not in the 5-toolchain outdated set. Use [`toolchains/`](packages/cli/src/toolchains/) (`ToolchainAdapter`) for probe/update; [`adapters/`](packages/cli/src/adapters/) (`BackendAdapter`) for install/sync/planner — both are required, not legacy duplicates.
+- **Go outdated scope**: tool directives + direct `require` lines only (not transitive Hugo deps). See [`packages/cli/README.md`](packages/cli/README.md#dependency-management).
 - **Lock ledger + SBOM**: `luna lock` writes `.luna/lock-ledger.json`; `luna sbom` exports inventory (`--json`, `--format cyclonedx`).
 - **Agent / MCP**: `luna agent mcp` (stdio JSON-RPC, gated on `[agent].mcp`) exposes plan/doctor/config/sbom over internal APIs.
 - **Proto pins are source of truth**: `luna install` / `luna update` sync `go.work` and workspace `go.mod` `go` directives from [`.prototools`](.prototools); when Pixi is inactive, subprocesses prepend `~/.proto/shims` and set `UV_PYTHON`.

@@ -21,9 +21,14 @@ fn cache() -> &'static Mutex<HashMap<String, Option<VersionTimes>>> {
     CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+fn go_time_cache() -> &'static Mutex<HashMap<String, Option<String>>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, Option<String>>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
 /// Days since `version` of `dependency` was published, when a registry can answer.
 ///
-/// Only Bun (npm) and uv (PyPI) have registry sources here; other toolchains
+/// Bun (npm), uv (PyPI), and Go (module proxy) are supported; other toolchains
 /// return `None`. Any network/parse failure also yields `None` (best-effort).
 pub fn release_age_days(kind: ToolchainKind, dependency: &str, version: &str) -> Option<u32> {
     let version = version.trim().trim_start_matches('v');
@@ -32,13 +37,58 @@ pub fn release_age_days(kind: ToolchainKind, dependency: &str, version: &str) ->
     }
     // Bun's table appends suffixes like "vite (dev)"; the registry wants the bare name.
     let dependency = dependency.split_whitespace().next().unwrap_or(dependency);
-    let times = match kind {
-        ToolchainKind::Bun => package_times("npm", dependency, fetch_npm_times)?,
-        ToolchainKind::Uv => package_times("pypi", dependency, fetch_pypi_times)?,
-        _ => return None,
-    };
-    let iso = times.get(version)?;
-    age_days_from_iso(iso)
+    match kind {
+        ToolchainKind::Bun => {
+            let times = package_times("npm", dependency, fetch_npm_times)?;
+            let iso = times.get(version)?;
+            age_days_from_iso(iso)
+        }
+        ToolchainKind::Uv => {
+            let times = package_times("pypi", dependency, fetch_pypi_times)?;
+            let iso = times.get(version)?;
+            age_days_from_iso(iso)
+        }
+        ToolchainKind::Go => {
+            let iso = fetch_go_version_time(dependency, version)?;
+            age_days_from_iso(&iso)
+        }
+        _ => None,
+    }
+}
+
+fn fetch_go_version_time(module: &str, version: &str) -> Option<String> {
+    let version_key = go_proxy_version(version);
+    let key = format!("go:{module}:{version_key}");
+    if let Ok(map) = go_time_cache().lock() {
+        if let Some(entry) = map.get(&key) {
+            return entry.clone();
+        }
+    }
+
+    let url = format!(
+        "https://proxy.golang.org/{}/@v/{}.info",
+        module.trim(),
+        version_key
+    );
+    let fetched = http_get_json(&url).and_then(|body| {
+        body.get("Time")
+            .and_then(|v| v.as_str())
+            .map(str::to_string)
+    });
+
+    if let Ok(mut map) = go_time_cache().lock() {
+        map.insert(key, fetched.clone());
+    }
+    fetched
+}
+
+fn go_proxy_version(version: &str) -> String {
+    let trimmed = version.trim();
+    if trimmed.starts_with('v') {
+        trimmed.to_string()
+    } else {
+        format!("v{trimmed}")
+    }
 }
 
 fn package_times(
@@ -148,8 +198,13 @@ mod tests {
     }
 
     #[test]
+    fn go_proxy_version_adds_v_prefix() {
+        assert_eq!(go_proxy_version("1.2.3"), "v1.2.3");
+        assert_eq!(go_proxy_version("v1.2.3"), "v1.2.3");
+    }
+
+    #[test]
     fn release_age_unsupported_toolchains_return_none() {
-        assert!(release_age_days(ToolchainKind::Go, "x", "1.0.0").is_none());
         assert!(release_age_days(ToolchainKind::Rust, "x", "1.0.0").is_none());
         assert!(release_age_days(ToolchainKind::Proto, "node", "1.0.0").is_none());
     }

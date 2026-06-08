@@ -2,6 +2,7 @@ use crate::systems::model::{DependencyRow, ToolchainKind};
 use crate::systems::{runner, workspace};
 use crate::toolchains::{run_blocking, ProbeOutcome, ToolchainAdapter, UpdateOpts, UpdateOutcome};
 use async_trait::async_trait;
+use std::collections::BTreeSet;
 use std::path::Path;
 
 pub struct GoAdapter;
@@ -23,7 +24,34 @@ impl ToolchainAdapter for GoAdapter {
     }
 }
 
-/// Probe Go modules via `go list -m -u` across discovered modules.
+/// Short display name for a Go module path (last two segments, or last one).
+pub fn short_go_dep_name(module_path: &str) -> String {
+    let segments: Vec<&str> = module_path.split('/').filter(|s| !s.is_empty()).collect();
+    match segments.len() {
+        0 => module_path.to_string(),
+        1 => segments[0].to_string(),
+        _ => format!(
+            "{}/{}",
+            segments[segments.len() - 2],
+            segments[segments.len() - 1]
+        ),
+    }
+}
+
+fn go_row(
+    module_path: &str,
+    current: String,
+    newest: Option<String>,
+    module_root: &Path,
+) -> DependencyRow {
+    let display = short_go_dep_name(module_path);
+    let mut dep = DependencyRow::outdated(ToolchainKind::Go, display, current, newest, None);
+    dep.registry_name = Some(module_path.to_string());
+    dep.source_path = Some(module_root.display().to_string());
+    dep
+}
+
+/// Probe Go modules via `go list -m -u` on tool paths + direct requires only.
 fn probe(root: &Path) -> ProbeOutcome {
     let modules = workspace::project_roots(root, "go", "go.mod");
     if modules.is_empty() {
@@ -36,7 +64,11 @@ fn probe(root: &Path) -> ProbeOutcome {
     let mut rows = Vec::new();
     let mut diagnostics = Vec::new();
     for module in &modules {
-        let args = go_list_args(module);
+        let targets = workspace::go_list_targets(module);
+        if targets.is_empty() {
+            continue;
+        }
+        let args = go_list_args(&targets);
         let out = match runner::capture("go", &args, module) {
             Ok(o) => o,
             Err(err) => {
@@ -45,10 +77,7 @@ fn probe(root: &Path) -> ProbeOutcome {
             }
         };
         for (path, current, newest) in parse_go_list_upgrades(&out.stdout) {
-            let mut dep =
-                DependencyRow::outdated(ToolchainKind::Go, path, current, Some(newest), None);
-            dep.source_path = Some(module.display().to_string());
-            rows.push(dep);
+            rows.push(go_row(&path, current, Some(newest), module));
         }
     }
 
@@ -57,32 +86,50 @@ fn probe(root: &Path) -> ProbeOutcome {
     outcome
 }
 
-/// Update Go modules: tool modules via `go get -tool …`, others via `go get -u`,
-/// finishing each module with `go mod tidy`.
+/// Update Go modules: tools via `go get -tool …@latest`, direct deps via `go get -u`.
 fn update(root: &Path) -> UpdateOutcome {
     let modules = workspace::project_roots(root, "go", "go.mod");
     for module in &modules {
-        if workspace::go_uses_tool_fast_path(module) {
-            for tool in workspace::go_tool_paths(module) {
-                let args = vec![
-                    "get".to_string(),
-                    "-tool".to_string(),
-                    format!("{tool}@latest"),
-                ];
-                if let Ok(out) = runner::capture("go", &args, module) {
-                    if out.code != 0 {
-                        return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr));
-                    }
-                }
-            }
-        } else {
-            let args = vec!["get".to_string(), "-u".to_string(), "all".to_string()];
+        let tools: BTreeSet<String> = workspace::go_tool_paths(module).into_iter().collect();
+        let directs: BTreeSet<String> = workspace::go_mod_direct_requires(module)
+            .into_iter()
+            .collect();
+
+        for tool in &tools {
+            let args = vec![
+                "get".to_string(),
+                "-tool".to_string(),
+                format!("{tool}@latest"),
+            ];
             if let Ok(out) = runner::capture("go", &args, module) {
                 if out.code != 0 {
                     return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr));
                 }
             }
         }
+
+        let direct_only: Vec<String> = directs
+            .into_iter()
+            .filter(|path| !tools.contains(path))
+            .collect();
+        if !direct_only.is_empty() {
+            let args = go_list_args(&direct_only);
+            if let Ok(out) = runner::capture("go", &args, module) {
+                for (path, _current, newest) in parse_go_list_upgrades(&out.stdout) {
+                    let args = vec!["get".to_string(), "-u".to_string(), path];
+                    if let Ok(get_out) = runner::capture("go", &args, module) {
+                        if get_out.code != 0 {
+                            return UpdateOutcome::Failed(format!(
+                                "{}{}",
+                                get_out.stdout, get_out.stderr
+                            ));
+                        }
+                    }
+                    let _ = newest;
+                }
+            }
+        }
+
         match runner::capture("go", &["mod".to_string(), "tidy".to_string()], module) {
             Ok(out) if out.code == 0 => {}
             Ok(out) => return UpdateOutcome::Failed(format!("{}{}", out.stdout, out.stderr)),
@@ -92,13 +139,9 @@ fn update(root: &Path) -> UpdateOutcome {
     UpdateOutcome::Done
 }
 
-fn go_list_args(module: &Path) -> Vec<String> {
+fn go_list_args(targets: &[String]) -> Vec<String> {
     let mut args = vec!["list".to_string(), "-m".to_string(), "-u".to_string()];
-    if workspace::go_uses_tool_fast_path(module) {
-        args.extend(workspace::go_tool_paths(module));
-    } else {
-        args.push("all".to_string());
-    }
+    args.extend(targets.iter().cloned());
     args
 }
 
@@ -139,5 +182,27 @@ mod tests {
         assert_eq!(ups[0].0, "github.com/a/b");
         assert_eq!(ups[0].1, "v1.0.0");
         assert_eq!(ups[0].2, "v1.2.0");
+    }
+
+    #[test]
+    fn short_go_dep_name_uses_last_two_segments() {
+        assert_eq!(
+            short_go_dep_name("github.com/gohugoio/hugo"),
+            "gohugoio/hugo"
+        );
+        assert_eq!(
+            short_go_dep_name("github.com/luckgrid/luna/packages/go-demo"),
+            "packages/go-demo"
+        );
+        assert_eq!(short_go_dep_name("rsc.io/sampler"), "rsc.io/sampler");
+        assert_eq!(short_go_dep_name("cel.dev/expr"), "cel.dev/expr");
+    }
+
+    #[test]
+    fn go_list_args_includes_targets() {
+        let targets = vec!["github.com/a/b".into(), "github.com/c/d".into()];
+        let args = go_list_args(&targets);
+        assert_eq!(args[0..3], ["list", "-m", "-u"]);
+        assert_eq!(args[3..], ["github.com/a/b", "github.com/c/d"]);
     }
 }

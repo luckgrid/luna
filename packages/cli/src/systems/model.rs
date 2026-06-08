@@ -65,6 +65,30 @@ pub struct DependencyRow {
     pub result: Option<String>,
     pub blocked_reason: Option<String>,
     pub source_path: Option<String>,
+    /// Full registry key (e.g. Go module path) when `dependency` is a short display name.
+    pub registry_name: Option<String>,
+}
+
+/// Per-package outcome after an update run.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PackageUpdateStatus {
+    Updated,
+    Blocked,
+    Failed,
+    Unchanged,
+    Skipped,
+}
+
+/// One row in the unified update result table.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PackageUpdateResult {
+    pub toolchain: ToolchainKind,
+    pub workspaces: Vec<String>,
+    pub dependency: String,
+    pub registry_name: Option<String>,
+    pub previous: String,
+    pub new_version: Option<String>,
+    pub status: PackageUpdateStatus,
 }
 
 impl DependencyRow {
@@ -96,6 +120,7 @@ impl DependencyRow {
             result: None,
             blocked_reason: None,
             source_path: None,
+            registry_name: None,
         }
     }
 }

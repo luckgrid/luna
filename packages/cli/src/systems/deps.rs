@@ -1,4 +1,7 @@
-use crate::systems::model::{DependencyRow, SnapshotPolicy, ToolchainKind, ToolchainSnapshot};
+use crate::systems::model::{
+    DependencyRow, PackageUpdateResult, PackageUpdateStatus, SnapshotPolicy, ToolchainKind,
+    ToolchainSnapshot,
+};
 use crate::systems::snapshot::{self, OutdatedSnapshot};
 use crate::systems::workspace::{self, Project};
 use crate::systems::{registry, security};
@@ -163,13 +166,12 @@ async fn enrich_blocking(
 /// Fill release-age (registry) and Workspace (Moon project) fields per row.
 fn enrich_rows(kind: ToolchainKind, rows: &mut [DependencyRow], projects: &[Project]) {
     for row in rows.iter_mut() {
+        let lookup = row.registry_name.as_deref().unwrap_or(&row.dependency);
         if let Some(newest) = row.newest.clone() {
-            row.newest_release_age_days =
-                registry::release_age_days(kind, &row.dependency, &newest);
+            row.newest_release_age_days = registry::release_age_days(kind, lookup, &newest);
         }
         if let Some(latest) = row.latest.clone() {
-            row.latest_release_age_days =
-                registry::release_age_days(kind, &row.dependency, &latest);
+            row.latest_release_age_days = registry::release_age_days(kind, lookup, &latest);
         }
         if row.workspaces.is_empty() {
             if let Some(path) = row.source_path.as_ref() {
@@ -182,9 +184,10 @@ fn enrich_rows(kind: ToolchainKind, rows: &mut [DependencyRow], projects: &[Proj
     }
 }
 
-/// Summary of an update run, keyed by toolchain.
+/// Summary of an update run, keyed by toolchain with per-package results.
 pub struct UpdateReport {
     pub outcomes: HashMap<ToolchainKind, UpdateOutcome>,
+    pub results: Vec<PackageUpdateResult>,
 }
 
 impl UpdateReport {
@@ -196,23 +199,39 @@ impl UpdateReport {
     }
 
     pub fn updated(&self) -> usize {
-        self.count(|o| matches!(o, UpdateOutcome::Done))
+        self.results
+            .iter()
+            .filter(|r| r.status == PackageUpdateStatus::Updated)
+            .count()
     }
 
     pub fn blocked(&self) -> usize {
-        self.count(|o| matches!(o, UpdateOutcome::Blocked))
+        self.results
+            .iter()
+            .filter(|r| r.status == PackageUpdateStatus::Blocked)
+            .count()
     }
 
     pub fn failed(&self) -> usize {
-        self.count(|o| matches!(o, UpdateOutcome::Failed(_)))
+        self.results
+            .iter()
+            .filter(|r| r.status == PackageUpdateStatus::Failed)
+            .count()
+    }
+
+    pub fn unchanged(&self) -> usize {
+        self.results
+            .iter()
+            .filter(|r| r.status == PackageUpdateStatus::Unchanged)
+            .count()
     }
 
     pub fn had_failures(&self) -> bool {
         self.failed() > 0
-    }
-
-    fn count(&self, pred: impl Fn(&UpdateOutcome) -> bool) -> usize {
-        self.outcomes.values().filter(|o| pred(o)).count()
+            || self
+                .outcomes
+                .values()
+                .any(|o| matches!(o, UpdateOutcome::Failed(_)))
     }
 }
 
@@ -279,13 +298,117 @@ pub async fn update(
     let _ = live_res;
     let _ = emitter.freeze("Update results");
 
-    for (kind, outcome) in &outcomes {
-        if let UpdateOutcome::Failed(detail) = outcome {
-            let _ = emitter.failure_notice(kind.label(), detail);
+    let projects = workspace::discover_projects(&root);
+    let results = build_update_results(&root, snapshots, selected, &outcomes, projects).await;
+
+    UpdateReport { outcomes, results }
+}
+
+fn row_match_key(row: &DependencyRow) -> String {
+    row.registry_name.clone().unwrap_or_else(|| {
+        row.dependency
+            .split_whitespace()
+            .next()
+            .unwrap_or(&row.dependency)
+            .to_string()
+    })
+}
+
+fn find_post_row<'a>(
+    pre: &DependencyRow,
+    post_rows: &'a [DependencyRow],
+) -> Option<&'a DependencyRow> {
+    let key = row_match_key(pre);
+    post_rows.iter().find(|r| row_match_key(r) == key)
+}
+
+fn package_status(
+    pre: &DependencyRow,
+    post: Option<&DependencyRow>,
+    outcome: &UpdateOutcome,
+) -> (PackageUpdateStatus, Option<String>) {
+    match outcome {
+        UpdateOutcome::Failed(_) => (PackageUpdateStatus::Failed, None),
+        UpdateOutcome::Blocked => (PackageUpdateStatus::Blocked, None),
+        UpdateOutcome::Done => {
+            if let Some(post_row) = post {
+                if post_row.current != pre.current {
+                    return (PackageUpdateStatus::Updated, Some(post_row.current.clone()));
+                }
+                if pre.blocked_reason.is_some() || post_row.blocked_reason.is_some() {
+                    return (PackageUpdateStatus::Blocked, None);
+                }
+            }
+            if pre.blocked_reason.is_some() {
+                (PackageUpdateStatus::Blocked, None)
+            } else {
+                (PackageUpdateStatus::Unchanged, None)
+            }
+        }
+    }
+}
+
+async fn build_update_results(
+    root: &Path,
+    snapshots: &[ToolchainSnapshot],
+    selected: &[ToolchainKind],
+    outcomes: &HashMap<ToolchainKind, UpdateOutcome>,
+    projects: Vec<Project>,
+) -> Vec<PackageUpdateResult> {
+    let mut results = Vec::new();
+
+    for &kind in selected {
+        let Some(snapshot) = snapshots.iter().find(|s| s.kind == kind) else {
+            continue;
+        };
+        let outcome = outcomes.get(&kind).cloned().unwrap_or(UpdateOutcome::Done);
+        let pre_rows: Vec<&DependencyRow> = snapshot
+            .rows
+            .iter()
+            .filter(|r| r.newest.is_some() || r.blocked_reason.is_some())
+            .collect();
+
+        if pre_rows.is_empty() {
+            continue;
+        }
+
+        let post_outcome = adapter_for(kind).probe(root).await;
+        let mut post_rows = post_outcome.rows;
+        if !post_rows.is_empty() {
+            post_rows = enrich_blocking(kind, post_rows, projects.clone()).await;
+        }
+
+        for pre in pre_rows {
+            let post = find_post_row(pre, &post_rows);
+            let (status, new_version) = package_status(pre, post, &outcome);
+            results.push(PackageUpdateResult {
+                toolchain: kind,
+                workspaces: pre.workspaces.clone(),
+                dependency: pre.dependency.clone(),
+                registry_name: pre.registry_name.clone(),
+                previous: pre.current.clone(),
+                new_version,
+                status,
+            });
         }
     }
 
-    UpdateReport { outcomes }
+    results.sort_by(|a, b| {
+        ToolchainKind::ORDER
+            .iter()
+            .position(|k| *k == a.toolchain)
+            .unwrap_or(usize::MAX)
+            .cmp(
+                &ToolchainKind::ORDER
+                    .iter()
+                    .position(|k| *k == b.toolchain)
+                    .unwrap_or(usize::MAX),
+            )
+            .then_with(|| a.workspaces.join(",").cmp(&b.workspaces.join(",")))
+            .then_with(|| a.dependency.cmp(&b.dependency))
+    });
+
+    results
 }
 
 #[cfg(test)]
@@ -312,6 +435,39 @@ mod tests {
     }
 
     #[test]
+    fn update_report_counting_from_results() {
+        let mut outcomes = HashMap::new();
+        outcomes.insert(ToolchainKind::Bun, UpdateOutcome::Blocked);
+
+        let report = UpdateReport {
+            outcomes,
+            results: vec![
+                PackageUpdateResult {
+                    toolchain: ToolchainKind::Bun,
+                    workspaces: vec!["app".into()],
+                    dependency: "vite".into(),
+                    registry_name: None,
+                    previous: "7.3.4".into(),
+                    new_version: None,
+                    status: PackageUpdateStatus::Blocked,
+                },
+                PackageUpdateResult {
+                    toolchain: ToolchainKind::Go,
+                    workspaces: vec!["web".into()],
+                    dependency: "gohugoio/hugo".into(),
+                    registry_name: Some("github.com/gohugoio/hugo".into()),
+                    previous: "v0.145.0".into(),
+                    new_version: Some("v0.146.0".into()),
+                    status: PackageUpdateStatus::Updated,
+                },
+            ],
+        };
+        assert_eq!(report.updated(), 1);
+        assert_eq!(report.blocked(), 1);
+        assert_eq!(report.failed(), 0);
+    }
+
+    #[test]
     fn update_report_counting() {
         let mut outcomes = HashMap::new();
         outcomes.insert(ToolchainKind::Proto, UpdateOutcome::Done);
@@ -319,10 +475,13 @@ mod tests {
         outcomes.insert(ToolchainKind::Bun, UpdateOutcome::Blocked);
         outcomes.insert(ToolchainKind::Uv, UpdateOutcome::Failed("err".into()));
 
-        let report = UpdateReport { outcomes };
-        assert_eq!(report.updated(), 2);
-        assert_eq!(report.blocked(), 1);
-        assert_eq!(report.failed(), 1);
+        let report = UpdateReport {
+            outcomes,
+            results: Vec::new(),
+        };
+        assert_eq!(report.updated(), 0);
+        assert_eq!(report.blocked(), 0);
+        assert_eq!(report.failed(), 0);
         assert!(report.had_failures());
     }
 
@@ -330,9 +489,12 @@ mod tests {
     fn update_report_no_failures() {
         let mut outcomes = HashMap::new();
         outcomes.insert(ToolchainKind::Proto, UpdateOutcome::Done);
-        let report = UpdateReport { outcomes };
+        let report = UpdateReport {
+            outcomes,
+            results: Vec::new(),
+        };
         assert!(!report.had_failures());
-        assert_eq!(report.updated(), 1);
+        assert_eq!(report.updated(), 0);
         assert_eq!(report.blocked(), 0);
         assert_eq!(report.failed(), 0);
     }
@@ -341,6 +503,7 @@ mod tests {
     fn update_report_outcome_default_is_done() {
         let report = UpdateReport {
             outcomes: HashMap::new(),
+            results: Vec::new(),
         };
         assert!(matches!(
             report.outcome(ToolchainKind::Go),

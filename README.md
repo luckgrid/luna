@@ -220,14 +220,16 @@ moon run ui:typecheck
 
 Repo-wide **outdated checks** and **upgrades** go through the **`luna` CLI** so every toolchain stays in sync.
 
-The `luna` CLI (`packages/cli`, built with Rust + Starbase) probes every toolchain — **proto**, **Rust / Cargo** (`cargo outdated`), **Bun**, **Python / uv** (lockfile dry-run), and **Go** per `go.mod` — **in parallel** behind a Luna-owned status panel, then prints **one grouped table** with toolchain divider rows (in the order proto → rust → bun → uv → go; up-to-date toolchains are omitted). Hugo-style modules (`tool` in `go.mod`, local code only under `workspace/`) use `go list -m -u` on tool lines; other modules use the full module graph.
+The `luna` CLI (`packages/cli`, built with Rust + Starbase) probes every toolchain — **proto**, **Rust / Cargo** (`cargo outdated`), **Bun**, **Python / uv** (lockfile dry-run), and **Go** per `go.mod` — **in parallel** behind a Luna-owned status panel, then prints **one flat table** (proto → rust → bun → uv → go; up-to-date toolchains are omitted from the table). For Go, Luna checks only **tool directives** (e.g. Hugo) and **direct `require` lines** — not the full transitive module graph — so Hugo sites stay fast and the table stays focused.
 
-`luna outdated` exits **0** (findings are informational) and always overwrites a snapshot at `.luna/snapshots/outdated.snapshot.json`. `luna update` is **snapshot-first**: it reuses that snapshot when it is `< 8h` old and still valid (matching repo root, policy flags, schema, and manifest fingerprints), otherwise it runs the same probe phase as a preflight. It then updates **only the toolchains marked outdated** (others show as skipped), and re-runs workspace bootstrap (`pixi install`, `bun install`, `uv sync` / `api:build`, `go work sync`, `web:setup`). After `luna update`, review diffs and run `luna check` before committing.
+`luna outdated` exits **0** (findings are informational), renders a **Release Age** footer, and always overwrites a snapshot at `.luna/snapshots/outdated.snapshot.json`. `luna update` is **snapshot-first**: it reuses that snapshot when it is `< 8h` old and still valid (matching repo root, policy flags, schema, and manifest fingerprints), otherwise it runs the same probe phase as a preflight. It updates **only the toolchains marked outdated**, renders a **per-package result table** (Previous → New + status), then re-runs workspace bootstrap (`pixi install`, `bun install`, `uv sync` / `api:build`, `go work sync`, `web:setup`). After `luna update`, review diffs and run `luna check` before committing.
 
 ```sh
-luna outdated      # parallel probes → grouped table → snapshot (exits 0)
-luna update        # reuse/preflight snapshot, update only outdated toolchains, then bootstrap
+luna outdated      # parallel probes → flat table + release-age notes → snapshot (exits 0)
+luna update        # reuse/preflight snapshot → update outdated toolchains → result table → bootstrap
 luna update --major  # also apply major-version bumps where supported
+luna outdated --json # schema-versioned snapshot for automation
+luna update --json   # per-package results + counts
 ```
 
 ### Supply-chain security (cooldown + firewall)
@@ -247,7 +249,6 @@ luna update --major  # also apply major-version bumps where supported
 | ---------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `LUNA_FIREWALL`        | unset   | When non-empty, wrap **uv** and **cargo** installs/updates with [Socket Firewall](https://docs.socket.dev/docs/socket-firewall-free) (`sfw`). Same as `--firewall`. Install `sfw` globally first (`npm i -g sfw`). Bun and Go are not wrapped. |
 | `LUNA_MIN_RELEASE_AGE` | `14`    | Minimum package age in **days** before `luna install` / `luna update` apply cooldowns (Bun `--minimum-release-age`, uv `--exclude-newer`, plus [`bunfig.toml`](bunfig.toml) / [`.npmrc`](.npmrc)).                                             |
-| `LUNA_FULL_GRAPH`      | unset   | When non-empty, Go **outdated** / **update** use `go list -m -u all` and `go get -u all` instead of the faster tool-only or direct-deps path. Slower; use when you need the full workspace module graph.                                       |
 
 **Socket Firewall (`sfw`)** — opt-in real-time blocking of confirmed malware during package fetches ([docs](https://docs.socket.dev/docs/socket-firewall-free)):
 
@@ -266,14 +267,16 @@ luna update
 
 When `--firewall` / `LUNA_FIREWALL` is set, `luna` wraps **uv** and **cargo** commands with `sfw` (supported by Socket Firewall Free). **Bun** and **Go** are not sfw-wrapped (Bun uses native cooldown + `--ignore-scripts`; Go has no release-age gate). CI runs [`socketdev/action@v1`](https://github.com/socketdev/action) with `mode: firewall` before `moon ci`.
 
-`luna outdated` and `luna update` render a grouped table whose **Release Age** column shows how many days ago the Newest/Latest versions were published (looked up from the npm and PyPI registries). **Newest** is shown green when it is at least `LUNA_MIN_RELEASE_AGE` days old (installable under the cooldown) and red when younger; **Latest** is yellow when it is exactly one major version ahead of Current. A footer explains the policy and one-off bypass tips. Packages held back by the cooldown are noted as blocked in the update results.
+`luna outdated` renders a flat table whose **Release Age** column shows how many days ago the Newest/Latest versions were published (npm, PyPI, and Go module proxy). **Newest** is green when it is at least `LUNA_MIN_RELEASE_AGE` days old and red when younger; **Latest** is yellow when exactly one major version ahead of Current. A footer explains the policy and one-off bypass tips.
+
+`luna update` renders a separate **result table** (Previous → New + per-package status) and a one-line summary — it does not repeat the outdated table or release-age section. Packages held back by the cooldown show as **blocked** in the result table.
 
 **pnpm** (not used in this repo): if you add pnpm, set `minimumReleaseAge: 20160` (minutes) in `pnpm-workspace.yaml` — see [npm security best practices](https://github.com/lirantal/npm-security-best-practices).
 
 **Per stack (manual add / remove)** — use these when you are changing one project, not refreshing everything:
 
 - **Toolchain (proto)** — edit [`.prototools`](.prototools), then `luna install` or `proto install` individually. Removing a tool line drops it from proto’s install set for this repo.
-- **Hugo (`apps/web`)** — `luna update` bumps the `tool` line with `go get -u=patch` (or `go get -tool …@latest` with `luna update --major`). To pin a specific release manually: `cd apps/web` then `go get -tool github.com/gohugoio/hugo@vX.Y.Z` (updates [`apps/web/go.mod`](apps/web/go.mod) / `go.sum`). Set `LUNA_FULL_GRAPH=1` to restore slow full-graph `go get -u all` on tool-only modules.
+- **Hugo (`apps/web`)** — `luna update` bumps the `tool` line (e.g. `github.com/gohugoio/hugo`) via `go get -tool …@latest` and any direct `require` lines via targeted `go get -u`. Luna does **not** walk Hugo’s transitive dependency graph. To pin manually: `cd apps/web` then `go get -tool github.com/gohugoio/hugo@vX.Y.Z` (updates [`apps/web/go.mod`](apps/web/go.mod) / `go.sum`).
 - **Bun / workspaces** — from the repo root, add to a workspace with `bun add <pkg> --cwd apps/app` (or `--cwd packages/ui`, etc.); use `bun add -d <pkg> --cwd <path>` for devDependencies. Remove with `bun remove <pkg> --cwd <path>`. Root-only deps: `bun add <pkg>` at the root.
 - **Python (uv workspace)** — from the repo root: `uv add <package> --package api` / `uv remove <package> --package api` (updates member `pyproject.toml` and root `uv.lock`); sync with `uv sync` or `luna install`. Add a new member in root [`pyproject.toml`](pyproject.toml) `[tool.uv.workspace]` and use `[tool.uv.sources] name = { workspace = true }` for inter-member deps.
 

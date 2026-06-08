@@ -1,4 +1,6 @@
-use crate::systems::model::{DependencyRow, ToolchainKind, ToolchainSnapshot};
+use crate::systems::model::{
+    DependencyRow, PackageUpdateResult, PackageUpdateStatus, ToolchainKind, ToolchainSnapshot,
+};
 use crate::systems::security;
 use crate::ui::{map_console, LunaConsole};
 use iocraft::prelude::*;
@@ -9,7 +11,7 @@ use starbase_console::ui::{
 };
 
 /// Max visible width of the Dependency column before trimming with `…`.
-const DEP_BUDGET: usize = 24;
+const DEP_BUDGET: usize = 28;
 
 fn section_header_line(title: &str) -> String {
     format!("--- {} ---", title.to_uppercase())
@@ -22,25 +24,20 @@ fn section_header_element(title: &str) -> AnyElement<'static> {
     .into_any()
 }
 
-fn summary_count_style(count: usize, highlight: Style) -> Style {
-    if count > 0 {
-        highlight
-    } else {
-        Style::Muted
-    }
-}
-
-fn summary_count_element(label: &str, count: usize, style: Style) -> AnyElement<'static> {
-    element! {
-        StyledText(content: format!("{label} {count}"), style)
-    }
-    .into_any()
-}
-
 /// Trim a dependency name to the column budget with a trailing ellipsis.
 pub fn trim_dependency(name: &str) -> String {
     if name.chars().count() <= DEP_BUDGET {
         return name.to_string();
+    }
+    if name.contains('/') {
+        let segments: Vec<&str> = name.split('/').collect();
+        for take in (1..=segments.len()).rev() {
+            let start = segments.len().saturating_sub(take);
+            let candidate = segments[start..].join("/");
+            if candidate.chars().count() <= DEP_BUDGET {
+                return candidate;
+            }
+        }
     }
     let keep: String = name.chars().take(DEP_BUDGET.saturating_sub(1)).collect();
     format!("{keep}…")
@@ -92,17 +89,6 @@ fn table_headers() -> Vec<TableHeader> {
         TableHeader::new("Dependency", Size::Length(14)),
         TableHeader::new("Current", Size::Length(10)),
         TableHeader::new("Newest", Size::Length(10)),
-        TableHeader::new("Latest", Size::Length(10)),
-        TableHeader::new("Release Age", Size::Auto),
-    ]
-}
-
-fn update_table_headers() -> Vec<TableHeader> {
-    vec![
-        TableHeader::new("Workspace", Size::Length(12)),
-        TableHeader::new("Dependency", Size::Length(14)),
-        TableHeader::new("Previous", Size::Length(10)),
-        TableHeader::new("New", Size::Length(10)),
         TableHeader::new("Latest", Size::Length(10)),
         TableHeader::new("Release Age", Size::Auto),
     ]
@@ -180,81 +166,6 @@ fn outdated_row_element(
     .into_any()
 }
 
-pub fn render_update_table(
-    console: &LunaConsole,
-    groups: &[(ToolchainKind, Vec<DependencyRow>)],
-) -> Result<()> {
-    if groups.is_empty() {
-        return Ok(());
-    }
-
-    console
-        .render(element! {
-            View(margin_top: 1) {
-                Container {
-                    #(groups.iter().enumerate().map(|(idx, (kind, rows))| {
-                        update_group_element(idx, kind.label(), rows)
-                    }))
-                }
-            }
-        })
-        .map_err(map_console)
-}
-
-fn update_group_element(idx: usize, label: &str, rows: &[DependencyRow]) -> AnyElement<'static> {
-    let headers = update_table_headers();
-    let mut sorted: Vec<&DependencyRow> = rows.iter().collect();
-    sorted.sort_by(|a, b| {
-        (a.workspaces.join(","), &a.dependency).cmp(&(b.workspaces.join(","), &b.dependency))
-    });
-
-    element! {
-        View(flex_direction: FlexDirection::Column) {
-            #(section_header_element(label))
-            Table(headers: headers) {
-                #(sorted.iter().enumerate().map(|(row_idx, row)| {
-                    update_row_element(idx * 100 + row_idx, row)
-                }))
-            }
-        }
-    }
-    .into_any()
-}
-
-fn update_row_element(row_idx: usize, row: &DependencyRow) -> AnyElement<'static> {
-    let blocked = row.blocked_reason.is_some();
-    let new_text = row
-        .new_version
-        .clone()
-        .or_else(|| row.newest.clone())
-        .unwrap_or_else(|| "—".to_string());
-    let new_style = if blocked {
-        Style::Failure
-    } else {
-        newest_style(row.newest_release_age_days)
-    };
-    let mut age = release_age_cell(row, "new");
-    if let Some(reason) = &row.blocked_reason {
-        age = format!("{age} · blocked: {reason}");
-    }
-    let previous = row.previous.clone().unwrap_or_else(|| row.current.clone());
-    let latest = row.latest.clone().unwrap_or_else(|| "—".to_string());
-
-    element! {
-        TableRow(row: row_idx as i32) {
-            TableCol(col: 0) { Text(content: workspaces_text(row)) }
-            TableCol(col: 1) { Text(content: trim_dependency(&row.dependency)) }
-            TableCol(col: 2) { StyledText(content: previous, style: Style::Muted) }
-            TableCol(col: 3) { StyledText(content: new_text, style: new_style) }
-            TableCol(col: 4) {
-                StyledText(content: latest, style: latest_style(row.latest_one_major_ahead))
-            }
-            TableCol(col: 5) { StyledText(content: age, style: Style::Muted) }
-        }
-    }
-    .into_any()
-}
-
 pub fn render_release_age_section(console: &LunaConsole) -> Result<()> {
     let days = security::min_release_age_days();
     console
@@ -322,73 +233,130 @@ pub fn render_release_age_section(console: &LunaConsole) -> Result<()> {
         .map_err(map_console)
 }
 
-pub struct UpdateSummary {
-    pub updated: usize,
-    pub blocked: usize,
-    pub failed: usize,
-    pub skipped: usize,
-    pub setup_ok: bool,
-    pub show_major_tip: bool,
+fn update_result_table_headers() -> Vec<TableHeader> {
+    vec![
+        TableHeader::new("Toolchain", Size::Length(10)),
+        TableHeader::new("Workspace", Size::Length(12)),
+        TableHeader::new("Dependency", Size::Length(14)),
+        TableHeader::new("Previous", Size::Length(10)),
+        TableHeader::new("New", Size::Length(10)),
+        TableHeader::new("Status", Size::Auto),
+    ]
 }
 
-pub fn render_update_summary(console: &LunaConsole, summary: &UpdateSummary) -> Result<()> {
+fn update_status_label(status: PackageUpdateStatus) -> (&'static str, Style) {
+    match status {
+        PackageUpdateStatus::Updated => ("✓ updated", Style::Success),
+        PackageUpdateStatus::Blocked => ("⊘ blocked", Style::Caution),
+        PackageUpdateStatus::Failed => ("✗ failed", Style::Failure),
+        PackageUpdateStatus::Unchanged => ("— unchanged", Style::Muted),
+        PackageUpdateStatus::Skipped => ("— skipped", Style::Muted),
+    }
+}
+
+pub fn render_update_result_table(
+    console: &LunaConsole,
+    results: &[PackageUpdateResult],
+) -> Result<()> {
+    if results.is_empty() {
+        return Ok(());
+    }
+
+    let headers = update_result_table_headers();
     console
         .render(element! {
             View(margin_top: 1) {
-                View(flex_direction: FlexDirection::Column) {
-                    #(section_header_element("Update summary"))
-                    View(padding_left: 2, padding_top: 1) {
-                        Stack(gap: 0) {
-                            Stack(gap: 0) {
-                                #(summary_count_element(
-                                    "Updated",
-                                    summary.updated,
-                                    summary_count_style(summary.updated, Style::Success),
-                                ))
-                                #(summary_count_element(
-                                    "Blocked",
-                                    summary.blocked,
-                                    summary_count_style(summary.blocked, Style::Caution),
-                                ))
-                                #(summary_count_element(
-                                    "Failed",
-                                    summary.failed,
-                                    summary_count_style(summary.failed, Style::Failure),
-                                ))
-                                #(summary_count_element("Skipped", summary.skipped, Style::Muted))
-                            }
-                            View(margin_top: 1) {}
-                            StyledText(
-                                content: "Review changes before committing.",
-                                style: Style::Muted,
-                            )
-                            #(if !summary.setup_ok {
-                                Some(element! {
-                                    StyledText(
-                                        content: "Workspace re-sync encountered errors — see messages above.",
-                                        style: Style::Failure,
-                                    )
-                                }.into_any())
-                            } else {
-                                None
-                            })
-                            #(if summary.show_major_tip {
-                                Some(element! {
-                                    StyledText(
-                                        content: "Tip: re-run with `luna update --major` to also apply major-version bumps.",
-                                        style: Style::Muted,
-                                    )
-                                }.into_any())
-                            } else {
-                                None
-                            })
-                            View(margin_bottom: 1) {}
-                        }
+                Container {
+                    Table(headers: headers) {
+                        #(results.iter().enumerate().map(|(row_idx, row)| {
+                            update_result_row_element(row_idx, row)
+                        }))
                     }
                 }
             }
         })
         .map_err(map_console)
+}
+
+fn update_result_row_element(row_idx: usize, row: &PackageUpdateResult) -> AnyElement<'static> {
+    let (status_label, status_style) = update_status_label(row.status);
+    let new_text = row.new_version.clone().unwrap_or_else(|| "—".to_string());
+    let new_style = match row.status {
+        PackageUpdateStatus::Updated => Style::Success,
+        PackageUpdateStatus::Blocked => Style::Caution,
+        PackageUpdateStatus::Failed => Style::Failure,
+        _ => Style::Muted,
+    };
+
+    element! {
+        TableRow(row: row_idx as i32) {
+            TableCol(col: 0) { Text(content: row.toolchain.label().to_string()) }
+            TableCol(col: 1) { Text(content: workspaces_from_result(row)) }
+            TableCol(col: 2) { Text(content: trim_dependency(&row.dependency)) }
+            TableCol(col: 3) { StyledText(content: row.previous.clone(), style: Style::Muted) }
+            TableCol(col: 4) { StyledText(content: new_text, style: new_style) }
+            TableCol(col: 5) { StyledText(content: status_label.to_string(), style: status_style) }
+        }
+    }
+    .into_any()
+}
+
+fn workspaces_from_result(row: &PackageUpdateResult) -> String {
+    if row.workspaces.is_empty() {
+        "—".to_string()
+    } else {
+        row.workspaces.join(", ")
+    }
+}
+
+pub fn render_update_result_footer(console: &LunaConsole, summary: &UpdateSummary) -> Result<()> {
+    let line = format!(
+        "Updated {} · Blocked {} · Failed {} · Unchanged {} · Skipped {}",
+        summary.updated, summary.blocked, summary.failed, summary.unchanged, summary.skipped
+    );
+    console
+        .render(element! {
+            View(margin_top: 1, margin_bottom: 1) {
+                View(flex_direction: FlexDirection::Column) {
+                    StyledText(content: line, style: Style::Muted)
+                    #(if !summary.setup_ok {
+                        Some(element! {
+                            StyledText(
+                                content: "Workspace re-sync encountered errors — see messages above.".to_string(),
+                                style: Style::Failure,
+                            )
+                        }.into_any())
+                    } else {
+                        None
+                    })
+                    StyledText(
+                        content: "Review changes before committing.".to_string(),
+                        style: Style::Muted,
+                    )
+                    #(if summary.show_major_tip {
+                        Some(element! {
+                            StyledText(
+                                content: "Tip: re-run with `luna update --major` to also apply major-version bumps.".to_string(),
+                                style: Style::Muted,
+                            )
+                        }.into_any())
+                    } else {
+                        None
+                    })
+                }
+            }
+        })
+        .map_err(map_console)
+}
+
+pub struct UpdateSummary {
+    pub updated: usize,
+    pub blocked: usize,
+    pub failed: usize,
+    pub unchanged: usize,
+    pub skipped: usize,
+    pub setup_ok: bool,
+    pub show_major_tip: bool,
 }
 
 #[cfg(test)]
@@ -433,5 +401,24 @@ mod tests {
         row.newest_release_age_days = Some(21);
         row.latest_release_age_days = Some(8);
         assert_eq!(release_age_cell(&row, "newest"), "newest 21d · latest 8d");
+    }
+
+    #[test]
+    fn trim_dependency_prefers_slash_segments() {
+        let trimmed = trim_dependency("github.com/aws/aws-sdk-go-v2/service/s3");
+        assert!(trimmed.contains('/'));
+        assert!(trimmed.chars().count() <= DEP_BUDGET);
+    }
+
+    #[test]
+    fn update_status_labels() {
+        assert_eq!(
+            update_status_label(PackageUpdateStatus::Updated).0,
+            "✓ updated"
+        );
+        assert_eq!(
+            update_status_label(PackageUpdateStatus::Blocked).0,
+            "⊘ blocked"
+        );
     }
 }

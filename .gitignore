@@ -1,8 +1,5 @@
 # luna
-.luna/cache/
-.luna/runs/
-.luna/telemetry/
-.luna/plans/
+.luna/
 
 # pixi
 .pixi/
