@@ -1,5 +1,21 @@
 # `@luna/ds`
 
+> **Status: non-canonical bridge `luna-ds-e01-transition`.** `@luna/ds` is **not** the
+> canonical shared design-system authority. `luckgrid/design-system` is. This package
+> stays only so existing Luna apps keep building while they move to the public
+> Design System release.
+>
+> - **Canonical side:** [`luckgrid/design-system`](https://github.com/luckgrid/design-system),
+>   consumed as a pinned release archive.
+> - **Owner:** the Design System program, DS-E01 migration work.
+> - **Removal condition:** no Luna app imports `@luna/ds/tailwind.css` and every Luna app
+>   consumes a pinned Design System release; then delete `packages/ds`. The owner may
+>   instead retire the package earlier.
+> - **Hard stop:** 2026-12-31, unless an explicit owner decision extends it.
+> - **Rule:** no new shared design-system source lands here. New shared tokens, layouts,
+>   and primitives belong in `luckgrid/design-system`. Fixes needed to keep Luna apps
+>   building are allowed.
+
 Shared, CSS-first design-system styles for Luna apps.
 
 ## Stylesheet import
